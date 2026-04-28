@@ -1,27 +1,42 @@
 import { createMemoryRecord, type MemoryRecord, type MemoryScope, type MemoryStatus, type MemoryType } from "@lore/shared";
 
-export interface LoreMemoryExport {
-  format: "lore-memory-export";
-  version: "0.1";
-  exportedAt: string;
-  memories: MemoryRecord[];
+export interface LoreMemoryItem extends MemoryRecord {
+  supersedes: string[];
+  contradicts: string[];
 }
 
-export function createLoreExport(memories: MemoryRecord[], exportedAt = new Date()): LoreMemoryExport {
+export interface LoreMemoryExport {
+  format: "lore-memory-export";
+  // Version 0.2 adds per-item `supersedes` and `contradicts` fields.
+  // Version 0.1 exports that lack these fields are imported with empty arrays (backward compatible).
+  version: "0.2";
+  exportedAt: string;
+  memories: LoreMemoryItem[];
+}
+
+export function createLoreExport(memories: LoreMemoryItem[], exportedAt = new Date()): LoreMemoryExport {
   return {
     format: "lore-memory-export",
-    version: "0.1",
+    version: "0.2",
     exportedAt: exportedAt.toISOString(),
     memories
   };
 }
 
-export function exportLoreJson(memories: MemoryRecord[], exportedAt = new Date()): string {
+export function toLoreMemoryItem(record: MemoryRecord, opts: { supersedes?: string[]; contradicts?: string[] } = {}): LoreMemoryItem {
+  return {
+    ...record,
+    supersedes: opts.supersedes ?? [],
+    contradicts: opts.contradicts ?? []
+  };
+}
+
+export function exportLoreJson(memories: LoreMemoryItem[], exportedAt = new Date()): string {
   return JSON.stringify(createLoreExport(memories, exportedAt), null, 2);
 }
 
-export function importLoreJson(input: string): MemoryRecord[] {
-  const payload = JSON.parse(input) as Partial<LoreMemoryExport>;
+export function importLoreJson(input: string): LoreMemoryItem[] {
+  const payload = JSON.parse(input) as Partial<LoreMemoryExport & { version: string }>;
   if (payload.format !== "lore-memory-export" || !Array.isArray(payload.memories)) {
     throw new Error("invalid Lore memory export");
   }
@@ -43,7 +58,7 @@ export function importLoreJson(input: string): MemoryRecord[] {
       now: createdAt ? new Date(createdAt) : undefined
     });
 
-    const imported: MemoryRecord = {
+    const imported: LoreMemoryItem = {
       ...memory,
       organizationId: readString(record.organizationId),
       userId: readString(record.userId),
@@ -57,17 +72,23 @@ export function importLoreJson(input: string): MemoryRecord[] {
       lastUsedAt: readNullableString(record.lastUsedAt),
       useCount: readNumber(record.useCount) ?? 0,
       createdAt: readString(record.createdAt) ?? memory.createdAt,
-      updatedAt: readString(record.updatedAt) ?? memory.updatedAt
+      updatedAt: readString(record.updatedAt) ?? memory.updatedAt,
+      supersedes: Array.isArray((record as LoreMemoryItem).supersedes)
+        ? ((record as LoreMemoryItem).supersedes as string[]).filter((s): s is string => typeof s === "string")
+        : [],
+      contradicts: Array.isArray((record as LoreMemoryItem).contradicts)
+        ? ((record as LoreMemoryItem).contradicts as string[]).filter((s): s is string => typeof s === "string")
+        : []
     };
     return imported;
   });
 }
 
-export function exportLoreMarkdown(memories: MemoryRecord[], exportedAt = new Date()): string {
+export function exportLoreMarkdown(memories: LoreMemoryItem[], exportedAt = new Date()): string {
   const header = [
     "---",
     "format: lore-memory-export",
-    "version: 0.1",
+    "version: 0.2",
     `exported_at: ${exportedAt.toISOString()}`,
     "---",
     "",
@@ -88,6 +109,8 @@ export function exportLoreMarkdown(memories: MemoryRecord[], exportedAt = new Da
     `Source Provider: ${memory.sourceProvider ?? "manual"}`,
     `Source Original ID: ${memory.sourceOriginalId ?? ""}`,
     `Risk Tags: ${memory.riskTags.join(", ")}`,
+    `Supersedes: ${memory.supersedes.join(", ")}`,
+    `Contradicts: ${memory.contradicts.join(", ")}`,
     "",
     memory.content
   ]);
@@ -95,15 +118,20 @@ export function exportLoreMarkdown(memories: MemoryRecord[], exportedAt = new Da
   return [...header, ...body, ""].join("\n");
 }
 
-export function importSimpleMarkdown(input: string): MemoryRecord[] {
+export function importSimpleMarkdown(input: string): LoreMemoryItem[] {
   const sections = input.split(/\n## /).slice(1);
 
   return sections
-    .map((section): MemoryRecord | undefined => {
+    .map((section): LoreMemoryItem | undefined => {
       const [rawId, ...lines] = section.split("\n");
       const fields = parseMarkdownFields(lines);
       const content = lines
-        .filter((line) => !/^(Type|Scope|Status|Confidence|Valid From|Valid Until|Superseded By|Source Provider|Source Original ID|Risk Tags):/.test(line))
+        .filter(
+          (line) =>
+            !/^(Type|Scope|Status|Confidence|Valid From|Valid Until|Superseded By|Source Provider|Source Original ID|Risk Tags|Supersedes|Contradicts):/.test(
+              line
+            )
+        )
         .join("\n")
         .trim();
 
@@ -117,21 +145,23 @@ export function importSimpleMarkdown(input: string): MemoryRecord[] {
         memoryType: normalizeMemoryType(fields.get("type")),
         scope: normalizeScope(fields.get("scope")),
         confidence: readNumber(Number(fields.get("confidence"))) ?? undefined,
-      riskTags: parseCsv(fields.get("risk tags")),
-      sourceProvider: fields.get("source provider") || "markdown_import",
-      sourceOriginalId: fields.get("source original id") || undefined,
-      sourceRefs: [{ type: "import", id: rawId.trim() }]
-    });
+        riskTags: parseCsv(fields.get("risk tags")),
+        sourceProvider: fields.get("source provider") || "markdown_import",
+        sourceOriginalId: fields.get("source original id") || undefined,
+        sourceRefs: [{ type: "import", id: rawId.trim() }]
+      });
 
       return {
         ...memory,
         status: normalizeStatus(fields.get("status"), memory.status),
         validFrom: fields.get("valid from") || memory.validFrom,
         validUntil: fields.get("valid until") || null,
-        supersededBy: fields.get("superseded by") || null
+        supersededBy: fields.get("superseded by") || null,
+        supersedes: parseCsv(fields.get("supersedes")),
+        contradicts: parseCsv(fields.get("contradicts"))
       };
     })
-    .filter((record): record is MemoryRecord => Boolean(record));
+    .filter((record): record is LoreMemoryItem => Boolean(record));
 }
 
 function parseMarkdownFields(lines: string[]): Map<string, string> {
