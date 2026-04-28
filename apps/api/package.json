@@ -1,0 +1,23 @@
+{
+  "name": "@lore/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lore/agentmemory-adapter": "workspace:*",
+    "@lore/eval": "workspace:*",
+    "@lore/governance": "workspace:*",
+    "@lore/mif": "workspace:*",
+    "@lore/search": "workspace:*",
+    "@lore/shared": "workspace:*",
+    "@lore/web": "workspace:*",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0"
+  }
+}

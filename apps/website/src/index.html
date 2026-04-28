@@ -1,0 +1,1389 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Lore Context is the control plane for AI-agent memory, eval, and governance."
+    />
+    <title>Lore Context - AI-agent memory control plane</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f8f7f2;
+        --paper-strong: #fffdf8;
+        --ink: #0f1115;
+        --muted: #626a73;
+        --faint: #8c949d;
+        --line: rgba(25, 30, 35, 0.12);
+        --line-strong: rgba(25, 30, 35, 0.22);
+        --cyan: #08b9c8;
+        --cyan-soft: rgba(8, 185, 200, 0.16);
+        --green: #0b8f61;
+        --green-soft: rgba(11, 143, 97, 0.14);
+        --amber: #ca7a15;
+        --amber-soft: rgba(202, 122, 21, 0.16);
+        --red: #c94949;
+        --red-soft: rgba(201, 73, 73, 0.13);
+        --graphite: #101318;
+        --panel: rgba(255, 253, 248, 0.88);
+        --shadow: 0 28px 80px rgba(21, 25, 30, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button,
+      a.button {
+        appearance: none;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background: var(--paper-strong);
+        color: var(--ink);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 14px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      button:hover,
+      a.button:hover {
+        border-color: rgba(8, 185, 200, 0.56);
+        box-shadow: 0 10px 26px rgba(8, 185, 200, 0.14);
+        transform: translateY(-1px);
+      }
+
+      .button.primary {
+        background: var(--graphite);
+        border-color: var(--graphite);
+        color: #fff;
+      }
+
+      .button.primary:hover {
+        background: #171d23;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid var(--line);
+        background: rgba(248, 247, 242, 0.88);
+        backdrop-filter: blur(18px);
+      }
+
+      .nav {
+        width: min(1180px, calc(100% - 40px));
+        min-height: 64px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      .mark {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        background:
+          linear-gradient(135deg, var(--graphite) 0 42%, transparent 42%),
+          linear-gradient(135deg, var(--cyan) 0 58%, var(--green) 58%);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+      }
+
+      .version {
+        color: var(--faint);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .nav-links,
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-links a {
+        color: #3f4750;
+        font-size: 13px;
+        font-weight: 650;
+        padding: 8px;
+      }
+
+      .nav-links a:hover {
+        color: var(--ink);
+      }
+
+      main {
+        overflow: hidden;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 720px;
+        border-bottom: 1px solid var(--line);
+        background:
+          linear-gradient(rgba(37, 47, 56, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(37, 47, 56, 0.055) 1px, transparent 1px),
+          radial-gradient(circle at 64% 34%, rgba(8, 185, 200, 0.08), transparent 36%),
+          var(--paper);
+        background-size: 34px 34px, 34px 34px, auto, auto;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(248, 247, 242, 0.9) 0 28%, rgba(248, 247, 242, 0.5) 49%, transparent 82%),
+          linear-gradient(180deg, rgba(248, 247, 242, 0.38), rgba(248, 247, 242, 0.92) 89%);
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 2;
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 76px 0 54px;
+      }
+
+      .chip-row,
+      .proof-row,
+      .metric-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgba(255, 253, 248, 0.78);
+        color: #3b434c;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 26px;
+        padding: 0 8px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0;
+        transition:
+          border-color 180ms ease,
+          background 180ms ease,
+          transform 180ms ease;
+      }
+
+      .chip::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      .chip:hover {
+        border-color: rgba(8, 185, 200, 0.52);
+        background: var(--paper-strong);
+        transform: translateY(-1px);
+      }
+
+      .hero-copy {
+        max-width: 540px;
+        padding-top: 46px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 72px;
+        line-height: 0.94;
+        font-weight: 780;
+        letter-spacing: 0;
+      }
+
+      .hero h1 span {
+        display: block;
+      }
+
+      .statement {
+        max-width: 470px;
+        margin: 20px 0 0;
+        color: #1d242b;
+        font-size: 25px;
+        line-height: 1.13;
+        font-weight: 680;
+        letter-spacing: 0;
+      }
+
+      .support {
+        max-width: 490px;
+        margin: 18px 0 0;
+        color: #48515b;
+        font-size: 15px;
+        line-height: 1.55;
+        letter-spacing: 0;
+      }
+
+      .hero-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+      }
+
+      .command {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgba(255, 253, 248, 0.84);
+        color: #535d67;
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 7px;
+        height: 16px;
+        margin-left: 6px;
+        background: var(--cyan);
+        animation: cursorBlink 1.1s steps(2, end) infinite;
+      }
+
+      .metric-row {
+        margin-top: 18px;
+        max-width: 520px;
+      }
+
+      .metric {
+        min-width: 120px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgba(255, 253, 248, 0.78);
+        padding: 10px;
+      }
+
+      .metric-label {
+        color: var(--faint);
+        display: block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        display: block;
+        margin-top: 5px;
+        color: var(--ink);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .metric-value.ok {
+        color: var(--green);
+      }
+
+      .metric-value.warn {
+        color: var(--amber);
+      }
+
+      .metric-value.info {
+        color: #087c93;
+      }
+
+      .product-surface {
+        position: absolute;
+        z-index: 1;
+        top: 86px;
+        right: max(40px, calc((100vw - 1180px) / 2));
+        width: 520px;
+        border: 1px solid rgba(25, 30, 35, 0.14);
+        border-radius: 8px;
+        background: rgba(255, 253, 248, 0.84);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+        overflow: hidden;
+      }
+
+      .surface-head,
+      .surface-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border-bottom: 1px solid var(--line);
+        min-height: 36px;
+        padding: 0 12px;
+        color: var(--faint);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .surface-foot {
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+      }
+
+      .ledger {
+        padding: 8px 12px 0;
+      }
+
+      .ledger-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.7fr 0.5fr 0.9fr 0.7fr 0.8fr;
+        gap: 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 10px;
+      }
+
+      .ledger-head,
+      .ledger-row {
+        display: contents;
+      }
+
+      .ledger-head span {
+        color: #9aa2aa;
+        padding: 6px 5px;
+        border-bottom: 1px solid var(--line);
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .ledger-row span {
+        position: relative;
+        border-bottom: 1px solid rgba(25, 30, 35, 0.08);
+        color: #59636e;
+        padding: 7px 5px;
+        white-space: nowrap;
+      }
+
+      .ledger-row.active span {
+        background: rgba(11, 143, 97, 0.07);
+      }
+
+      .ledger-row.active span:first-child::after {
+        content: "";
+        position: absolute;
+        inset: 0 -520px 0 0;
+        background: linear-gradient(90deg, transparent, rgba(8, 185, 200, 0.12), transparent);
+        animation: ledgerScan 3.8s ease-in-out infinite;
+      }
+
+      .status {
+        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        padding: 2px 4px;
+        font-size: 9px;
+        font-weight: 800;
+      }
+
+      .status.approved {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .status.flagged,
+      .status.review {
+        background: var(--amber-soft);
+        color: var(--amber);
+      }
+
+      .status.redact {
+        background: var(--red-soft);
+        color: var(--red);
+      }
+
+      .bar {
+        display: inline-block;
+        width: 56px;
+        height: 5px;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .bar i {
+        display: block;
+        height: 100%;
+        border-radius: 5px;
+        transform-origin: left;
+        animation: barReveal 2.8s ease-out both;
+      }
+
+      .bar.ok i {
+        background: var(--green);
+      }
+
+      .bar.warn i {
+        background: var(--amber);
+      }
+
+      .bar.risk i {
+        background: var(--red);
+      }
+
+      .composer {
+        position: relative;
+        min-height: 164px;
+        margin: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.54);
+        overflow: hidden;
+      }
+
+      .composer svg {
+        width: 100%;
+        height: 164px;
+        display: block;
+      }
+
+      .node {
+        animation: nodePulse 3.2s ease-in-out infinite;
+        transform-origin: center;
+      }
+
+      .gov-gate {
+        position: absolute;
+        left: 142px;
+        top: 58px;
+        border: 1px solid rgba(202, 122, 21, 0.32);
+        border-radius: 6px;
+        background: rgba(255, 253, 248, 0.86);
+        color: var(--amber);
+        padding: 4px 8px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .composer-card {
+        position: absolute;
+        left: 12px;
+        top: 38px;
+        width: 110px;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background: rgba(255, 253, 248, 0.92);
+        padding: 10px;
+        color: #46515c;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 10px;
+        line-height: 1.55;
+      }
+
+      .composer-card strong {
+        color: var(--ink);
+      }
+
+      .eval-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .eval-cell {
+        min-height: 72px;
+        padding: 10px 12px;
+        border-right: 1px solid var(--line);
+      }
+
+      .eval-cell:last-child {
+        border-right: 0;
+      }
+
+      .spark {
+        display: flex;
+        align-items: end;
+        gap: 2px;
+        height: 22px;
+        margin-top: 8px;
+      }
+
+      .spark i {
+        width: 5px;
+        border-radius: 4px 4px 0 0;
+        background: var(--green);
+        opacity: 0.72;
+        transform-origin: bottom;
+        animation: sparkReveal 1.8s ease-out both;
+      }
+
+      .spark.cyan i {
+        background: var(--cyan);
+      }
+
+      .spark.warn i {
+        background: var(--amber);
+      }
+
+      .section {
+        border-bottom: 1px solid var(--line);
+        padding: 72px 0;
+      }
+
+      .section-inner {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .section-kicker {
+        color: var(--green);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0;
+        margin: 0 0 10px;
+        text-transform: uppercase;
+      }
+
+      .section-title {
+        margin: 0;
+        color: var(--ink);
+        font-size: 42px;
+        line-height: 1;
+        font-weight: 760;
+        letter-spacing: 0;
+      }
+
+      .section-copy {
+        max-width: 620px;
+        margin: 14px 0 0;
+        color: #4d5660;
+        line-height: 1.55;
+        font-size: 15px;
+      }
+
+      .problem-grid,
+      .feature-grid,
+      .alpha-grid {
+        display: grid;
+        gap: 0;
+        margin-top: 40px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--paper-strong);
+      }
+
+      .problem-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .alpha-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+
+      .problem,
+      .feature,
+      .alpha-row {
+        min-height: 160px;
+        padding: 22px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .problem:nth-child(4n),
+      .feature:nth-child(3n),
+      .alpha-row:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .problem:nth-last-child(-n + 4),
+      .feature:nth-last-child(-n + 3),
+      .alpha-row:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+
+      .eyebrow {
+        color: var(--faint);
+        display: block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 26px;
+      }
+
+      .problem h3,
+      .feature h3,
+      .alpha-row h3 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      .problem p,
+      .feature p,
+      .alpha-row p {
+        margin: 12px 0 0;
+        color: #59636e;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-top: 40px;
+      }
+
+      .pipeline-step {
+        position: relative;
+        min-height: 154px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper-strong);
+        padding: 18px;
+      }
+
+      .pipeline-step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -12px;
+        width: 14px;
+        border-top: 1px solid var(--line-strong);
+      }
+
+      .pipeline-step code {
+        color: #37414c;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+      }
+
+      .eval-report {
+        display: grid;
+        grid-template-columns: 0.72fr 1.28fr;
+        gap: 24px;
+        margin-top: 38px;
+      }
+
+      .report-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper-strong);
+        overflow: hidden;
+      }
+
+      .report-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid var(--line);
+        padding: 16px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        color: #59636e;
+      }
+
+      .timing {
+        padding: 18px;
+      }
+
+      .timing-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 52px;
+        align-items: center;
+        gap: 12px;
+        min-height: 28px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        color: #59636e;
+      }
+
+      .timing-track {
+        height: 6px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.07);
+        overflow: hidden;
+      }
+
+      .timing-track i {
+        display: block;
+        height: 100%;
+        border-radius: 6px;
+        background: var(--cyan);
+      }
+
+      .integrations {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        margin-top: 36px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--paper-strong);
+      }
+
+      .integration {
+        min-height: 94px;
+        padding: 16px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .integration:nth-child(5n) {
+        border-right: 0;
+      }
+
+      .integration:nth-last-child(-n + 5) {
+        border-bottom: 0;
+      }
+
+      .integration strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .integration span {
+        color: var(--faint);
+        display: block;
+        margin-top: 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+      }
+
+      .final {
+        background: var(--graphite);
+        color: #f8f7f2;
+      }
+
+      .final .section-title {
+        color: #f8f7f2;
+      }
+
+      .final .section-copy,
+      .final .section-kicker {
+        color: rgba(248, 247, 242, 0.7);
+      }
+
+      .final .button {
+        background: #fff;
+        border-color: #fff;
+        color: var(--graphite);
+      }
+
+      .terminal {
+        margin-top: 30px;
+        max-width: 620px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        background: #090c10;
+        padding: 16px;
+        color: #d7f8e7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.8;
+      }
+
+      @keyframes cursorBlink {
+        0%,
+        45% {
+          opacity: 1;
+        }
+        46%,
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes ledgerScan {
+        0% {
+          transform: translateX(-80%);
+          opacity: 0;
+        }
+        20%,
+        66% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(60%);
+          opacity: 0;
+        }
+      }
+
+      @keyframes nodePulse {
+        0%,
+        100% {
+          opacity: 0.62;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.12);
+        }
+      }
+
+      @keyframes barReveal {
+        from {
+          transform: scaleX(0.35);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      @keyframes sparkReveal {
+        from {
+          transform: scaleY(0.32);
+          opacity: 0.28;
+        }
+        to {
+          transform: scaleY(1);
+          opacity: 0.82;
+        }
+      }
+
+      @media (max-width: 1120px) {
+        .nav {
+          width: min(960px, calc(100% - 32px));
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-inner {
+          width: min(960px, calc(100% - 32px));
+          padding-top: 54px;
+        }
+
+        .hero-copy {
+          max-width: 620px;
+        }
+
+        .product-surface {
+          position: relative;
+          top: auto;
+          right: auto;
+          width: min(100%, 620px);
+          margin-top: 34px;
+        }
+
+        .section-inner {
+          width: min(960px, calc(100% - 32px));
+        }
+      }
+
+      @media (max-width: 820px) {
+        .nav-actions .button:not(.primary),
+        .version {
+          display: none;
+        }
+
+        .hero h1 {
+          font-size: 52px;
+        }
+
+        .statement {
+          font-size: 21px;
+        }
+
+        .problem-grid,
+        .feature-grid,
+        .alpha-grid,
+        .pipeline,
+        .eval-report,
+        .integrations {
+          grid-template-columns: 1fr;
+        }
+
+        .problem,
+        .feature,
+        .alpha-row,
+        .integration {
+          border-right: 0;
+        }
+
+        .problem:nth-last-child(-n + 4),
+        .feature:nth-last-child(-n + 3),
+        .alpha-row:nth-last-child(-n + 2),
+        .integration:nth-last-child(-n + 5) {
+          border-bottom: 1px solid var(--line);
+        }
+
+        .problem:last-child,
+        .feature:last-child,
+        .alpha-row:last-child,
+        .integration:last-child {
+          border-bottom: 0;
+        }
+
+        .pipeline-step:not(:last-child)::after {
+          display: none;
+        }
+
+        .ledger-grid {
+          grid-template-columns: 1.1fr 0.6fr 0.5fr 0.7fr;
+        }
+
+        .ledger-grid .wide-hide {
+          display: none;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .nav,
+        .hero-inner,
+        .section-inner {
+          width: calc(100% - 24px);
+        }
+
+        .brand {
+          font-size: 14px;
+        }
+
+        .hero h1 {
+          font-size: 42px;
+        }
+
+        .section-title {
+          font-size: 32px;
+        }
+
+        .metric {
+          min-width: calc(50% - 4px);
+        }
+
+        .eval-strip {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .eval-cell:nth-child(2n) {
+          border-right: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Lore Context home">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Lore Context</span>
+          <span class="version">v0.4.2 - alpha</span>
+        </a>
+        <div class="nav-links" aria-label="Sections">
+          <a href="#problem">Problem</a>
+          <a href="#system">System</a>
+          <a href="#features">Features</a>
+          <a href="#eval">Eval</a>
+          <a href="#integrations">Integrations</a>
+          <a href="#docs">Docs</a>
+        </div>
+        <div class="nav-actions">
+          <a class="button" href="#docs">Docs</a>
+          <a class="button" href="#docs">GitHub</a>
+          <a class="button primary" href="#start">Run local alpha -></a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="product-surface" aria-label="Context Ledger product preview">
+          <div class="surface-head">
+            <span>Lore - Context Ledger</span>
+            <span>live - 14.2 q/s - rec</span>
+          </div>
+
+          <div class="ledger">
+            <div class="ledger-grid" aria-label="Memory evidence table">
+              <div class="ledger-head">
+                <span>source</span>
+                <span>memory</span>
+                <span>used_in_response</span>
+                <span>stale_score</span>
+                <span class="wide-hide">sens</span>
+                <span class="wide-hide">review_status</span>
+              </div>
+              <div class="ledger-row active">
+                <span>claude-code</span>
+                <span>#a4f1</span>
+                <span>yes</span>
+                <span><b class="bar ok"><i style="width: 12%"></i></b></span>
+                <span class="wide-hide">low</span>
+                <span class="wide-hide"><b class="status approved">approved</b></span>
+              </div>
+              <div class="ledger-row">
+                <span>cursor</span>
+                <span>#b2c8</span>
+                <span>yes</span>
+                <span><b class="bar ok"><i style="width: 18%"></i></b></span>
+                <span class="wide-hide">low</span>
+                <span class="wide-hide"><b class="status approved">approved</b></span>
+              </div>
+              <div class="ledger-row">
+                <span>qwen-code</span>
+                <span>#c9d3</span>
+                <span>yes</span>
+                <span><b class="bar warn"><i style="width: 52%"></i></b></span>
+                <span class="wide-hide">med</span>
+                <span class="wide-hide"><b class="status flagged">flagged</b></span>
+              </div>
+              <div class="ledger-row">
+                <span>hermes</span>
+                <span>#d1a7</span>
+                <span>yes</span>
+                <span><b class="bar risk"><i style="width: 74%"></i></b></span>
+                <span class="wide-hide">high</span>
+                <span class="wide-hide"><b class="status redact">redact</b></span>
+              </div>
+              <div class="ledger-row">
+                <span>fastgpt</span>
+                <span>#f3c1</span>
+                <span>no</span>
+                <span><b class="bar warn"><i style="width: 46%"></i></b></span>
+                <span class="wide-hide">med</span>
+                <span class="wide-hide"><b class="status review">review</b></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="composer">
+            <div class="composer-card">
+              <strong>context.compose()</strong><br />
+              eval 0.94<br />
+              policy pass<br />
+              trace 142ms<br />
+              k 5 / 12
+            </div>
+            <div class="gov-gate">gov - gate</div>
+            <svg viewBox="0 0 500 164" role="img" aria-label="Memory provenance graph">
+              <defs>
+                <linearGradient id="flow-ok" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#0b8f61" stop-opacity="0.78" />
+                  <stop offset="100%" stop-color="#08b9c8" stop-opacity="0.5" />
+                </linearGradient>
+                <linearGradient id="flow-warn" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#ca7a15" stop-opacity="0.62" />
+                  <stop offset="100%" stop-color="#c94949" stop-opacity="0.5" />
+                </linearGradient>
+              </defs>
+              <path d="M126 82 C198 40 250 34 326 45 S414 62 468 38" fill="none" stroke="url(#flow-ok)" stroke-width="1.4" />
+              <path d="M126 82 C196 80 250 84 320 82 S410 84 468 82" fill="none" stroke="#08b9c8" stroke-width="1.2" stroke-opacity="0.38" />
+              <path d="M126 82 C202 120 262 126 332 118 S420 112 468 126" fill="none" stroke="url(#flow-warn)" stroke-width="1.4" stroke-dasharray="5 5" />
+              <circle class="node" cx="270" cy="45" r="7" fill="#0b8f61" opacity="0.78" />
+              <circle cx="346" cy="58" r="7" fill="#0b8f61" opacity="0.52" />
+              <circle cx="410" cy="45" r="7" fill="#ca7a15" opacity="0.62" />
+              <circle cx="468" cy="38" r="8" fill="#ca7a15" opacity="0.72" />
+              <circle cx="322" cy="116" r="7" fill="#0b8f61" opacity="0.5" />
+              <circle cx="392" cy="116" r="7" fill="#ca7a15" opacity="0.58" />
+              <circle cx="468" cy="126" r="8" fill="#c94949" opacity="0.68" />
+              <text x="262" y="32" fill="#7a838d" font-size="10" font-family="monospace">memory#a4f1</text>
+              <text x="414" y="28" fill="#ca7a15" font-size="10" font-family="monospace">STALE</text>
+              <text x="430" y="146" fill="#c94949" font-size="10" font-family="monospace">SENSITIVE</text>
+            </svg>
+          </div>
+
+          <div class="surface-foot">
+            <span>postgres://lore_local - audit_log</span>
+            <span>1,284,432 rows - all synced 0.4s ago</span>
+          </div>
+          <div class="eval-strip" aria-label="Evaluation strip">
+            <div class="eval-cell">
+              <span class="metric-label">Recall@5</span>
+              <span class="metric-value ok">0.928</span>
+              <span class="spark">
+                <i style="height: 38%"></i><i style="height: 44%"></i><i style="height: 59%"></i><i style="height: 52%"></i><i style="height: 71%"></i>
+              </span>
+            </div>
+            <div class="eval-cell">
+              <span class="metric-label">Precision@5</span>
+              <span class="metric-value ok">0.814</span>
+              <span class="spark">
+                <i style="height: 32%"></i><i style="height: 47%"></i><i style="height: 43%"></i><i style="height: 55%"></i><i style="height: 62%"></i>
+              </span>
+            </div>
+            <div class="eval-cell">
+              <span class="metric-label">Stale-hit</span>
+              <span class="metric-value warn">2.1%</span>
+              <span class="spark warn">
+                <i style="height: 28%"></i><i style="height: 34%"></i><i style="height: 25%"></i><i style="height: 21%"></i><i style="height: 18%"></i>
+              </span>
+            </div>
+            <div class="eval-cell">
+              <span class="metric-label">p95 latency</span>
+              <span class="metric-value info">142ms</span>
+              <span class="spark cyan">
+                <i style="height: 38%"></i><i style="height: 36%"></i><i style="height: 42%"></i><i style="height: 40%"></i><i style="height: 35%"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-inner">
+          <div class="chip-row" aria-label="Alpha proof points">
+            <span class="chip">LOCAL ALPHA OPEN</span>
+            <span class="chip">REST API</span>
+            <span class="chip">MCP STDIO</span>
+            <span class="chip">POSTGRES 16</span>
+            <span class="chip">DASHBOARD</span>
+            <span class="chip">PRIVATE DEPLOY</span>
+          </div>
+          <div class="hero-copy">
+            <h1 id="hero-title">Lore Context.</h1>
+            <p class="statement">The control plane for AI-agent memory, eval, and governance.</p>
+            <p class="support">
+              Know what every agent remembered, used, and should forget before memory becomes
+              production risk.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="#start">Run local alpha -></a>
+              <a class="button" href="#system">View architecture</a>
+            </div>
+            <div class="command" aria-label="Local alpha command">
+              <span>$ pnpm seed:demo && pnpm smoke:dashboard</span><span class="cursor" aria-hidden="true"></span>
+            </div>
+            <div class="metric-row" aria-label="Hero metrics">
+              <span class="metric"><span class="metric-label">Recall@5</span><span class="metric-value ok">0.928</span></span>
+              <span class="metric"><span class="metric-label">Precision@5</span><span class="metric-value ok">0.814</span></span>
+              <span class="metric"><span class="metric-label">Stale-hit</span><span class="metric-value warn">2.1%</span></span>
+              <span class="metric"><span class="metric-label">p95 latency</span><span class="metric-value info">142ms</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="problem" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">01 / Problem - the memory gap</p>
+          <h2 class="section-title">Agents remember. Teams need proof.</h2>
+          <p class="section-copy">
+            Every coding agent, support bot, and research copilot is moving toward long-term
+            memory. Most teams still cannot show the audit trail behind one answer.
+          </p>
+          <div class="problem-grid">
+            <article class="problem">
+              <span class="eyebrow">01</span>
+              <h3>Stale memory</h3>
+              <p>Last week's API contract can still be recalled into this morning's pull request.</p>
+            </article>
+            <article class="problem">
+              <span class="eyebrow">02</span>
+              <h3>Unknown provenance</h3>
+              <p>A quoted fact appears in an answer, but no one can explain which session produced it.</p>
+            </article>
+            <article class="problem">
+              <span class="eyebrow">03</span>
+              <h3>Unsafe writeback</h3>
+              <p>Agents silently persist hallucinations, PII, and one-off conversations into shared memory.</p>
+            </article>
+            <article class="problem">
+              <span class="eyebrow">04</span>
+              <h3>Backend lock-in</h3>
+              <p>Each vector store captures your data in a different schema, format, and retrieval path.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="system" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">02 / System</p>
+          <h2 class="section-title">A governed path between agents and memory.</h2>
+          <p class="section-copy">
+            Lore exposes a narrow safe surface: agents ask for context, Lore composes evidence,
+            evals the result, logs the trace, and routes questionable memory through governance.
+          </p>
+          <div class="pipeline">
+            <div class="pipeline-step"><span class="eyebrow">ingress</span><h3>MCP clients</h3><p><code>Claude Code</code>, Cursor, Qwen Code, and local agents call the same stdio surface.</p></div>
+            <div class="pipeline-step"><span class="eyebrow">query</span><h3>context.query</h3><p>Typed retrieval returns ranked evidence with source and policy metadata.</p></div>
+            <div class="pipeline-step"><span class="eyebrow">compose</span><h3>Composer</h3><p>Memory is assembled into a budgeted context block with warnings and citations.</p></div>
+            <div class="pipeline-step"><span class="eyebrow">proof</span><h3>Eval / trace / governance</h3><p>Every answer path leaves measurable quality and review evidence.</p></div>
+            <div class="pipeline-step"><span class="eyebrow">store</span><h3>Postgres + adapter</h3><p>Persist locally with an audit log and bridge to agentmemory-compatible storage.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">03 / Product surfaces</p>
+          <h2 class="section-title">Built for operators, not memory hype.</h2>
+          <div class="feature-grid">
+            <article class="feature"><span class="eyebrow">F-01</span><h3>Context Query</h3><p>A single typed call your agent can rely on. Returns ranked memories with provenance, freshness, and policy state.</p></article>
+            <article class="feature"><span class="eyebrow">F-02</span><h3>Memory Eval Playground</h3><p>Replay queries against your own seed dataset. Tune retriever, reranker, and freshness cutoff.</p></article>
+            <article class="feature"><span class="eyebrow">F-03</span><h3>Memory Observability</h3><p>A live trace of every retrieval, every write, every redaction. Drill into any span.</p></article>
+            <article class="feature"><span class="eyebrow">F-04</span><h3>Governance Review</h3><p>Every writeback passes a policy gate. Humans can approve, redact, reject, or forget.</p></article>
+            <article class="feature"><span class="eyebrow">F-05</span><h3>MIF-like Portability</h3><p>Export the memory corpus, embeddings, provenance, and policy state without backend lock-in.</p></article>
+            <article class="feature"><span class="eyebrow">F-06</span><h3>Private Deployment</h3><p>Single Docker Compose. No telemetry, no phone-home, no proprietary embedding endpoint.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-inner">
+          <p class="section-kicker">04 / Alpha - shipped this week</p>
+          <h2 class="section-title">What is in v0.4 alpha.</h2>
+          <p class="section-copy">
+            Honest list. Built first, polished later. Everything below runs offline on your machine
+            with a free Docker Compose.
+          </p>
+          <div class="alpha-grid">
+            <article class="alpha-row"><h3>REST API</h3><p><code>/v1/context</code>, <code>/v1/memory</code>, <code>/v1/eval</code>, typed and documented.</p></article>
+            <article class="alpha-row"><h3>MCP stdio SDK transport</h3><p>Drop into any MCP-compatible client without exposing raw backend tools.</p></article>
+            <article class="alpha-row"><h3>Next Dashboard</h3><p>Operator UI for memory health, traces, eval runs, and governance review.</p></article>
+            <article class="alpha-row"><h3>Postgres incremental persistence</h3><p>Audit logs, trace records, and memory rows survive local restarts.</p></article>
+            <article class="alpha-row"><h3>Demo dataset</h3><p>Seeded data makes the alpha inspectable without connecting private corpora.</p></article>
+            <article class="alpha-row"><h3>Docker Compose</h3><p>Private deploy path with Postgres and local services.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="eval" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">05 / Eval proof</p>
+          <h2 class="section-title">Prove memory quality on your data.</h2>
+          <p class="section-copy">
+            Lore's strongest claim is not a benchmark trophy. It is that your team can see what the
+            retriever did on the dataset you own.
+          </p>
+          <div class="eval-report">
+            <div class="report-panel">
+              <div class="report-head"><span>dataset: demo-private</span><span>run: 26.04 alpha</span></div>
+              <div class="eval-strip">
+                <div class="eval-cell"><span class="metric-label">Recall@5</span><span class="metric-value ok">0.928</span></div>
+                <div class="eval-cell"><span class="metric-label">Precision@5</span><span class="metric-value ok">0.814</span></div>
+                <div class="eval-cell"><span class="metric-label">MRR</span><span class="metric-value ok">0.872</span></div>
+                <div class="eval-cell"><span class="metric-label">Stale-hit</span><span class="metric-value warn">2.1%</span></div>
+              </div>
+            </div>
+            <div class="report-panel">
+              <div class="report-head"><span>per-stage span timing</span><span>last 8 traces</span></div>
+              <div class="timing">
+                <div class="timing-row"><span>embed</span><span class="timing-track"><i style="width: 32%"></i></span><span>14 ms</span></div>
+                <div class="timing-row"><span>retrieve.pgvec</span><span class="timing-track"><i style="width: 58%"></i></span><span>46 ms</span></div>
+                <div class="timing-row"><span>rerank.cache</span><span class="timing-track"><i style="width: 48%; background: var(--green)"></i></span><span>32 ms</span></div>
+                <div class="timing-row"><span>policy.gate</span><span class="timing-track"><i style="width: 18%; background: var(--amber)"></i></span><span>4 ms</span></div>
+                <div class="timing-row"><span>compose</span><span class="timing-track"><i style="width: 42%"></i></span><span>11 ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="integrations" class="section">
+        <div class="section-inner">
+          <p class="section-kicker">06 / Integrations - drop-in MCP</p>
+          <h2 class="section-title">Speak the protocols your agents already use.</h2>
+          <p class="section-copy">
+            Lore exposes a stdio MCP server and a REST surface. Your agents query, write, and review
+            through the same eval and governance layer.
+          </p>
+          <div class="integrations">
+            <div class="integration"><strong>Claude Code</strong><span>mcp.stdio - v0.6</span></div>
+            <div class="integration"><strong>Cursor</strong><span>mcp.stdio - v0.6</span></div>
+            <div class="integration"><strong>Qwen Code</strong><span>mcp.stdio - v0.5</span></div>
+            <div class="integration"><strong>OpenClaw</strong><span>rest.v1 - stream</span></div>
+            <div class="integration"><strong>Hermes</strong><span>mcp.stdio - v0.6</span></div>
+            <div class="integration"><strong>Dify</strong><span>rest.v1 - webhook</span></div>
+            <div class="integration"><strong>FastGPT</strong><span>rest.v1</span></div>
+            <div class="integration"><strong>Roo Code</strong><span>mcp.stdio - v0.6</span></div>
+            <div class="integration"><strong>OpenWebUI</strong><span>rest.v1</span></div>
+            <div class="integration"><strong>Local agents</strong><span>sdk - ts/py</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="start" class="section final">
+        <div class="section-inner">
+          <p class="section-kicker">07 / Start</p>
+          <h2 class="section-title">Start with a local alpha. Prove memory quality before you scale it.</h2>
+          <p class="section-copy">
+            Four commands. A seeded demo dataset. A Playwright smoke pass that proves the dashboard renders.
+            Bring your own Postgres, or use the bundled one.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#docs">Run local alpha -></a>
+            <a class="button" href="#system">Read architecture doc</a>
+          </div>
+          <pre id="docs" class="terminal"><code>$ pnpm install
+$ pnpm build
+$ pnpm seed:demo
+$ pnpm smoke:dashboard</code></pre>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

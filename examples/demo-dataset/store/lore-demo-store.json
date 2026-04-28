@@ -1,0 +1,290 @@
+{
+  "version": "0.1",
+  "savedAt": "2026-04-28T00:15:00.000Z",
+  "memories": [
+    {
+      "id": "mem_demo_context_plane",
+      "projectId": "demo-private",
+      "memoryType": "project_rule",
+      "scope": "project",
+      "visibility": "project",
+      "content": "Use Lore as the shared context plane for Claude, Cursor, and Qwen-assisted workflows.",
+      "status": "confirmed",
+      "confidence": 0.93,
+      "validFrom": "2026-04-28T00:00:00.000Z",
+      "validUntil": null,
+      "supersededBy": null,
+      "sourceProvider": "lore-demo",
+      "sourceOriginalId": "demo-001",
+      "sourceRefs": [
+        {
+          "type": "manual",
+          "id": "private-demo-brief",
+          "excerpt": "Lore is the canonical shared context layer for coding agents."
+        }
+      ],
+      "riskTags": [],
+      "metadata": {
+        "bundle": "private-demo",
+        "topic": "shared-context"
+      },
+      "lastUsedAt": "2026-04-28T00:10:30.000Z",
+      "useCount": 2,
+      "createdAt": "2026-04-28T00:00:00.000Z",
+      "updatedAt": "2026-04-28T00:00:00.000Z"
+    },
+    {
+      "id": "mem_demo_private_auth",
+      "projectId": "demo-private",
+      "memoryType": "project_rule",
+      "scope": "project",
+      "visibility": "project",
+      "content": "Private deployments must keep Lore behind authenticated API access and a loopback-only or internal reverse proxy by default.",
+      "status": "confirmed",
+      "confidence": 0.96,
+      "validFrom": "2026-04-28T00:00:00.000Z",
+      "validUntil": null,
+      "supersededBy": null,
+      "sourceProvider": "lore-demo",
+      "sourceOriginalId": "demo-002",
+      "sourceRefs": [
+        {
+          "type": "manual",
+          "id": "security-defaults",
+          "excerpt": "Expose the API privately first, then widen only behind auth."
+        }
+      ],
+      "riskTags": [],
+      "metadata": {
+        "bundle": "private-demo",
+        "topic": "security"
+      },
+      "lastUsedAt": "2026-04-28T00:11:45.000Z",
+      "useCount": 3,
+      "createdAt": "2026-04-28T00:00:00.000Z",
+      "updatedAt": "2026-04-28T00:00:00.000Z"
+    },
+    {
+      "id": "mem_demo_mcp_boundary",
+      "projectId": "demo-private",
+      "memoryType": "procedure",
+      "scope": "project",
+      "visibility": "project",
+      "content": "Register Claude, Cursor, and Qwen against the Lore MCP launcher instead of exposing raw agentmemory endpoints to clients.",
+      "status": "active",
+      "confidence": 0.91,
+      "validFrom": "2026-04-28T00:00:00.000Z",
+      "validUntil": null,
+      "supersededBy": null,
+      "sourceProvider": "lore-demo",
+      "sourceOriginalId": "demo-003",
+      "sourceRefs": [
+        {
+          "type": "manual",
+          "id": "mcp-boundary",
+          "excerpt": "Keep agents on the high-level Lore tool surface."
+        }
+      ],
+      "riskTags": [],
+      "metadata": {
+        "bundle": "private-demo",
+        "topic": "mcp"
+      },
+      "lastUsedAt": "2026-04-28T00:11:45.000Z",
+      "useCount": 1,
+      "createdAt": "2026-04-28T00:00:00.000Z",
+      "updatedAt": "2026-04-28T00:00:00.000Z"
+    },
+    {
+      "id": "mem_demo_topology",
+      "projectId": "demo-private",
+      "memoryType": "procedure",
+      "scope": "project",
+      "visibility": "project",
+      "content": "The default private topology is Postgres plus the Lore API plus the Next.js dashboard, with the MCP launcher running on operator workstations or as an on-demand sidecar.",
+      "status": "active",
+      "confidence": 0.89,
+      "validFrom": "2026-04-28T00:00:00.000Z",
+      "validUntil": null,
+      "supersededBy": null,
+      "sourceProvider": "lore-demo",
+      "sourceOriginalId": "demo-004",
+      "sourceRefs": [
+        {
+          "type": "manual",
+          "id": "deployment-topology",
+          "excerpt": "Keep the API and dashboard long-running; keep stdio MCP optional."
+        }
+      ],
+      "riskTags": [],
+      "metadata": {
+        "bundle": "private-demo",
+        "topic": "deployment"
+      },
+      "lastUsedAt": "2026-04-28T00:10:30.000Z",
+      "useCount": 2,
+      "createdAt": "2026-04-28T00:00:00.000Z",
+      "updatedAt": "2026-04-28T00:00:00.000Z"
+    },
+    {
+      "id": "mem_demo_project_id",
+      "projectId": "demo-private",
+      "memoryType": "task_state",
+      "scope": "project",
+      "visibility": "project",
+      "content": "Use project id demo-private for the packaged private deployment demo, eval runs, and client-scoped API keys.",
+      "status": "active",
+      "confidence": 0.85,
+      "validFrom": "2026-04-28T00:00:00.000Z",
+      "validUntil": null,
+      "supersededBy": null,
+      "sourceProvider": "lore-demo",
+      "sourceOriginalId": "demo-005",
+      "sourceRefs": [
+        {
+          "type": "manual",
+          "id": "demo-project-scope",
+          "excerpt": "Keep packaged examples isolated from future projects."
+        }
+      ],
+      "riskTags": [],
+      "metadata": {
+        "bundle": "private-demo",
+        "topic": "project-scope"
+      },
+      "lastUsedAt": "2026-04-28T00:10:30.000Z",
+      "useCount": 1,
+      "createdAt": "2026-04-28T00:00:00.000Z",
+      "updatedAt": "2026-04-28T00:00:00.000Z"
+    }
+  ],
+  "traces": [
+    {
+      "id": "ctx_demo_private_topology",
+      "projectId": "demo-private",
+      "query": "What topology should the private Lore demo use?",
+      "route": {
+        "memory": true,
+        "web": false,
+        "repo": false,
+        "toolTraces": false,
+        "reason": "matched deployment memory"
+      },
+      "retrievedMemoryIds": [
+        "mem_demo_topology",
+        "mem_demo_project_id"
+      ],
+      "composedMemoryIds": [
+        "mem_demo_topology",
+        "mem_demo_project_id"
+      ],
+      "ignoredMemoryIds": [],
+      "warnings": [],
+      "latencyMs": 4,
+      "tokenBudget": 1200,
+      "tokensUsed": 71,
+      "feedback": "useful",
+      "feedbackAt": "2026-04-28T00:10:35.000Z",
+      "feedbackNote": "Matches private demo packaging guidance.",
+      "createdAt": "2026-04-28T00:10:30.000Z"
+    },
+    {
+      "id": "ctx_demo_mcp_boundary",
+      "projectId": "demo-private",
+      "query": "Should clients connect to raw agentmemory directly?",
+      "route": {
+        "memory": true,
+        "web": false,
+        "repo": false,
+        "toolTraces": false,
+        "reason": "matched integration memory"
+      },
+      "retrievedMemoryIds": [
+        "mem_demo_mcp_boundary",
+        "mem_demo_private_auth"
+      ],
+      "composedMemoryIds": [
+        "mem_demo_mcp_boundary"
+      ],
+      "ignoredMemoryIds": [
+        "mem_demo_private_auth"
+      ],
+      "warnings": [],
+      "latencyMs": 3,
+      "tokenBudget": 1000,
+      "tokensUsed": 62,
+      "feedback": "useful",
+      "feedbackAt": "2026-04-28T00:11:50.000Z",
+      "feedbackNote": "Correctly keeps the client boundary on Lore MCP.",
+      "createdAt": "2026-04-28T00:11:45.000Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_demo_deploy_ready",
+      "eventType": "deployment.compose.validated",
+      "projectId": "demo-private",
+      "payload": {
+        "profile": "private-demo",
+        "stack": [
+          "postgres",
+          "api",
+          "dashboard"
+        ]
+      },
+      "createdAt": "2026-04-28T00:12:15.000Z"
+    }
+  ],
+  "evalRuns": [
+    {
+      "id": "eval_demo_private_bundle",
+      "provider": "lore-local",
+      "projectId": "demo-private",
+      "metrics": {
+        "recallAt5": 1,
+        "precisionAt5": 0.8,
+        "mrr": 1,
+        "staleHitRate": 0,
+        "p95LatencyMs": 7
+      },
+      "status": "completed",
+      "createdAt": "2026-04-28T00:12:30.000Z"
+    }
+  ],
+  "audits": [
+    {
+      "id": "audit_demo_memory_seed",
+      "action": "memory.import",
+      "resourceType": "memory",
+      "metadata": {
+        "count": 5,
+        "projectIds": [
+          "demo-private"
+        ]
+      },
+      "createdAt": "2026-04-28T00:00:05.000Z"
+    },
+    {
+      "id": "audit_demo_trace_feedback",
+      "action": "trace.feedback",
+      "resourceType": "trace",
+      "resourceId": "ctx_demo_private_topology",
+      "metadata": {
+        "feedback": "useful"
+      },
+      "createdAt": "2026-04-28T00:10:35.000Z"
+    },
+    {
+      "id": "audit_demo_eval_run",
+      "action": "eval.run",
+      "resourceType": "eval_run",
+      "resourceId": "eval_demo_private_bundle",
+      "metadata": {
+        "projectId": "demo-private",
+        "provider": "lore-local",
+        "questions": 4
+      },
+      "createdAt": "2026-04-28T00:12:30.000Z"
+    }
+  ]
+}

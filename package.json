@@ -1,0 +1,43 @@
+{
+  "name": "lore-context",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.30.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "dev:api": "pnpm --filter @lore/api build && node apps/api/dist/index.js",
+    "start:api": "node apps/api/dist/index.js",
+    "dev:dashboard": "pnpm --filter @lore/dashboard dev",
+    "start:dashboard": "pnpm --filter @lore/dashboard start",
+    "dev:website": "pnpm --filter @lore/website dev",
+    "smoke:api": "pnpm build && node scripts/smoke-api.mjs",
+    "smoke:mcp": "pnpm build && node scripts/smoke-mcp.mjs",
+    "smoke:dashboard": "pnpm build && node scripts/smoke-dashboard.mjs",
+    "smoke:postgres": "pnpm --filter @lore/api build && node scripts/smoke-postgres.mjs",
+    "smoke:agentmemory": "pnpm --filter @lore/agentmemory-adapter build && node scripts/smoke-agentmemory.mjs",
+    "seed:demo": "node scripts/seed-demo.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "config:integrations": "node scripts/generate-integration-config.mjs",
+    "eval:report": "node scripts/export-eval-report.mjs",
+    "db:schema": "node scripts/apply-postgres-schema.mjs",
+    "db:schema:dry-run": "node scripts/apply-postgres-schema.mjs --dry-run",
+    "clean": "pnpm -r exec rm -rf dist .turbo coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "playwright": "^1.59.1",
+    "turbo": "^2.9.6",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.12"
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "sessions": [
+    {
+      "sessionId": "s-context-plane",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Lore should be the shared context plane for Claude, Cursor, and Qwen."
+        }
+      ]
+    },
+    {
+      "sessionId": "s-private-auth",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Private deployments should stay behind authenticated API access and a loopback-only or internal reverse proxy."
+        }
+      ]
+    },
+    {
+      "sessionId": "s-mcp-boundary",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Register clients against the Lore MCP launcher and do not expose raw agentmemory endpoints directly."
+        }
+      ]
+    },
+    {
+      "sessionId": "s-topology",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The default private deployment topology is Postgres plus Lore API plus Next dashboard, with MCP as an optional sidecar."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "question": "What should act as the shared context plane for Claude, Cursor, and Qwen?",
+      "goldSessionIds": [
+        "s-context-plane"
+      ],
+      "expectedAnswerContains": [
+        "shared context plane",
+        "Lore"
+      ]
+    },
+    {
+      "question": "How should a private Lore deployment be exposed by default?",
+      "goldSessionIds": [
+        "s-private-auth"
+      ],
+      "expectedAnswerContains": [
+        "authenticated",
+        "reverse proxy"
+      ]
+    },
+    {
+      "question": "Should clients talk to raw agentmemory directly?",
+      "goldSessionIds": [
+        "s-mcp-boundary"
+      ],
+      "expectedAnswerContains": [
+        "MCP launcher",
+        "not expose raw agentmemory"
+      ]
+    },
+    {
+      "question": "What topology should the private demo use?",
+      "goldSessionIds": [
+        "s-topology"
+      ],
+      "expectedAnswerContains": [
+        "Postgres",
+        "Lore API",
+        "dashboard"
+      ]
+    }
+  ]
+}

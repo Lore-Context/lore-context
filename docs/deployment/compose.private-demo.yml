@@ -1,0 +1,103 @@
+name: lore-private-demo
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lore_context}
+      POSTGRES_USER: ${POSTGRES_USER:-lore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    ports:
+      - "${POSTGRES_BIND_HOST:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - lore-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lore} -d ${POSTGRES_DB:-lore_context}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      LORE_STORE_DRIVER: ${LORE_STORE_DRIVER:-postgres}
+      LORE_DATABASE_URL: postgres://${POSTGRES_USER:-lore}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-lore_context}
+      LORE_POSTGRES_AUTO_SCHEMA: ${LORE_POSTGRES_AUTO_SCHEMA:-true}
+      LORE_DEFAULT_ORGANIZATION_ID: ${LORE_DEFAULT_ORGANIZATION_ID:-private-demo}
+      LORE_API_KEY: ${LORE_API_KEY:-}
+      LORE_API_KEYS: ${LORE_API_KEYS:-}
+      LORE_STORE_PATH: ${LORE_STORE_PATH:-}
+      AGENTMEMORY_URL: ${AGENTMEMORY_URL:-http://127.0.0.1:3111}
+      AGENTMEMORY_SECRET: ${AGENTMEMORY_SECRET:-}
+      AGENTMEMORY_TIMEOUT_MS: ${AGENTMEMORY_TIMEOUT_MS:-5000}
+      LORE_AGENTMEMORY_REQUIRED: ${LORE_AGENTMEMORY_REQUIRED:-0}
+      LORE_AGENTMEMORY_MUTATE: ${LORE_AGENTMEMORY_MUTATE:-0}
+      ZAPFETCH_API_URL: ${ZAPFETCH_API_URL:-}
+      ZAPFETCH_API_KEY: ${ZAPFETCH_API_KEY:-}
+    ports:
+      - "${API_BIND_HOST:-127.0.0.1}:${API_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then((response)=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  dashboard:
+    build:
+      context: ../..
+      dockerfile: apps/dashboard/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LORE_API_URL: http://api:3000
+      LORE_API_KEY: ${DASHBOARD_LORE_API_KEY:-}
+    ports:
+      - "${DASHBOARD_BIND_HOST:-127.0.0.1}:${DASHBOARD_PORT:-3001}:3001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001').then((response)=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  mcp:
+    profiles: ["mcp"]
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      LORE_API_URL: http://api:3000
+      LORE_API_KEY: ${MCP_LORE_API_KEY:-}
+      LORE_MCP_TRANSPORT: ${LORE_MCP_TRANSPORT:-sdk}
+    stdin_open: true
+    tty: true
+
+volumes:
+  lore-postgres:
