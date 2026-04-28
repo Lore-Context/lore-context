@@ -112,7 +112,7 @@ printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocol
 ```bash
 claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
-  -e LORE_API_KEY=write-local \
+  -e LORE_API_KEY="${WRITE_KEY:?set WRITE_KEY}" \
   -e LORE_MCP_TRANSPORT=sdk \
   lore \
   -- node /absolute/path/to/Lore/apps/mcp-server/dist/index.js
@@ -132,7 +132,7 @@ Cursor 스타일 MCP JSON은 런처를 로컬로 유지하고 API 대상 및 키
       "args": ["/absolute/path/to/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "read-local",
+        "LORE_API_KEY": "<YOUR_READER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }
@@ -154,7 +154,7 @@ Qwen 스타일 `mcpServers` JSON은 동일한 경계를 따릅니다:
       "args": ["/absolute/path/to/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "write-local",
+        "LORE_API_KEY": "<YOUR_WRITER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }

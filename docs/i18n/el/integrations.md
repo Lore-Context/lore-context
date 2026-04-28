@@ -132,7 +132,7 @@ printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocol
 ```bash
 claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
-  -e LORE_API_KEY=write-local \
+  -e LORE_API_KEY="${WRITE_KEY:?set WRITE_KEY}" \
   -e LORE_MCP_TRANSPORT=sdk \
   lore \
   -- node /absolute/path/to/Lore/apps/mcp-server/dist/index.js
@@ -155,7 +155,7 @@ API target και key:
       "args": ["/absolute/path/to/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "read-local",
+        "LORE_API_KEY": "<YOUR_READER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }
@@ -178,7 +178,7 @@ API target και key:
       "args": ["/absolute/path/to/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "write-local",
+        "LORE_API_KEY": "<YOUR_WRITER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }

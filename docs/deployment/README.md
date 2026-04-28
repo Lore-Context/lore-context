@@ -25,6 +25,7 @@ The compose stack intentionally keeps public exposure narrow. Postgres, API, and
 2. Replace `POSTGRES_PASSWORD`.
 3. Prefer `LORE_API_KEYS` over a single `LORE_API_KEY`.
 4. Set `DASHBOARD_LORE_API_KEY` to an `admin` key for the full operator workflow, or to a scoped `reader` key for read-only demos. Set `MCP_LORE_API_KEY` to a `writer` or `reader` key depending on whether the client should mutate memory.
+5. Set `DASHBOARD_BASIC_AUTH_USER` and `DASHBOARD_BASIC_AUTH_PASS`; the dashboard refuses production traffic without Basic Auth.
 
 Example role separation:
 
@@ -32,6 +33,8 @@ Example role separation:
 LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
 DASHBOARD_LORE_API_KEY=<YOUR_ADMIN_KEY>
 MCP_LORE_API_KEY=<YOUR_WRITER_KEY>
+DASHBOARD_BASIC_AUTH_USER=admin
+DASHBOARD_BASIC_AUTH_PASS=<YOUR_DASHBOARD_PASSWORD>
 ```
 
 ## Start The Stack
@@ -46,7 +49,8 @@ Health checks:
 
 ```bash
 curl http://127.0.0.1:${API_PORT:-3000}/health
-curl http://127.0.0.1:${DASHBOARD_PORT:-3001}
+curl -u "${DASHBOARD_BASIC_AUTH_USER}:${DASHBOARD_BASIC_AUTH_PASS}" \
+  http://127.0.0.1:${DASHBOARD_PORT:-3001}
 ```
 
 ## Seed Demo Data

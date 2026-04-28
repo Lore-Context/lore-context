@@ -112,7 +112,7 @@ Utamakan proses stdio lokal workstation yang menargetkan API privat:
 ```bash
 claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
-  -e LORE_API_KEY=write-local \
+  -e LORE_API_KEY="${WRITE_KEY:?set WRITE_KEY}" \
   -e LORE_MCP_TRANSPORT=sdk \
   lore \
   -- node /absolute/path/to/Lore/apps/mcp-server/dist/index.js
@@ -132,7 +132,7 @@ JSON MCP gaya Cursor harus menjaga peluncur tetap lokal dan hanya mengubah targe
       "args": ["/absolute/path/to/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "read-local",
+        "LORE_API_KEY": "<YOUR_READER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }
@@ -154,7 +154,7 @@ JSON `mcpServers` gaya Qwen mengikuti batas yang sama:
       "args": ["/absolute/path/to/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "write-local",
+        "LORE_API_KEY": "<YOUR_WRITER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }

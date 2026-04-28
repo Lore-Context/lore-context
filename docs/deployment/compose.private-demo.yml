@@ -34,7 +34,7 @@ services:
       LORE_POSTGRES_AUTO_SCHEMA: ${LORE_POSTGRES_AUTO_SCHEMA:-true}
       LORE_DEFAULT_ORGANIZATION_ID: ${LORE_DEFAULT_ORGANIZATION_ID:-private-demo}
       LORE_API_KEY: ${LORE_API_KEY:-}
-      LORE_API_KEYS: ${LORE_API_KEYS:-}
+      LORE_API_KEYS: ${LORE_API_KEYS:?must be set}
       LORE_STORE_PATH: ${LORE_STORE_PATH:-}
       AGENTMEMORY_URL: ${AGENTMEMORY_URL:-http://127.0.0.1:3111}
       AGENTMEMORY_SECRET: ${AGENTMEMORY_SECRET:-}
@@ -69,7 +69,9 @@ services:
       NODE_ENV: production
       PORT: 3001
       LORE_API_URL: http://api:3000
-      LORE_API_KEY: ${DASHBOARD_LORE_API_KEY:-}
+      LORE_API_KEY: ${DASHBOARD_LORE_API_KEY:?must be set}
+      DASHBOARD_BASIC_AUTH_USER: ${DASHBOARD_BASIC_AUTH_USER:?must be set}
+      DASHBOARD_BASIC_AUTH_PASS: ${DASHBOARD_BASIC_AUTH_PASS:?must be set}
     ports:
       - "${DASHBOARD_BIND_HOST:-127.0.0.1}:${DASHBOARD_PORT:-3001}:3001"
     healthcheck:
@@ -78,7 +80,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3001').then((response)=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"
+          "const auth=Buffer.from((process.env.DASHBOARD_BASIC_AUTH_USER||'')+':'+(process.env.DASHBOARD_BASIC_AUTH_PASS||'')).toString('base64'); fetch('http://127.0.0.1:3001',{headers:{authorization:'Basic '+auth}}).then((response)=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"
         ]
       interval: 10s
       timeout: 5s

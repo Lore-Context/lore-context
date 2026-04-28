@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -18,6 +19,9 @@ const apiUrl = `http://127.0.0.1:${apiPort}`;
 const dashboardUrl = `http://127.0.0.1:${dashboardPort}`;
 const tmpDir = mkdtempSync(join(tmpdir(), "lore-dashboard-smoke-"));
 const storePath = join(tmpDir, "store.json");
+const basicAuthUser = process.env.DASHBOARD_BASIC_AUTH_USER || "smoke";
+const basicAuthPass = process.env.DASHBOARD_BASIC_AUTH_PASS || randomBytes(18).toString("hex");
+const basicAuthHeader = `Basic ${Buffer.from(`${basicAuthUser}:${basicAuthPass}`).toString("base64")}`;
 
 let api;
 let dashboard;
@@ -32,12 +36,19 @@ try {
   await seedSmokeData();
 
   dashboard = start("pnpm", ["--dir", "apps/dashboard", "exec", "next", "start", "-p", String(dashboardPort)], {
-    LORE_API_URL: apiUrl
+    LORE_API_URL: apiUrl,
+    DASHBOARD_BASIC_AUTH_USER: basicAuthUser,
+    DASHBOARD_BASIC_AUTH_PASS: basicAuthPass
   });
-  await waitForUrl(dashboardUrl);
+  await waitForUrl(dashboardUrl, { authorization: basicAuthHeader });
 
   browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  const context = await browser.newContext({
+    viewport: { width: 1366, height: 900 },
+    httpCredentials: { username: basicAuthUser, password: basicAuthPass }
+  });
+  const page = await context.newPage();
+  await page.setExtraHTTPHeaders({ authorization: basicAuthHeader });
   await page.goto(dashboardUrl, { waitUntil: "networkidle" });
   await page.getByRole("heading", { name: "Lore Context" }).waitFor();
   await page.getByText("Memory Inventory").waitFor();
@@ -103,12 +114,12 @@ async function post(path, payload) {
   return body;
 }
 
-async function waitForUrl(url) {
+async function waitForUrl(url, headers = {}) {
   const deadline = Date.now() + 15000;
   let lastError;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers });
       if (response.ok) {
         return;
       }

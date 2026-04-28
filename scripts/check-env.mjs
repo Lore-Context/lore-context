@@ -4,7 +4,7 @@
 // Usage: node scripts/check-env.mjs
 // Can be used as a Dockerfile entrypoint pre-check.
 
-const DEMO_PATTERN = /^(read-local|write-local|admin-local|change-me|demo|test|dev|password)$/i;
+const DEMO_PATTERN = /^(?:read-local|write-local|admin-local|change-me|change_me|changeme|demo|test|dev|password|required|#\s*required|<[^>]+>|\$\{[^}]+})$/i;
 
 const CHECKED_VARS = [
   "POSTGRES_PASSWORD",

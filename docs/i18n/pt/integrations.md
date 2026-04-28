@@ -136,7 +136,7 @@ Prefira um processo stdio local na estação de trabalho que aponte para a API p
 ```bash
 claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
-  -e LORE_API_KEY=write-local \
+  -e LORE_API_KEY="${WRITE_KEY:?set WRITE_KEY}" \
   -e LORE_MCP_TRANSPORT=sdk \
   lore \
   -- node /caminho/absoluto/para/Lore/apps/mcp-server/dist/index.js
@@ -159,7 +159,7 @@ e a chave:
       "args": ["/caminho/absoluto/para/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "read-local",
+        "LORE_API_KEY": "<YOUR_READER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }
@@ -182,7 +182,7 @@ O JSON `mcpServers` no estilo Qwen segue o mesmo limite:
       "args": ["/caminho/absoluto/para/Lore/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
-        "LORE_API_KEY": "write-local",
+        "LORE_API_KEY": "<YOUR_WRITER_KEY>",
         "LORE_MCP_TRANSPORT": "sdk"
       }
     }

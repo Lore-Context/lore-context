@@ -53,12 +53,13 @@ docs/i18n/
     architecture.md          ← architecture deep dive, translated
     api-reference.md         ← REST API reference, translated
     deployment.md            ← deployment guide, translated
+    integrations.md          ← integration guide, translated
     CONTRIBUTING.md          ← contributor guide, translated
     SECURITY.md              ← security policy, translated
     CHANGELOG.md             ← changelog, translated
   ja/
     ... same set of docs ...
-  (every locale has the same 8 files)
+  (every locale has the same 9 files)
 ```
 
 The full doc set is translated for v0.4.0-alpha. Future docs added to the English source

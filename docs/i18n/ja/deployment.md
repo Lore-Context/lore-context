@@ -34,6 +34,8 @@ Compose スタックは意図的に公開露出を狭く保っています。Pos
 LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
 DASHBOARD_LORE_API_KEY=<YOUR_ADMIN_KEY>
 MCP_LORE_API_KEY=<YOUR_WRITER_KEY>
+DASHBOARD_BASIC_AUTH_USER=admin
+DASHBOARD_BASIC_AUTH_PASS=<YOUR_DASHBOARD_PASSWORD>
 ```
 
 ## スタックを起動する
@@ -48,7 +50,8 @@ docker compose -f docs/deployment/compose.private-demo.yml --env-file .env.priva
 
 ```bash
 curl http://127.0.0.1:${API_PORT:-3000}/health
-curl http://127.0.0.1:${DASHBOARD_PORT:-3001}
+curl -u "${DASHBOARD_BASIC_AUTH_USER}:${DASHBOARD_BASIC_AUTH_PASS}" \
+  http://127.0.0.1:${DASHBOARD_PORT:-3001}
 ```
 
 ## デモデータをシードする

@@ -34,6 +34,8 @@ Compose 스택은 의도적으로 공개 노출을 좁게 유지합니다. Postg
 LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
 DASHBOARD_LORE_API_KEY=<YOUR_ADMIN_KEY>
 MCP_LORE_API_KEY=<YOUR_WRITER_KEY>
+DASHBOARD_BASIC_AUTH_USER=admin
+DASHBOARD_BASIC_AUTH_PASS=<YOUR_DASHBOARD_PASSWORD>
 ```
 
 ## 스택 시작
@@ -48,7 +50,8 @@ docker compose -f docs/deployment/compose.private-demo.yml --env-file .env.priva
 
 ```bash
 curl http://127.0.0.1:${API_PORT:-3000}/health
-curl http://127.0.0.1:${DASHBOARD_PORT:-3001}
+curl -u "${DASHBOARD_BASIC_AUTH_USER}:${DASHBOARD_BASIC_AUTH_PASS}" \
+  http://127.0.0.1:${DASHBOARD_PORT:-3001}
 ```
 
 ## 데모 데이터 시드

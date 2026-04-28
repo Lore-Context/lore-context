@@ -34,6 +34,6 @@ RUN chown -R node:node /app
 USER node
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-3001} || exit 1
+  CMD node -e "const auth=Buffer.from((process.env.DASHBOARD_BASIC_AUTH_USER||'')+':'+(process.env.DASHBOARD_BASIC_AUTH_PASS||'')).toString('base64'); fetch('http://127.0.0.1:'+(process.env.PORT||3001),{headers:{authorization:'Basic '+auth}}).then((response)=>process.exit(response.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["sh", "-c", "pnpm --filter @lore/dashboard exec next start -p ${PORT:-3001}"]
