@@ -8,6 +8,7 @@ SEO files, and the homepage are reproducible from tracked source.
 
 ```bash
 pnpm --filter @lore/website build
+pnpm --filter @lore/website smoke
 pnpm --filter @lore/website test
 pnpm --filter @lore/website dev -- --port 4174
 ```

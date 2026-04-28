@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/serve.mjs",
-    "test": "node scripts/verify.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "test": "node scripts/verify.mjs && node scripts/smoke.mjs"
   }
 }
