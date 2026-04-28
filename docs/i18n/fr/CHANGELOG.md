@@ -105,8 +105,7 @@ résolus (un partiel — voir les Notes), 117+ tests réussis, compilation compl
 ### Sécurité
 
 - Tous les résultats d'audit P0 (contournement de bouclage / authentification du tableau de bord / limitation de débit /
-  secrets de démonstration) résolus. Voir `Lore_Context_项目计划书_2026-04-27.md` et
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` pour la piste d'audit complète.
+  secrets de démonstration) résolus. Voir public release notes pour la piste d'audit complète.
 - `pnpm audit --prod` signale zéro vulnérabilité connue au moment de la publication.
 - Identifiants de démonstration supprimés de tous les modèles de déploiement et exemples de README.
 - Les images de conteneurs s'exécutent maintenant en tant que non-root par défaut.
@@ -128,7 +127,6 @@ résolus (un partiel — voir les Notes), 117+ tests réussis, compilation compl
 
 Cette version est le résultat d'un sprint de renforcement de la production d'une journée impliquant
 l'exécution de sous-agents parallèles contre un plan d'audit structuré. Le plan et les artefacts d'audit
-sont préservés dans `.omc/plans/`.
 
 ## [v0.0.0] — pré-publication
 

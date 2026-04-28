@@ -105,8 +105,7 @@ P1 risolti (uno parziale — vedi Note), 117+ test superati, build monorepo puli
 ### Sicurezza
 
 - Tutti i P0 dell'audit (bypass loopback / autenticazione dashboard / limite di frequenza / secret
-  demo) risolti. Vedi `Lore_Context_项目计划书_2026-04-27.md` e
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` per la traccia completa dell'audit.
+  demo) risolti. Vedi public release notes per la traccia completa dell'audit.
 - `pnpm audit --prod` non riporta vulnerabilità note al momento del rilascio.
 - Credenziali demo rimosse da tutti i template di deployment e README di esempio.
 - Le immagini dei container ora eseguono come non-root per impostazione predefinita.
@@ -128,7 +127,6 @@ P1 risolti (uno parziale — vedi Note), 117+ test superati, build monorepo puli
 
 Questo rilascio è il risultato di uno sprint di consolidamento in produzione di un giorno che ha coinvolto
 l'esecuzione parallela di sub-agenti su un piano di audit strutturato. Il piano e gli artefatti dell'audit
-sono conservati in `.omc/plans/`.
 
 ## [v0.0.0] — pre-release
 

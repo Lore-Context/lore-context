@@ -15,14 +15,6 @@ pnpm --filter @lore/website dev -- --port 4174
 
 Build output is written to `apps/website/dist`.
 
-## Design Source
-
-The v3 design handoff is saved at:
-
-```text
-docs/website v3/
-```
-
 The site intentionally avoids external runtime dependencies and remote assets so
 it can be hosted on Cloudflare Pages, S3/CloudFront, or any static server.
 

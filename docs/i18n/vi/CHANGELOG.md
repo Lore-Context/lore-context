@@ -104,8 +104,7 @@ MVP bị kiểm toán thất bại thành release-candidate alpha. Tất cả P0
 ### Bảo mật
 
 - Tất cả P0 audit finding (bypass loopback / auth dashboard / giới hạn tốc độ / secret demo)
-  đã được xử lý. Xem `Lore_Context_项目计划书_2026-04-27.md` và
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` để biết audit trail đầy đủ.
+  đã được xử lý. Xem public release notes để biết audit trail đầy đủ.
 - `pnpm audit --prod` báo cáo không có lỗ hổng đã biết tại thời điểm phát hành.
 - Thông tin đăng nhập demo đã bị xóa khỏi tất cả template triển khai và README ví dụ.
 - Image container giờ chạy mặc định không phải root.
@@ -127,7 +126,6 @@ MVP bị kiểm toán thất bại thành release-candidate alpha. Tất cả P0
 
 Bản phát hành này là kết quả của một sprint tăng cường sản xuất trong một ngày liên quan đến
 thực thi sub-agent song song dựa trên kế hoạch kiểm toán có cấu trúc. Kế hoạch và artifact kiểm toán
-được lưu trữ trong `.omc/plans/`.
 
 ## [v0.0.0] — pre-release
 

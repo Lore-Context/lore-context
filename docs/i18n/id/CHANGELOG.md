@@ -105,8 +105,7 @@ dibersihkan (satu parsial — lihat Catatan), 117+ tes lulus, build monorepo pen
 ### Keamanan
 
 - Semua temuan audit P0 (bypass loopback / autentikasi dashboard / batas laju / secret demo)
-  dibersihkan. Lihat `Lore_Context_项目计划书_2026-04-27.md` dan
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` untuk jejak audit lengkap.
+  dibersihkan. Lihat public release notes untuk jejak audit lengkap.
 - `pnpm audit --prod` melaporkan nol kerentanan yang diketahui pada saat rilis.
 - Kredensial demo dihapus dari semua template penerapan dan README contoh.
 - Image container kini berjalan sebagai non-root secara default.
@@ -128,7 +127,6 @@ dibersihkan (satu parsial — lihat Catatan), 117+ tes lulus, build monorepo pen
 
 Rilis ini adalah hasil sprint pengerasan produksi satu hari yang melibatkan
 eksekusi sub-agen paralel terhadap rencana audit terstruktur. Rencana dan artefak audit
-disimpan di bawah `.omc/plans/`.
 
 ## [v0.0.0] — pra-rilis
 

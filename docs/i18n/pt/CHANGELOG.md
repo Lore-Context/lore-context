@@ -114,8 +114,7 @@ build completo do monorepo limpo.
 ### Segurança
 
 - Todos os achados P0 de auditoria (bypass de loopback / auth do dashboard / limite de
-  taxa / segredos de demonstração) resolvidos. Consulte `Lore_Context_项目计划书_2026-04-27.md`
-  e `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` para o rastro de auditoria completo.
+  taxa / segredos de demonstração) resolvidos. Consulte public release notes para o rastro de auditoria completo.
 - `pnpm audit --prod` relata zero vulnerabilidades conhecidas no momento do lançamento.
 - Credenciais de demonstração removidas de todos os templates de implantação e READMEs
   de exemplo.
@@ -140,7 +139,6 @@ build completo do monorepo limpo.
 
 Este lançamento é resultado de um sprint de hardening de produção de um único dia
 envolvendo execução paralela de sub-agentes contra um plano de auditoria estruturado.
-O plano e os artefatos de auditoria estão preservados em `.omc/plans/`.
 
 ## [v0.0.0] — pré-lançamento
 

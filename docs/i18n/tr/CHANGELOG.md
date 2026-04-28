@@ -109,8 +109,7 @@ Lore Context'teki tüm önemli değişiklikler burada belgelenmiştir. Biçim,
 
 - Tüm P0 denetim bulguları (loopback atlatma / gösterge tablosu kimlik doğrulama /
   hız sınırı / demo gizli bilgileri) temizlendi. Tam denetim izi için
-  `Lore_Context_项目计划书_2026-04-27.md` ve
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` dosyalarına bakın.
+  public release notes dosyalarına bakın.
 - `pnpm audit --prod` yayın zamanında sıfır bilinen güvenlik açığı raporluyor.
 - Demo kimlik bilgileri tüm dağıtım şablonlarından ve örnek README'lerden kaldırıldı.
 - Konteyner görüntüleri artık varsayılan olarak root olmayan kullanıcı olarak çalışıyor.
@@ -132,8 +131,8 @@ Lore Context'teki tüm önemli değişiklikler burada belgelenmiştir. Biçim,
 ### Teşekkürler
 
 Bu sürüm, yapılandırılmış denetim planına karşı paralel alt ajan yürütmesini içeren tek
-günlük üretim sertleştirme sprintinin sonucudur. Plan ve denetim eserleri `.omc/plans/`
-altında korunmaktadır.
+günlük üretim sertleştirme sprintinin sonucudur. Internal audit artifacts are not part
+of the public source distribution.
 
 ## [v0.0.0] — ön sürüm
 

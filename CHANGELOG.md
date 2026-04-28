@@ -104,8 +104,7 @@ cleared (one partial — see Notes), 117+ tests passing, full monorepo build cle
 ### Security
 
 - All P0 audit findings (loopback bypass / dashboard auth / rate limit / demo
-  secrets) cleared. See `Lore_Context_项目计划书_2026-04-27.md` and
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` for the full audit trail.
+  secrets) cleared. Public release notes summarize the hardening work; internal audit artifacts are not part of the public source distribution.
 - `pnpm audit --prod` reports zero known vulnerabilities at release time.
 - Demo credentials removed from all deployment templates and example READMEs.
 - Container images now run as non-root by default.
@@ -126,8 +125,8 @@ cleared (one partial — see Notes), 117+ tests passing, full monorepo build cle
 ### Acknowledgments
 
 This release is the result of a single-day production-hardening sprint involving
-parallel sub-agent execution against a structured audit plan. Plan and audit
-artifacts are preserved under `.omc/plans/`.
+parallel sub-agent execution against a structured audit plan. Internal audit
+artifacts are not part of the public source distribution.
 
 ## [v0.0.0] — pre-release
 

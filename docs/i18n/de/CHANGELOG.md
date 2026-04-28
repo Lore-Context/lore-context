@@ -102,8 +102,7 @@ Erste öffentliche Alpha. Schließt den Produktionshärtungs-Sprint ab, der das 
 ### Sicherheit
 
 - Alle P0-Audit-Befunde (Loopback-Bypass / Dashboard-Auth / Ratenbegrenzung / Demo-Geheimnisse)
-  behoben. Siehe `Lore_Context_项目计划书_2026-04-27.md` und
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` für den vollständigen Audit-Trail.
+  behoben. Siehe public release notes für den vollständigen Audit-Trail.
 - `pnpm audit --prod` meldet zum Zeitpunkt der Veröffentlichung null bekannte Sicherheitslücken.
 - Demo-Anmeldedaten aus allen Deployment-Vorlagen und Beispiel-READMEs entfernt.
 - Container-Images laufen jetzt standardmäßig als Nicht-Root.
@@ -125,7 +124,6 @@ Erste öffentliche Alpha. Schließt den Produktionshärtungs-Sprint ab, der das 
 
 Dieses Release ist das Ergebnis eines eintägigen Produktionshärtungs-Sprints mit
 paralleler Sub-Agent-Ausführung gegen einen strukturierten Audit-Plan. Plan- und Audit-
-Artefakte sind unter `.omc/plans/` erhalten.
 
 ## [v0.0.0] — Pre-Release
 

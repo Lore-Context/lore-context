@@ -105,8 +105,7 @@ wyczyszczonych (jedna częściowo — patrz Uwagi), 117+ testów przechodzi, pe�
 ### Bezpieczeństwo
 
 - Wszystkie ustalenia audytu P0 (obejście loopback / uwierzytelnianie dashboardu / limit szybkości / sekrety demo)
-  wyczyszczone. Zobacz `Lore_Context_项目计划书_2026-04-27.md` i
-  `.omc/plans/lore-prelaunch-fixes-2026-04-28.md` po pełny ślad audytu.
+  wyczyszczone. Zobacz public release notes po pełny ślad audytu.
 - `pnpm audit --prod` zgłasza zero znanych podatności w momencie wydania.
 - Poświadczenia demo usunięte ze wszystkich szablonów wdrożeniowych i przykładowych README.
 - Obrazy kontenerów uruchamiają się teraz domyślnie jako nieuprzywilejowane.
@@ -128,7 +127,6 @@ wyczyszczonych (jedna częściowo — patrz Uwagi), 117+ testów przechodzi, pe�
 
 To wydanie jest wynikiem jednodniowego sprintu utwardzania produkcyjnego z
 równoległym wykonaniem pod-agentów na podstawie ustrukturyzowanego planu audytu. Plan i artefakty audytu
-są zachowane w `.omc/plans/`.
 
 ## [v0.0.0] — pre-release
 
