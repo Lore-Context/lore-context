@@ -43,7 +43,9 @@ try {
 async function verifyLanguageChooser() {
   const html = await fetchHtml(`${baseUrl}/`);
   assert.match(html, /Choose your language\./, "Root language chooser should render.");
-  assert.equal((html.match(/data-locale-link/g) ?? []).length, localeCodes.length, "Root language chooser should list all locales.");
+  assert.match(html, /redland2024@gmail\.com/, "Root language chooser should keep the REDLAND contact email.");
+  assert.equal((html.match(/<div class="language-grid">/g) ?? []).length, 1, "Root language chooser should render the locale grid.");
+  assert.equal((html.match(/hreflang=/g) ?? []).length, localeCodes.length * 2 + 1, "Root language chooser should publish every locale link plus alternates.");
 }
 
 async function verifyLocaleRoutes() {

@@ -1035,7 +1035,7 @@ function rootIndex() {
     const t = locales[code];
     return `<a href="${pathFor(code)}" lang="${t.lang}" hreflang="${t.hreflang}">${escapeHtml(t.label)} <span>${escapeHtml(t.short)}</span></a>`;
   });
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Lore Context</title>${alternateLinks("")}<style>${styles()}</style></head><body><main class="section page"><div class="shell article"><h1>Lore Context</h1><p class="lead">Choose your language.</p><div class="language-grid">${list.join("")}</div></div></main><script>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Lore Context</title>${alternateLinks("")}<style>${styles()}</style></head><body><main class="section page"><div class="shell article"><h1>Lore Context</h1><p class="lead">Choose your language.</p><p class="notice">REDLAND PTE. LTD. · redland2024@gmail.com</p><div class="language-grid">${list.join("")}</div></div></main><script>
 const supported=${JSON.stringify(localeOrder)};
 const aliases={zh:"zh-hans","zh-cn":"zh-hans","zh-sg":"zh-hans","zh-tw":"zh-hant","zh-hk":"zh-hant","pt-br":"pt","pt-pt":"pt","id-id":"id","en-us":"en","en-gb":"en"};
 function pick(){try{const saved=localStorage.getItem("lore_locale");if(supported.includes(saved))return saved;}catch(e){}const langs=navigator.languages||[navigator.language||"en"];for(const raw of langs){const lang=String(raw||"").toLowerCase();if(aliases[lang])return aliases[lang];const base=lang.split("-")[0];if(supported.includes(base))return base;}return "en";}
@@ -1044,7 +1044,7 @@ location.replace("/"+pick()+"/");
 }
 
 function redirectPage(slug) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8" /><meta http-equiv="refresh" content="0; url=/en/${slug}.html" /><title>Lore Context</title></head><body><a href="/en/${slug}.html">Continue</a></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta http-equiv="refresh" content="0; url=/en/${slug}.html" /><title>Lore Context</title>${alternateLinks(slug)}<style>${styles()}</style></head><body><main class="section page"><div class="shell article"><span class="section-num">REDIRECT / ${escapeHtml(slug.toUpperCase())}</span><h1>Lore Context</h1><p class="lead">Continue to the English ${escapeHtml(slug)} page.</p><p class="notice">REDLAND PTE. LTD. · redland2024@gmail.com</p><p><a class="button primary" href="/en/${slug}.html">Continue</a></p></div></main></body></html>`;
 }
 
 function robots() {
