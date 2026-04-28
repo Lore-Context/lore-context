@@ -50,36 +50,37 @@ const locales = {
       "Know what every agent remembered, used, and should forget before memory becomes production risk.",
     chips: ["LOCAL ALPHA OPEN", "REST API", "MCP STDIO", "POSTGRES 16", "DASHBOARD", "PRIVATE DEPLOY"],
     sectionNums: ["01 / PROBLEM", "02 / SYSTEM", "03 / FEATURES", "04 / ALPHA", "05 / EVAL", "06 / INTEGRATIONS", "07 / START"],
+    sectionEyebrows: ["The memory gap", "Pipeline", "Product surfaces", "Shipped this week", "Last run · 4m ago", "Drop-in MCP", "Start"],
     problemTitle: "Agents remember. Teams need proof.",
     problemCopy:
-      "Every coding agent, support bot, and copilot is moving toward long-term memory. Most teams still cannot show the audit trail behind one answer.",
+      "Every coding agent, support bot, and copilot is now writing to long-term memory. Almost none of them can show the audit trail behind a single answer.",
     problemCards: [
-      ["Stale memory", "Old API contracts and one-off decisions can reappear in today's agent output."],
-      ["Unknown provenance", "A useful fact appears, but no one can explain which session produced it."],
-      ["Unsafe writeback", "Agents can persist hallucinations, secrets, and sensitive context into shared memory."],
-      ["Backend lock-in", "Each vector store captures data in a different schema, format, and retrieval path."]
+      ["Stale memory", "Last week's API contract is still being recalled into this morning's pull request. Nobody flagged it."],
+      ["Unknown provenance", "An agent quoted a fact. Which document, session, user, and run produced it? Without provenance: a shrug."],
+      ["Unsafe writeback", "Agents silently persist hallucinations, PII, and one-off conversation noise into shared long-term memory. Forever."],
+      ["Backend lock-in", "Every vector store ships a different schema, a different retrieval API, and quietly captures your data. Migrating costs a month."]
     ],
-    systemTitle: "A governed path between agents and memory.",
+    systemTitle: "One context plane. Every agent surface.",
     systemCopy:
-      "MCP clients query through one composer. Lore evaluates retrieval, traces the answer path, and routes risky writebacks through governance before they reach shared memory.",
-    featuresTitle: "Six product surfaces. One audit trail.",
-    featuresCopy: "No magic memory layer. Each surface is inspectable, scriptable, and can be turned off.",
+      "MCP clients query through a single composer that passes every retrieval through eval, trace, and governance before it reaches the model. Backed by Postgres and a portable agent-memory adapter.",
+    featuresTitle: "Built for operators, not memory hype.",
+    featuresCopy: "Every surface is inspectable, scriptable, and designed to show proof instead of product theater.",
     features: [
-      ["Context Query", "Typed retrieval with ranked memories, provenance, freshness, and policy state."],
-      ["Memory Eval Playground", "Replay queries against your seed data and compare retriever settings before rollout."],
-      ["Memory Observability", "Trace every retrieval, write, redaction, and policy decision by agent or user."],
-      ["Governance Review", "Approve, redact, reject, or forget proposed memory with a durable audit record."],
-      ["MIF-like Portability", "Export memories, embeddings, provenance, and policy state without backend lock-in."],
-      ["Private Deployment", "Run locally or in your VPC with Docker Compose, Postgres, and no phone-home."]
+      ["Context Query", "A single typed call your agent can rely on. Returns ranked memories with provenance, freshness, and policy state attached to every row."],
+      ["Memory Eval Playground", "Replay queries against your seed dataset. Tune retriever, reranker, and freshness cutoff. Compare runs side-by-side. Pin the winner."],
+      ["Memory Observability", "A live trace of every retrieval, every write, every redaction. Drill into any span. Filter by source agent, user, or policy outcome."],
+      ["Governance Review", "Every writeback passes a policy gate. Human-in-the-loop review for sensitive scopes. Diff, approve, redact, or reject — with audit."],
+      ["MIF-like Portability", "Memory Interchange Format. Export the entire corpus — embeddings, provenance, policy state — and replay it anywhere. No lock-in."],
+      ["Private Deployment", "Single docker compose. No telemetry, no phone-home, no proprietary embedding endpoint. Run it on your laptop, then on your VPC."]
     ],
     alphaTitle: "What is in v0.4 alpha.",
-    alphaCopy: "Honest status. Built first, polished continuously. Everything below runs on your machine with Docker Compose.",
+    alphaCopy: "Honest list. Built first, polished later. Everything below runs offline, on your machine, on a free Docker Compose.",
     evalTitle: "Eval proof report. On your own data.",
-    evalCopy: "Watch recall, precision, stale-hit rate, and latency move as you change retrievers, rerankers, and freshness cuts.",
+    evalCopy: "Run the same retrieval evaluation against your seed dataset. Watch recall, precision, and stale-hit rate move as you change retrievers, rerankers, and embedding cuts.",
     integrationsTitle: "Speak the protocols your agents already use.",
     integrationsCopy: "Lore exposes MCP stdio and REST surfaces so agents query, write, and review through the same governance layer.",
     finalTitle: "Start with a local alpha. Prove memory quality before you scale it.",
-    finalCopy: "Four commands. A seeded demo dataset. A Playwright smoke pass that proves the dashboard renders.",
+    finalCopy: "Four commands. A seeded demo dataset. A Playwright smoke pass that proves the dashboard renders. Bring your own Postgres, or use the bundled one.",
     footerProduct: "Product",
     footerResources: "Resources",
     footerCompany: "Company",
@@ -89,7 +90,7 @@ const locales = {
       architecture: ["Architecture", "Lore is a local-first control plane with API, MCP transport, eval, governance, and Postgres audit storage."],
       changelog: ["Changelog", "v0.4 alpha focuses on local setup, context querying, eval proof, governance review, and reproducible smoke checks."],
       company: ["Company", "Lore Context is operated by REDLAND PTE. LTD., Singapore UEN 202304648K."],
-      contact: ["Contact", "For product, security, privacy, and partnership questions, use the dedicated Lore Context contact channels."],
+      contact: ["Contact", "Email: redland2024@gmail.com"],
       privacy: ["Privacy Policy", "We collect only the data needed to operate the website, respond to requests, and support the local alpha."],
       terms: ["Terms of Service", "Lore Context is alpha software. Test carefully before production reliance."],
       cookies: ["Cookie Notice", "The website is designed to run without advertising cookies or third-party tracking scripts."],
@@ -239,6 +240,7 @@ for (const code of localeOrder) {
   const locale = locales[code];
   locale.chips ??= locales.en.chips;
   locale.sectionNums ??= locales.en.sectionNums;
+  locale.sectionEyebrows ??= locales.en.sectionEyebrows;
   locale.features ??= translateFeatures(code, locale);
   locale.footerProduct ??= footerWords(code).product;
   locale.footerResources ??= footerWords(code).resources;
