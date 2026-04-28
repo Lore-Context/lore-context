@@ -12,6 +12,7 @@ Status: REST API and local stdio MCP launcher are available. Use the `mcpServers
 Start Lore first:
 
 ```bash
+pnpm quickstart -- --dry-run
 pnpm build
 PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
 ```
@@ -25,7 +26,9 @@ Register the MCP server:
       "command": "node",
       "args": ["/Users/shuanbaozhu/Desktop/Lore/apps/mcp-server/dist/index.js"],
       "env": {
-        "LORE_API_URL": "http://127.0.0.1:3000"
+        "LORE_API_URL": "http://127.0.0.1:3000",
+        "LORE_API_KEY": "<optional API key>",
+        "LORE_MCP_TRANSPORT": "sdk"
       }
     }
   }
@@ -46,6 +49,21 @@ Prefer a narrow client-side tool allowlist when Qwen Code exposes one:
 - Add `memory_write` only for explicit user preferences or stable project rules.
 - Use `trace_get` when debugging context quality or source attribution.
 - Use `memory_update` or `memory_supersede` instead of overwriting durable facts outside Lore.
+
+Smoke the path:
+
+```bash
+pnpm config:integrations
+pnpm smoke:mcp
+```
+
+Troubleshooting:
+
+- If Qwen Code reports invalid JSON-RPC, avoid `pnpm start`; MCP stdio should run `node apps/mcp-server/dist/index.js`.
+- If Lore returns `401` or `403`, pass `LORE_API_KEY` in the MCP `env`.
+- If port `3000` is unavailable, set `LORE_API_URL` to the live API port.
+- If project-scoped keys fail, include the expected `project_id` in tool calls.
+- If agentmemory is offline, start with Lore's local memory/search tools and defer sync.
 
 ## Notes
 

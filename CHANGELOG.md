@@ -4,6 +4,74 @@ All notable changes to Lore Context are documented here. The format is based on
 [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.0-alpha] — 2026-04-29
+
+Alpha Adoption Sprint release. This release turns the v0.4 production-hardened
+control plane into a faster developer adoption path: machine-readable API docs,
+copy-paste integration setup, and an Evidence Ledger that explains what context an
+agent actually used.
+
+### Added
+
+- **OpenAPI 3.1 contract** — `apps/api/src/openapi.ts` now publishes the REST
+  surface at `GET /openapi.json`, including health, memory, context, governance,
+  trace, evidence, eval, event ingest, and agentmemory integration routes.
+- **`pnpm openapi:check`** — release gate that validates required paths,
+  operation ids, bearer-auth scheme, responses, and JSON serializability.
+- **Evidence Ledger API** — `GET /v1/evidence/ledger/:trace_id` and
+  `GET /v1/evidence/ledgers?project_id=&limit=` explain retrieved, used,
+  ignored, missing, stale, conflicting, and risky memory rows for context traces.
+- **Evidence Ledger dashboard summary** — Recent Traces now surfaces used,
+  ignored, warning, and risk counts plus row previews so operators can inspect why
+  a context answer was trusted.
+- **`pnpm quickstart`** — local adoption helper that checks Node/pnpm, generates
+  random API keys, optionally writes `data/quickstart.env`, checks ports, and
+  prints first-query curl plus Claude Code, Cursor, and Qwen Code MCP snippets.
+- **Golden-path setup docs** — Claude Code, Cursor, and Qwen Code guides now
+  include the v0.5 quickstart helper, SDK stdio transport, smoke commands, and
+  troubleshooting notes.
+- **Eval report API export** — `GET /v1/eval/report?run_id=&format=json|markdown`
+  returns shareable eval report output from stored runs.
+- **v0.5 planning and governance docs** — project plan, roadmap, architecture,
+  release-governance, and deployment docs now distinguish public open-core release
+  work from private `lore-cloud` alpha work.
+
+### Changed
+
+- Root and package versions advanced to `0.5.0-alpha.0`.
+- README now positions v0.5 as the current alpha and links the OpenAPI,
+  quickstart, Evidence Ledger, and golden integration paths directly.
+- Website docs now point at the `v0.5.0-alpha` release and show the new release
+  gate: OpenAPI validation, quickstart, Evidence Ledger, and browser smoke.
+- API reference was synchronized with the current runtime response shapes,
+  including `contextBlock`, evidence arrays, memory write/update responses,
+  trace feedback, audit logs, import/export, and evidence endpoints.
+- `scripts/generate-integration-config.mjs` now emits the same Claude Code MCP
+  wrapper shape used by the docs.
+- `scripts/smoke-api.mjs` now verifies `/openapi.json` and an Evidence Ledger row
+  after a context query.
+
+### Fixed
+
+- Public API docs no longer describe stale parameters such as `state`/`offset` for
+  memory list. The documented parameters match the runtime and OpenAPI contract.
+- `MemoryUpdateRequest` is documented with `agent_id`, matching the implemented
+  update route.
+- Evidence Ledger handles hard-deleted or missing memories without leaking raw
+  content from deleted records.
+
+### Notes / Known limitations
+
+- `v0.5.0-alpha` still does **not** include hosted multi-tenant cloud sync,
+  billing, public SaaS signup, or remote MCP HTTP as the default path.
+- Private alpha infrastructure, tenant administration, backup/restore, and
+  observability remain private `Lore-Context/lore-cloud` work.
+- Clean-checkout human timing for the 10-minute activation target still needs to
+  be run with design partners after the public release.
+- The local checkout used for this release still demonstrates why public/private
+  remotes should be split into separate clones or worktrees before ongoing v0.6
+  development.
+
 ## [v0.4.0-alpha] — 2026-04-28
 
 First public alpha. Closes the production-hardening sprint that turned the audit-failed
@@ -151,5 +219,6 @@ Internal development milestones, not publicly released. Implemented:
 - Private Docker/Compose packaging.
 - Legacy + official-SDK stdio MCP transports.
 
+[v0.5.0-alpha]: https://github.com/Lore-Context/lore-context/releases/tag/v0.5.0-alpha
 [v0.4.0-alpha]: https://github.com/Lore-Context/lore-context/releases/tag/v0.4.0-alpha
 [v0.0.0]: https://github.com/Lore-Context/lore-context

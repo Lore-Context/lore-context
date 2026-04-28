@@ -532,6 +532,17 @@ td small {
   flex-wrap: wrap;
 }
 
+.evidenceSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.evidenceSummary small {
+  flex: 1 0 100%;
+}
+
 .metricPill {
   display: inline-flex;
   align-items: baseline;

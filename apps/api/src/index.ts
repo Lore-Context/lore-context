@@ -15,6 +15,10 @@ import {
   type ContextQueryResponse,
   type ContextRoute,
   type ContextTrace,
+  type EvidenceLedger,
+  type EvidenceLedgerAction,
+  type EvidenceLedgerDisposition,
+  type EvidenceLedgerRow,
   type EvalDataset,
   type EvalMetrics,
   type MemoryHit,
@@ -32,6 +36,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Pool, type PoolClient } from "pg";
 import { loadSchemaSql } from "./db/schema.js";
 import { log } from "./logger.js";
+import { openApiDocument } from "./openapi.js";
 
 const LORE_MAX_JSON_BYTES = Number(process.env.LORE_MAX_JSON_BYTES ?? 1048576);
 const LORE_REQUEST_TIMEOUT_MS = Number(process.env.LORE_REQUEST_TIMEOUT_MS ?? 30000);
@@ -1223,6 +1228,132 @@ export async function composeContext(
   };
 }
 
+export function buildEvidenceLedger(trace: ContextTrace, store: InMemoryLoreStore, now = new Date()): EvidenceLedger {
+  const used = new Set(trace.composedMemoryIds);
+  const ignored = new Set(trace.ignoredMemoryIds);
+  const orderedIds = uniqueStrings([...trace.composedMemoryIds, ...trace.ignoredMemoryIds, ...trace.retrievedMemoryIds]);
+  const rows = orderedIds.map((memoryId) => buildEvidenceLedgerRow(memoryId, used, ignored, store, now));
+  const riskTags = uniqueStrings(rows.flatMap((row) => row.riskTags));
+  const rowWarningCount = rows.reduce((total, row) => total + row.warnings.length, 0);
+  const staleCount = rows.filter((row) => row.warnings.includes("stale")).length;
+  const conflictCount = rows.filter((row) => row.warnings.includes("conflict")).length;
+
+  return {
+    traceId: trace.id,
+    query: trace.query,
+    ...(trace.projectId ? { projectId: trace.projectId } : {}),
+    route: trace.route,
+    traceWarnings: trace.warnings,
+    summary: {
+      retrieved: trace.retrievedMemoryIds.length,
+      composed: trace.composedMemoryIds.length,
+      ignored: trace.ignoredMemoryIds.length,
+      warnings: trace.warnings.length + rowWarningCount,
+      riskTags,
+      staleCount,
+      conflictCount
+    },
+    rows,
+    actions: ledgerActions(rows),
+    ...(trace.feedback ? { feedback: trace.feedback } : {}),
+    ...(trace.feedbackAt ? { feedbackAt: trace.feedbackAt } : {}),
+    createdAt: trace.createdAt
+  };
+}
+
+function buildEvidenceLedgerRow(
+  memoryId: string,
+  used: Set<string>,
+  ignored: Set<string>,
+  store: InMemoryLoreStore,
+  now: Date
+): EvidenceLedgerRow {
+  const memory = store.getMemory(memoryId);
+  if (!memory) {
+    return {
+      memoryId,
+      contentPreview: "[memory unavailable]",
+      disposition: "missing",
+      status: "missing",
+      confidence: null,
+      sourceRefs: [],
+      riskTags: [],
+      warnings: ["missing"]
+    };
+  }
+
+  const warnings = memoryWarnings(memory, now);
+  const disposition = memoryDisposition(memory, used, ignored);
+  return {
+    memoryId,
+    contentPreview: safeMemoryPreview(memory),
+    disposition,
+    status: memory.status,
+    confidence: memory.confidence,
+    sourceRefs: memory.sourceRefs,
+    riskTags: memory.riskTags,
+    warnings,
+    ...(memory.lastUsedAt !== undefined ? { lastUsedAt: memory.lastUsedAt } : {}),
+    ...(memory.supersededBy !== undefined ? { supersededBy: memory.supersededBy } : {})
+  };
+}
+
+function memoryDisposition(
+  memory: MemoryRecord,
+  used: Set<string>,
+  ignored: Set<string>
+): EvidenceLedgerDisposition {
+  if (memory.status === "deleted" || memory.status === "candidate") {
+    return "blocked";
+  }
+  if (used.has(memory.id)) {
+    return "used";
+  }
+  if (ignored.has(memory.id)) {
+    return "ignored";
+  }
+  return "ignored";
+}
+
+function safeMemoryPreview(memory: MemoryRecord): string {
+  if (memory.status === "deleted") {
+    return "[deleted memory]";
+  }
+  if (memory.riskTags.length > 0 && memory.status !== "active" && memory.status !== "confirmed") {
+    return `[redacted memory: ${memory.riskTags.join(", ")}]`;
+  }
+  const preview = memory.content.replace(/\s+/g, " ").trim();
+  if (preview.length <= 160) {
+    return preview;
+  }
+  return `${preview.slice(0, 157)}...`;
+}
+
+function memoryWarnings(memory: MemoryRecord, now: Date): string[] {
+  return [
+    memory.status === "deleted" ? "deleted" : undefined,
+    memory.status === "candidate" ? "not_approved" : undefined,
+    memory.validUntil && new Date(memory.validUntil).getTime() < now.getTime() ? "stale" : undefined,
+    memory.supersededBy ? "superseded" : undefined,
+    hasConflictSignal(memory) ? "conflict" : undefined,
+    ...memory.riskTags.map((tag) => `risk:${tag}`)
+  ].filter((warning): warning is string => Boolean(warning));
+}
+
+function hasConflictSignal(memory: MemoryRecord): boolean {
+  const contradicts = memory.metadata.contradicts;
+  return memory.riskTags.includes("conflict") || (Array.isArray(contradicts) && contradicts.length > 0);
+}
+
+function ledgerActions(rows: EvidenceLedgerRow[]): EvidenceLedgerAction[] {
+  const hasLiveRows = rows.some((row) => row.status !== "missing" && row.status !== "deleted");
+  return hasLiveRows ? ["view", "mark_wrong", "mark_outdated", "forget", "supersede"] : [];
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values)];
+}
+
 export function createLoreApi(deps: LoreApiDependencies = {}) {
   const store = deps.store ?? createDefaultStore(deps);
   const agentMemory = deps.agentMemory ?? new AgentMemoryAdapter();
@@ -1250,6 +1381,10 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
 
           if (request.method === "GET" && path === "/health") {
             return json(getHealthResponse(now()));
+          }
+
+          if (request.method === "GET" && path === "/openapi.json") {
+            return json(openApiDocument);
           }
 
           const auth = authenticateRequest(request, apiKeys);
@@ -1617,6 +1752,24 @@ async function handleRequest(
           return json({ evalRuns });
         }
 
+        if (request.method === "GET" && path === "/v1/eval/report") {
+          const projectId = readOptionalString(url.searchParams.get("project_id") ?? url.searchParams.get("projectId"));
+          const format = readOptionalString(url.searchParams.get("format")) ?? "md";
+          requireProjectReadAccess(auth, projectId);
+          const evalRun = filterEvalRunsForAuth([...store.evalRuns.values()], auth)
+            .filter((run) => !projectId || run.projectId === projectId)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+          if (!evalRun) {
+            throw new LoreError("eval.not_found", "eval run not found", 404);
+          }
+          if (format === "json") {
+            return json({ evalRun, publicSafe: true });
+          }
+          return new Response(renderEvalReportMarkdown(evalRun), {
+            headers: { "content-type": "text/markdown; charset=utf-8" }
+          });
+        }
+
         const evalMatch = path.match(/^\/v1\/eval\/runs\/([^/]+)$/);
         if (request.method === "GET" && evalMatch) {
           const evalRun = store.evalRuns.get(evalMatch[1] ?? "");
@@ -1635,7 +1788,39 @@ async function handleRequest(
         }
 
         if (request.method === "GET" && path === "/v1/traces") {
-          return json({ traces: filterTracesForAuth([...store.traces.values()], auth) });
+          const projectId = readOptionalString(url.searchParams.get("project_id") ?? url.searchParams.get("projectId"));
+          requireProjectReadAccess(auth, projectId);
+          const limitParam = url.searchParams.get("limit");
+          const limit = Math.min(Math.max(limitParam ? readOptionalNumber(Number(limitParam)) ?? 100 : 100, 1), 500);
+          const traces = filterTracesForAuth([...store.traces.values()], auth)
+            .filter((trace) => !projectId || trace.projectId === projectId)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+            .slice(0, limit);
+          return json({ traces });
+        }
+
+        const evidenceLedgerMatch = path.match(/^\/v1\/evidence\/ledger\/([^/]+)$/);
+        if (request.method === "GET" && evidenceLedgerMatch) {
+          const traceId = decodeURIComponent(evidenceLedgerMatch[1] ?? "");
+          const trace = store.traces.get(traceId);
+          if (!trace) {
+            throw new LoreError("trace.not_found", "trace not found", 404);
+          }
+          requireStoredProjectAccess(auth, trace.projectId);
+          return json({ ledger: buildEvidenceLedger(trace, store, now()) });
+        }
+
+        if (request.method === "GET" && path === "/v1/evidence/ledgers") {
+          const projectId = readOptionalString(url.searchParams.get("project_id") ?? url.searchParams.get("projectId"));
+          requireProjectReadAccess(auth, projectId);
+          const limitParam = url.searchParams.get("limit");
+          const limit = Math.min(Math.max(limitParam ? readOptionalNumber(Number(limitParam)) ?? 20 : 20, 1), 100);
+          const ledgers = filterTracesForAuth([...store.traces.values()], auth)
+            .filter((trace) => !projectId || trace.projectId === projectId)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+            .slice(0, limit)
+            .map((trace) => buildEvidenceLedger(trace, store, now()));
+          return json({ ledgers });
         }
 
         if (request.method === "GET" && path === "/v1/audit-logs") {
@@ -1724,6 +1909,36 @@ async function flushStoreAfterRequest(store: InMemoryLoreStore): Promise<void> {
 function latestEvalScore(evalRuns: EvalRunRecord[]): number | undefined {
   const latest = [...evalRuns].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
   return latest?.metrics.recallAt5;
+}
+
+function renderEvalReportMarkdown(run: EvalRunRecord): string {
+  return [
+    "# Lore Eval Report",
+    "",
+    `- Eval run: \`${run.id}\``,
+    `- Provider: \`${run.provider}\``,
+    `- Project: \`${run.projectId ?? "unscoped"}\``,
+    `- Created: \`${run.createdAt}\``,
+    "- Public-safe: `true`",
+    "",
+    "| Metric | Value |",
+    "| --- | ---: |",
+    `| Recall@5 | ${formatPercent(run.metrics.recallAt5)} |`,
+    `| Precision@5 | ${formatPercent(run.metrics.precisionAt5)} |`,
+    `| MRR | ${formatPercent(run.metrics.mrr)} |`,
+    `| Stale hit rate | ${formatPercent(run.metrics.staleHitRate)} |`,
+    `| P95 latency | ${Math.round(run.metrics.p95LatencyMs)} ms |`,
+    "",
+    "## Interpretation",
+    "",
+    "- This report intentionally includes metrics and run metadata, not raw memory content.",
+    "- Compare reports across providers before changing retrieval policy or offering a hosted deployment.",
+    ""
+  ].join("\n");
+}
+
+function formatPercent(value: number): string {
+  return `${Math.round(value * 100)}%`;
 }
 
 function listMemories(store: InMemoryLoreStore, url: URL, auth: AuthContext): MemoryRecord[] {

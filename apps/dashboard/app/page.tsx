@@ -37,6 +37,29 @@ interface ContextTrace {
   createdAt: string;
 }
 
+interface EvidenceLedgerSummary {
+  retrieved: number;
+  composed: number;
+  ignored: number;
+  warnings: number;
+  riskTags: string[];
+  staleCount: number;
+  conflictCount: number;
+}
+
+interface EvidenceLedger {
+  traceId: string;
+  summary: EvidenceLedgerSummary;
+  rows: Array<{
+    memoryId: string;
+    contentPreview: string;
+    disposition: "used" | "ignored" | "blocked" | "missing";
+    status: string;
+    riskTags: string[];
+    warnings: string[];
+  }>;
+}
+
 interface EvalMetrics {
   recallAt5: number;
   precisionAt5: number;
@@ -67,6 +90,7 @@ interface DashboardData {
   agentmemory: string;
   memories: MemoryRecord[];
   traces: ContextTrace[];
+  ledgers: EvidenceLedger[];
   evalRuns: EvalRun[];
   auditLogs: AuditLog[];
 }
@@ -119,6 +143,7 @@ export default function DashboardPage() {
     agentmemory: "unknown",
     memories: [],
     traces: [],
+    ledgers: [],
     evalRuns: [],
     auditLogs: []
   });
@@ -165,6 +190,11 @@ export default function DashboardPage() {
     [data.evalRuns]
   );
 
+  const ledgerByTraceId = useMemo(
+    () => new Map(data.ledgers.map((ledger) => [ledger.traceId, ledger])),
+    [data.ledgers]
+  );
+
   useEffect(() => {
     void refresh();
   }, []);
@@ -172,11 +202,12 @@ export default function DashboardPage() {
   async function refresh(nextProjectId = projectId) {
     setError("");
     try {
-      const [health, agentmemory, memories, traces, evalRuns, auditLogs] = await Promise.all([
+      const [health, agentmemory, memories, traces, ledgers, evalRuns, auditLogs] = await Promise.all([
         requestJson("/health", { allowError: true }),
         requestJson("/v1/integrations/agentmemory/health", { allowError: true }),
         requestJson(`/v1/memory/list?project_id=${encodeURIComponent(nextProjectId)}&limit=100`, { allowError: true }),
-        requestJson("/v1/traces", { allowError: true }),
+        requestJson(`/v1/traces?project_id=${encodeURIComponent(nextProjectId)}&limit=12`, { allowError: true }),
+        requestJson(`/v1/evidence/ledgers?project_id=${encodeURIComponent(nextProjectId)}&limit=12`, { allowError: true }),
         requestJson(`/v1/eval/runs?project_id=${encodeURIComponent(nextProjectId)}&limit=20`, { allowError: true }),
         requestJson("/v1/audit-logs?limit=20", { allowError: true })
       ]);
@@ -186,6 +217,7 @@ export default function DashboardPage() {
         agentmemory: typeof agentmemory.status === "string" ? agentmemory.status : "unknown",
         memories: Array.isArray(memories.memories) ? memories.memories : [],
         traces: Array.isArray(traces.traces) ? traces.traces : [],
+        ledgers: Array.isArray(ledgers.ledgers) ? ledgers.ledgers : [],
         evalRuns: Array.isArray(evalRuns.evalRuns) ? evalRuns.evalRuns : [],
         auditLogs: Array.isArray(auditLogs.auditLogs) ? auditLogs.auditLogs : []
       });
@@ -573,10 +605,10 @@ export default function DashboardPage() {
             </div>
             <table>
               <thead>
-                <tr><th>Query</th><th>Route</th><th>Budget</th><th>Feedback</th></tr>
+                <tr><th>Query</th><th>Route</th><th>Evidence</th><th>Budget</th><th>Feedback</th></tr>
               </thead>
               <tbody>
-                {data.traces.length === 0 ? <EmptyRow span={4} label="No traces yet" /> : data.traces.slice(-12).reverse().map((trace) => (
+                {data.traces.length === 0 ? <EmptyRow span={5} label="No traces yet" /> : data.traces.slice(0, 12).map((trace) => (
                   <tr key={trace.id}>
                     <td>
                       <div>{trace.query}</div>
@@ -585,6 +617,9 @@ export default function DashboardPage() {
                     <td>
                       <div>{trace.route.reason}</div>
                       {trace.warnings.length ? <small>{trace.warnings.join(", ")}</small> : <small>No warnings</small>}
+                    </td>
+                    <td>
+                      <LedgerSummary ledger={ledgerByTraceId.get(trace.id)} />
                     </td>
                     <td>
                       <div className="strongLine">{trace.latencyMs}ms</div>
@@ -701,6 +736,24 @@ function Status({ status, risks }: { status: string; risks: string[] }) {
     <div className="statusCell">
       <span className={status === "active" || status === "confirmed" ? "pill ok" : "pill"}>{status}</span>
       {risks.map((risk) => <span className="pill risk" key={risk}>{risk}</span>)}
+    </div>
+  );
+}
+
+function LedgerSummary({ ledger }: { ledger?: EvidenceLedger }) {
+  if (!ledger) {
+    return <small>No ledger yet</small>;
+  }
+
+  const riskyRows = ledger.rows.filter((row) => row.riskTags.length > 0 || row.disposition === "blocked" || row.disposition === "missing").length;
+  return (
+    <div className="evidenceSummary">
+      <span className="metricPill ok"><span>used</span><strong>{ledger.summary.composed}</strong></span>
+      <span className={ledger.summary.ignored > 0 ? "metricPill warn" : "metricPill ok"}><span>ignored</span><strong>{ledger.summary.ignored}</strong></span>
+      <span className={ledger.summary.warnings > 0 || riskyRows > 0 ? "metricPill risk" : "metricPill ok"}><span>risk</span><strong>{ledger.summary.warnings + riskyRows}</strong></span>
+      {ledger.rows.slice(0, 2).map((row) => (
+        <small key={`${row.memoryId}-${row.disposition}`}>{row.disposition}: {row.contentPreview}</small>
+      ))}
     </div>
   );
 }

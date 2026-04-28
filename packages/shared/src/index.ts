@@ -131,6 +131,47 @@ export interface ContextTrace {
   createdAt: string;
 }
 
+export type EvidenceLedgerDisposition = "used" | "ignored" | "blocked" | "missing";
+
+export type EvidenceLedgerAction = "view" | "mark_wrong" | "mark_outdated" | "forget" | "supersede";
+
+export interface EvidenceLedgerSummary {
+  retrieved: number;
+  composed: number;
+  ignored: number;
+  warnings: number;
+  riskTags: string[];
+  staleCount: number;
+  conflictCount: number;
+}
+
+export interface EvidenceLedgerRow {
+  memoryId: string;
+  contentPreview: string;
+  disposition: EvidenceLedgerDisposition;
+  status: MemoryStatus | "missing";
+  confidence: number | null;
+  sourceRefs: SourceRef[];
+  riskTags: string[];
+  warnings: string[];
+  lastUsedAt?: string | null;
+  supersededBy?: string | null;
+}
+
+export interface EvidenceLedger {
+  traceId: string;
+  query: string;
+  projectId?: string;
+  route: ContextRoute;
+  traceWarnings: string[];
+  summary: EvidenceLedgerSummary;
+  rows: EvidenceLedgerRow[];
+  actions: EvidenceLedgerAction[];
+  feedback?: ContextTrace["feedback"];
+  feedbackAt?: string;
+  createdAt: string;
+}
+
 export interface AuditLog {
   id: string;
   action: string;

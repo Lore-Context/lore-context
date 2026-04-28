@@ -8,12 +8,14 @@ Know what every agent remembered, used, and should forget — before memory beco
 
 [![CI](https://github.com/Lore-Context/lore-context/actions/workflows/ci.yml/badge.svg)](https://github.com/Lore-Context/lore-context/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v0.4.0--alpha-orange.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v0.5.0--alpha-orange.svg)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 
-[Getting Started](docs/getting-started.md) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
+[Getting Started](docs/getting-started.md) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Project Plan](docs/project-plan.md) · [Roadmap](docs/roadmap.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
 
 🌐 **Read this in your language**: [English](README.md) · [简体中文](docs/i18n/zh-CN/README.md) · [繁體中文](docs/i18n/zh-TW/README.md) · [日本語](docs/i18n/ja/README.md) · [한국어](docs/i18n/ko/README.md) · [Tiếng Việt](docs/i18n/vi/README.md) · [Español](docs/i18n/es/README.md) · [Português](docs/i18n/pt/README.md) · [Русский](docs/i18n/ru/README.md) · [Türkçe](docs/i18n/tr/README.md) · [Deutsch](docs/i18n/de/README.md) · [Français](docs/i18n/fr/README.md) · [Italiano](docs/i18n/it/README.md) · [Ελληνικά](docs/i18n/el/README.md) · [Polski](docs/i18n/pl/README.md) · [Українська](docs/i18n/uk/README.md) · [Bahasa Indonesia](docs/i18n/id/README.md)
+
+Localized docs may lag the current English release notes; the canonical v0.5 docs are the English README and `docs/` set.
 
 </div>
 
@@ -48,18 +50,21 @@ It does not try to be another memory database. The unique value is what sits on 
 git clone https://github.com/Lore-Context/lore-context.git
 cd lore-context && pnpm install
 
-# 2. Generate a real API key (do not use placeholders in any environment beyond local-only dev)
+# 2. Run the v0.5 quickstart helper
+pnpm quickstart -- --dry-run
+
+# 3. Generate a real API key (do not use placeholders in any environment beyond local-only dev)
 export LORE_API_KEY=$(openssl rand -hex 32)
 
-# 3. Start the API (file-backed, no Postgres required)
+# 4. Start the API (file-backed, no Postgres required)
 pnpm build && PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
 
-# 4. Write a memory
+# 5. Write a memory
 curl -H "Authorization: Bearer $LORE_API_KEY" -H "Content-Type: application/json" \
   -X POST http://127.0.0.1:3000/v1/memory/write \
   -d '{"content":"Use Postgres pgvector for Lore Context production storage.","memory_type":"project_rule","project_id":"demo"}'
 
-# 5. Query context
+# 6. Query context, then inspect the returned traceId in the Evidence Ledger
 curl -H "Authorization: Bearer $LORE_API_KEY" -H "Content-Type: application/json" \
   -X POST http://127.0.0.1:3000/v1/context/query \
   -d '{"query":"production storage","project_id":"demo","token_budget":1200}'
@@ -95,16 +100,20 @@ For full setup (Postgres, Docker Compose, Dashboard, MCP integration), see [docs
 
 For detail, see [docs/architecture.md](docs/architecture.md).
 
-## What's in v0.4.0-alpha
+## What's in v0.5.0-alpha
 
 | Capability | Status | Where |
 |---|---|---|
 | REST API with API-key auth (reader/writer/admin) | ✅ Production | `apps/api` |
+| OpenAPI 3.1 contract at `/openapi.json` | ✅ Production | `apps/api/src/openapi.ts` |
+| `pnpm quickstart` local adoption helper | ✅ Alpha | `scripts/lore-quickstart.mjs` |
 | MCP stdio server (legacy + official SDK transport) | ✅ Production | `apps/mcp-server` |
 | Next.js dashboard with HTTP Basic Auth gating | ✅ Production | `apps/dashboard` |
+| Evidence Ledger API + Dashboard summary | ✅ Alpha | `apps/api`, `apps/dashboard` |
 | Postgres + pgvector incremental persistence | ✅ Optional | `apps/api/src/db/` |
 | Governance state machine + audit log | ✅ Production | `packages/governance` |
 | Eval runner (Recall@K / Precision@K / MRR / staleHit / p95) | ✅ Production | `packages/eval` |
+| Eval report export (`json` / `markdown`) | ✅ Alpha | `GET /v1/eval/report` |
 | MIF v0.2 import/export with `supersedes` + `contradicts` | ✅ Production | `packages/mif` |
 | `agentmemory` adapter with version probe + degraded mode | ✅ Production | `packages/agentmemory-adapter` |
 | Rate limiting (per-IP + per-key with backoff) | ✅ Production | `apps/api` |
@@ -113,7 +122,25 @@ For detail, see [docs/architecture.md](docs/architecture.md).
 | Demo dataset + smoke tests + Playwright UI test | ✅ Production | `examples/`, `scripts/` |
 | Hosted multi-tenant cloud sync | ⏳ Roadmap | — |
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v0.4.0-alpha release notes.
+See [CHANGELOG.md](CHANGELOG.md) for the full v0.5.0-alpha release notes.
+
+## Release focus: Alpha Adoption Sprint
+
+The v0.5 release is the **Alpha Adoption Sprint**. The goal is not more memory
+features; it is getting real agent users to first value quickly and making every
+context answer explainable.
+
+Shipped v0.5 work:
+
+- public/private repository governance documentation and release workflow notes;
+- OpenAPI 3.1 at `/openapi.json` with `pnpm openapi:check`;
+- `pnpm quickstart` for local API keys, environment checks, and MCP config snippets;
+- three golden integration paths: Claude Code, Cursor, and Qwen Code;
+- Evidence Ledger API and Dashboard surface for `retrieved / used / ignored / warned` memory rows;
+- public-safe eval report export;
+- private alpha direction for the closed `lore-cloud` repository.
+
+See [docs/project-plan.md](docs/project-plan.md), [docs/roadmap.md](docs/roadmap.md), and [docs/release-governance.md](docs/release-governance.md).
 
 ## Integrations
 
@@ -146,7 +173,9 @@ All deployment paths require explicit secrets: `POSTGRES_PASSWORD`, `LORE_API_KE
 
 ## Security
 
-v0.4.0-alpha implements a defense-in-depth posture appropriate for non-public alpha deployments:
+v0.5.0-alpha keeps the v0.4 production-hardening baseline and adds adoption-facing
+OpenAPI, quickstart, Evidence Ledger, and golden-path integration surfaces. The
+security posture remains appropriate for local and private alpha deployments:
 
 - **Authentication**: API-key bearer tokens with role separation (`reader`/`writer`/`admin`) and per-project scoping. Empty-keys mode fails closed in production.
 - **Rate limiting**: per-IP + per-key dual bucket with auth-failure backoff (429 after 5 fails in 60s, 30s lockout).

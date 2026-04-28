@@ -49,12 +49,12 @@ const premiumInfrastructureLabels = [
   "Memory evidence ledger",
   "context.compose()",
   "gov · gate",
-  "System diagram · context plane v0.4",
+  "System diagram · context plane v0.5",
   "read path · policy gate · persist + audit",
   "Build manifest",
   "Cloud sync (private)",
-  "Eval autopilot",
-  "Docker Compose",
+  "Design partner timing",
+  "Docker Compose + Postgres",
   "Private Deployment"
 ];
 const homeRuntimeLabels = [
@@ -85,13 +85,14 @@ const homeRuntimeLabels = [
 const docsPageMarkers = [
   "Run the alpha locally",
   "GitHub source",
-  "v0.4.0-alpha release",
+  "v0.5.0-alpha release",
   "Getting started",
   "API reference",
   "Deployment",
   "Integrations",
   "RELEASE GATE",
-  "Placeholder secrets rejected in production",
+  "28 REST paths verified by pnpm openapi:check",
+  "Context traces expose used and ignored memory rows",
   "17 locales and 183 static files generated",
   "LOCALIZED DOCS",
   "Community PRs can improve translation quality"

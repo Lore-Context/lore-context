@@ -6,9 +6,13 @@ specific language.
 
 ## Status
 
-Lore Context v0.4.0-alpha ships with the full developer-facing documentation set
-translated into 17 languages. Translations are **machine-translated** as a baseline
-and clearly labeled at the top of each file:
+Lore Context v0.5.0-alpha ships with canonical English documentation for the
+OpenAPI, quickstart, Evidence Ledger, golden integrations, and release-governance
+updates. The localized documentation set currently remains at the v0.4.0-alpha
+baseline and should be refreshed in follow-up i18n PRs.
+
+Translations are **machine-translated** as a baseline and clearly labeled at the top
+of each file:
 
 > 🤖 This document was machine-translated from English. Improvements via PR are welcome
 > — see the [translation contributor guide](../README.md).
@@ -62,7 +66,8 @@ docs/i18n/
   (every locale has the same 9 files)
 ```
 
-The full doc set is translated for v0.4.0-alpha. Future docs added to the English source
+The full localized doc set is translated for v0.4.0-alpha. v0.5 English docs are
+canonical until each locale is resynced. Future docs added to the English source
 should be translated into all 17 locales as part of the same PR or a follow-up i18n PR.
 
 ## How to Contribute a Translation Update

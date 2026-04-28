@@ -19,3 +19,4 @@ pnpm-debug.log*
 
 data/postgres/
 data/*.json
+data/*.env

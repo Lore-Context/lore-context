@@ -17,13 +17,42 @@ core path.
 git clone https://github.com/Lore-Context/lore-context.git
 cd lore-context
 pnpm install --frozen-lockfile
-pnpm build
-pnpm test
 ```
 
-If `pnpm test` is not green, do not continue — open an issue with the failure log.
+## 2. Fast local quickstart
 
-## 2. Generate real secrets
+`v0.5.0-alpha` adds a non-destructive quickstart helper. It checks Node/pnpm,
+generates random local API keys, writes `data/quickstart.env`, and prints the first
+`context.query` curl plus Claude Code, Cursor, and Qwen Code MCP snippets.
+
+```bash
+pnpm quickstart
+```
+
+For CI or docs validation without writing local env files:
+
+```bash
+pnpm quickstart -- --dry-run
+```
+
+After `pnpm quickstart`, start the API from the generated env:
+
+```bash
+source data/quickstart.env
+PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
+```
+
+Then seed demo data from another shell:
+
+```bash
+source data/quickstart.env
+pnpm seed:demo
+```
+
+The script does not mutate global Claude Code, Cursor, or Qwen Code configuration.
+It only prints config snippets that you can paste intentionally.
+
+## 3. Generate real secrets manually
 
 Lore Context refuses to start in production with placeholder values. Generate real keys
 even for local development to keep your habits consistent.
@@ -47,7 +76,7 @@ export LORE_API_KEYS='[
 ]'
 ```
 
-## 3. Start the API (file-backed, no database)
+## 4. Start the API manually (file-backed, no database)
 
 The simplest path uses a local JSON file as the storage backend. Suitable for solo
 development and smoke testing.
@@ -67,7 +96,7 @@ curl -s http://127.0.0.1:3000/health | jq
 
 Expected: `{"status":"ok",...}`.
 
-## 4. Write your first memory
+## 5. Write your first memory
 
 ```bash
 curl -s -H "Authorization: Bearer $LORE_API_KEY" \
@@ -85,7 +114,7 @@ Expected: a `200` response with the new memory's `id` and `governance.state` of 
 `active` or `candidate` (the latter if the content matched a risk pattern such as a
 secret).
 
-## 5. Compose context
+## 6. Compose context
 
 ```bash
 curl -s -H "Authorization: Bearer $LORE_API_KEY" \
@@ -98,10 +127,17 @@ curl -s -H "Authorization: Bearer $LORE_API_KEY" \
   }' | jq
 ```
 
-You should see your memory cited in the `evidence.memory` array, plus a `traceId` that
-you can later use to inspect routing and feedback.
+You should see a `contextBlock`, `memoryHits`, and a `traceId` that you can later use
+to inspect routing, feedback, and the Evidence Ledger.
 
-## 6. Start the dashboard
+Inspect the Evidence Ledger for that trace:
+
+```bash
+curl -s -H "Authorization: Bearer $LORE_API_KEY" \
+  http://127.0.0.1:3000/v1/evidence/ledger/<traceId> | jq
+```
+
+## 7. Start the dashboard
 
 In a new terminal:
 
@@ -116,7 +152,7 @@ Open http://127.0.0.1:3001 in your browser. The browser will prompt for Basic Au
 credentials. Once authenticated, the dashboard renders memory inventory, traces, eval
 results, and the governance review queue.
 
-## 7. (Optional) Connect Claude Code via MCP
+## 8. (Optional) Connect Claude Code via MCP
 
 Add this to Claude Code's `claude_desktop_config.json` MCP servers section:
 
@@ -142,7 +178,7 @@ become available.
 For other agent IDEs (Cursor, Qwen, Dify, FastGPT, etc.), see the integration matrix in
 [docs/integrations/README.md](integrations/README.md).
 
-## 8. (Optional) Switch to Postgres + pgvector
+## 9. (Optional) Switch to Postgres + pgvector
 
 When you outgrow JSON-file storage:
 
@@ -163,7 +199,7 @@ PORT=3000 \
 
 Run `pnpm smoke:postgres` to verify a write-restart-read round trip survives.
 
-## 9. (Optional) Seed the demo dataset and run an eval
+## 10. (Optional) Seed the demo dataset and run an eval
 
 ```bash
 LORE_API_KEY="$LORE_API_KEY" pnpm seed:demo

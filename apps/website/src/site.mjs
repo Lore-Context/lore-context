@@ -73,8 +73,8 @@ const locales = {
       ["MIF-like Portability", "Memory Interchange Format. Export the entire corpus — embeddings, provenance, policy state — and replay it anywhere. No lock-in."],
       ["Private Deployment", "Single docker compose. No telemetry, no phone-home, no proprietary embedding endpoint. Run it on your laptop, then on your VPC."]
     ],
-    alphaTitle: "What is in v0.4 alpha.",
-    alphaCopy: "Honest list. Built first, polished later. Everything below runs offline, on your machine, on a free Docker Compose.",
+    alphaTitle: "What is in v0.5 alpha.",
+    alphaCopy: "Adoption release: OpenAPI, quickstart, Evidence Ledger, and golden MCP paths on top of the local-first control plane.",
     evalTitle: "Eval proof report. On your own data.",
     evalCopy: "Run the same retrieval evaluation against your seed dataset. Watch recall, precision, and stale-hit rate move as you change retrievers, rerankers, and embedding cuts.",
     integrationsTitle: "Speak the protocols your agents already use.",
@@ -88,7 +88,7 @@ const locales = {
     pages: {
       docs: ["Docs", "Run Lore locally, inspect the demo dataset, and connect an MCP-compatible agent."],
       architecture: ["Architecture", "Lore is a local-first control plane with API, MCP transport, eval, governance, and Postgres audit storage."],
-      changelog: ["Changelog", "v0.4 alpha focuses on local setup, context querying, eval proof, governance review, and reproducible smoke checks."],
+      changelog: ["Changelog", "v0.5 alpha adds OpenAPI, quickstart, Evidence Ledger, golden integrations, and reproducible smoke checks."],
       company: ["Company", "Lore Context is operated by REDLAND PTE. LTD., Singapore UEN 202304648K."],
       contact: ["Contact", "Email: redland2024@gmail.com"],
       privacy: ["Privacy Policy", "We collect only the data needed to operate the website, respond to requests, and support the local alpha."],
@@ -118,7 +118,7 @@ const locales = {
     systemCopy: "Lore는 검색을 평가하고 답변 경로를 추적하며 위험한 쓰기를 거버넌스 검토로 보냅니다.",
     featuresTitle: "여섯 가지 제품 표면. 하나의 감사 기록.",
     featuresCopy: "각 기능은 확인 가능하고 스크립트로 제어 가능하며 필요하면 끌 수 있습니다.",
-    alphaTitle: "v0.4 알파에 포함된 것.",
+    alphaTitle: "v0.5 알파에 포함된 것.",
     alphaCopy: "먼저 작동하게 만들고 계속 다듬습니다. 아래 항목은 Docker Compose로 로컬에서 실행됩니다.",
     evalTitle: "내 데이터 위의 평가 증거.",
     evalCopy: "검색기와 최신성 기준을 바꾸며 recall, precision, stale-hit, latency를 확인합니다.",
@@ -149,7 +149,7 @@ const locales = {
     systemCopy: "Lore は検索を評価し、回答経路を追跡し、危険な書き戻しをガバナンスに回します。",
     featuresTitle: "6つの製品サーフェス。1つの監査証跡。",
     featuresCopy: "各機能は検査可能で、スクリプト化でき、必要に応じて無効化できます。",
-    alphaTitle: "v0.4 alpha に含まれるもの。",
+    alphaTitle: "v0.5 alpha に含まれるもの。",
     alphaCopy: "まず動くものを作り、継続的に磨きます。Docker Compose でローカル実行できます。",
     evalTitle: "自分のデータで評価を証明。",
     evalCopy: "検索器や鮮度基準を変えながら recall、precision、stale-hit、latency を確認します。",
@@ -180,7 +180,7 @@ const locales = {
     systemCopy: "Lore 评估检索、追踪回答路径，并把高风险写入送入治理审查。",
     featuresTitle: "六个产品界面，一条审计链路。",
     featuresCopy: "没有玄学记忆层；每个能力都可检查、可脚本化、可关闭。",
-    alphaTitle: "v0.4 alpha 已包含的能力。",
+    alphaTitle: "v0.5 alpha 已包含的能力。",
     alphaCopy: "先真实可用，再持续打磨。以下内容都可以通过 Docker Compose 在本地运行。",
     evalTitle: "在你自己的数据上证明记忆质量。",
     evalCopy: "调整检索器、重排器和新鲜度阈值时，观察 recall、precision、stale-hit 和 latency 的变化。",
@@ -211,7 +211,7 @@ const locales = {
     systemCopy: "Lore 評估檢索、追蹤回答路徑，並將高風險寫入送入治理審查。",
     featuresTitle: "六個產品介面，一條稽核鏈路。",
     featuresCopy: "沒有魔法記憶層；每個能力都可檢查、可腳本化、可關閉。",
-    alphaTitle: "v0.4 alpha 已包含的能力。",
+    alphaTitle: "v0.5 alpha 已包含的能力。",
     alphaCopy: "先真實可用，再持續打磨。以下內容可透過 Docker Compose 在本機執行。",
     evalTitle: "在你自己的資料上證明記憶品質。",
     evalCopy: "調整檢索器、重排器和新鮮度閾值時，觀察 recall、precision、stale-hit 和 latency。",
@@ -301,7 +301,7 @@ function euroWords(code) {
       systemCopy: "Lore đánh giá truy xuất, theo dõi đường trả lời và đưa ghi ngược rủi ro vào hàng đợi quản trị.",
       featuresTitle: "Sáu bề mặt sản phẩm. Một nhật ký kiểm toán.",
       featuresCopy: "Mỗi năng lực đều có thể kiểm tra, tự động hóa và tắt khi cần.",
-      alphaTitle: "Có gì trong v0.4 alpha.",
+      alphaTitle: "Có gì trong v0.5 alpha.",
       alphaCopy: "Danh sách trung thực. Chạy cục bộ bằng Docker Compose.",
       evalTitle: "Báo cáo đánh giá trên dữ liệu của bạn.",
       evalCopy: "Theo dõi recall, precision, stale-hit và latency khi thay đổi truy xuất.",
@@ -323,7 +323,7 @@ function euroWords(code) {
       systemCopy: "Lore evalúa la recuperación, traza la respuesta y envía escrituras riesgosas a revisión.",
       featuresTitle: "Seis superficies de producto. Una auditoría.",
       featuresCopy: "Cada capacidad es inspeccionable, automatizable y desactivable.",
-      alphaTitle: "Qué incluye v0.4 alpha.",
+      alphaTitle: "Qué incluye v0.5 alpha.",
       alphaCopy: "Lista honesta. Corre localmente con Docker Compose.",
       evalTitle: "Prueba de evaluación en sus datos.",
       evalCopy: "Observe recall, precision, stale-hit y latency al cambiar la recuperación.",
@@ -345,7 +345,7 @@ function euroWords(code) {
       systemCopy: "Lore avalia recuperação, rastreia respostas e envia gravações arriscadas para revisão.",
       featuresTitle: "Seis superfícies de produto. Uma auditoria.",
       featuresCopy: "Cada capacidade é inspecionável, automatizável e desligável.",
-      alphaTitle: "O que há no v0.4 alpha.",
+      alphaTitle: "O que há no v0.5 alpha.",
       alphaCopy: "Lista honesta. Roda localmente com Docker Compose.",
       evalTitle: "Prova de avaliação nos seus dados.",
       evalCopy: "Acompanhe recall, precision, stale-hit e latency ao alterar recuperação.",
@@ -367,7 +367,7 @@ function euroWords(code) {
       systemCopy: "Lore оценивает поиск, трассирует ответ и отправляет рискованные записи на проверку.",
       featuresTitle: "Шесть рабочих поверхностей. Один аудит.",
       featuresCopy: "Каждая возможность проверяема, автоматизируема и отключаема.",
-      alphaTitle: "Что входит в v0.4 alpha.",
+      alphaTitle: "Что входит в v0.5 alpha.",
       alphaCopy: "Честный список. Работает локально через Docker Compose.",
       evalTitle: "Оценка качества на ваших данных.",
       evalCopy: "Смотрите recall, precision, stale-hit и latency при изменении поиска.",
@@ -389,7 +389,7 @@ function euroWords(code) {
       systemCopy: "Lore retrieval'ı değerlendirir, cevap yolunu izler ve riskli yazımları incelemeye gönderir.",
       featuresTitle: "Altı ürün yüzeyi. Tek denetim izi.",
       featuresCopy: "Her yetenek incelenebilir, betiklenebilir ve kapatılabilir.",
-      alphaTitle: "v0.4 alpha içinde neler var.",
+      alphaTitle: "v0.5 alpha içinde neler var.",
       alphaCopy: "Dürüst liste. Docker Compose ile yerelde çalışır.",
       evalTitle: "Kendi verinizde değerlendirme kanıtı.",
       evalCopy: "Retriever ayarları değiştikçe recall, precision, stale-hit ve latency izlenir.",
@@ -497,7 +497,7 @@ function euroWords(code) {
       uk: "Кожну можливість можна перевірити, автоматизувати й вимкнути.",
       id: "Setiap kemampuan dapat diperiksa, diotomatisasi, dan dimatikan."
     }[code],
-    alphaTitle: { de: "Was in v0.4 alpha enthalten ist.", fr: "Ce que contient v0.4 alpha.", it: "Cosa include v0.4 alpha.", el: "Τι περιλαμβάνει το v0.4 alpha.", pl: "Co zawiera v0.4 alpha.", uk: "Що входить до v0.4 alpha.", id: "Isi v0.4 alpha." }[code],
+    alphaTitle: { de: "Was in v0.5 alpha enthalten ist.", fr: "Ce que contient v0.5 alpha.", it: "Cosa include v0.5 alpha.", el: "Τι περιλαμβάνει το v0.5 alpha.", pl: "Co zawiera v0.5 alpha.", uk: "Що входить до v0.5 alpha.", id: "Isi v0.5 alpha." }[code],
     alphaCopy: { de: "Ehrlicher Stand. Läuft lokal mit Docker Compose.", fr: "État honnête. Exécution locale avec Docker Compose.", it: "Stato onesto. Esecuzione locale con Docker Compose.", el: "Ειλικρινής κατάσταση. Τοπική εκτέλεση με Docker Compose.", pl: "Uczciwy stan. Działa lokalnie przez Docker Compose.", uk: "Чесний статус. Працює локально через Docker Compose.", id: "Status jujur. Berjalan lokal dengan Docker Compose." }[code],
     evalTitle: { de: "Eval-Nachweis auf Ihren Daten.", fr: "Preuve d'évaluation sur vos données.", it: "Prova di valutazione sui tuoi dati.", el: "Απόδειξη αξιολόγησης στα δεδομένα σας.", pl: "Dowód ewaluacji na twoich danych.", uk: "Доказ оцінки на ваших даних.", id: "Bukti evaluasi pada data Anda." }[code],
     evalCopy: { de: "Verfolgen Sie recall, precision, stale-hit und latency.", fr: "Suivez recall, precision, stale-hit et latency.", it: "Monitora recall, precision, stale-hit e latency.", el: "Παρακολουθήστε recall, precision, stale-hit και latency.", pl: "Śledź recall, precision, stale-hit i latency.", uk: "Відстежуйте recall, precision, stale-hit і latency.", id: "Pantau recall, precision, stale-hit, dan latency." }[code],
@@ -558,7 +558,7 @@ function makePages(code) {
   const common = {
     docs: ["Docs", "Install the local alpha, seed the demo dataset, run smoke checks, and connect MCP-compatible agents."],
     architecture: ["Architecture", "A local-first API, MCP transport, eval engine, governance layer, and Postgres audit log."],
-    changelog: ["Changelog", "v0.4 alpha focuses on local setup, context querying, eval proof, governance review, and reproducible smoke checks."],
+    changelog: ["Changelog", "v0.5 alpha adds OpenAPI, quickstart, Evidence Ledger, golden integrations, and reproducible smoke checks."],
     company: ["Company", "Operated by REDLAND PTE. LTD., Singapore UEN 202304648K."],
     contact: ["Contact", "Email: redland2024@gmail.com"],
     privacy: ["Privacy Policy", "Lore Context is designed for private deployment. The website avoids advertising trackers and the local alpha keeps customer data under your control."],
@@ -652,7 +652,7 @@ function layout({ locale, slug = "", title, description, body, isHome = false })
         <a class="brand" href="${pathFor(locale)}" aria-label="Lore Context home">
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Lore Context</span>
-          <span class="version">v0.4.0-alpha</span>
+          <span class="version">v0.5.0-alpha</span>
         </a>
         <div class="nav-links" aria-label="Sections">
           ${["problem", "system", "features", "eval", "integrations", "docs"]
@@ -919,7 +919,7 @@ function systemSection(t) {
     <div class="shell">
       ${sectionHead(t.sectionNums[1], t.systemTitle, t.systemCopy, t.sectionEyebrows?.[1])}
       <div class="system-board">
-        <div class="board-head"><span>System diagram · context plane v0.4</span><span>read path · policy gate · persist + audit</span></div>
+        <div class="board-head"><span>System diagram · context plane v0.5</span><span>read path · policy gate · persist + audit</span></div>
         <div class="system-canvas">
           <svg viewBox="0 0 1180 330" role="img" aria-label="Lore Context system pipeline">
             <defs>
@@ -1007,23 +1007,22 @@ function featureVisual(index) {
 
 function alphaSection(t) {
   const rows = [
-    ["REST API", "/v1/context, /v1/memory, /v1/eval — typed, documented", "v0.4.0", "done"],
+    ["REST API + OpenAPI", "/v1/context, /v1/memory, /v1/eval — documented at /openapi.json", "v0.5.0", "done"],
     ["MCP stdio SDK transport", "Drop-in for any MCP-compatible client", "mcp 0.6", "done"],
-    ["Next Dashboard", "Trace explorer, eval comparison, policy review queue", "next 14", "done"],
-    ["Postgres incremental persistence", "WAL-backed, audit log, idempotent writes", "pg 16", "done",
-    ],
-    ["Demo dataset", "4,200 seeded memories across 6 fictional teams", "pnpm seed:demo", "done"],
-    ["Playwright smoke", "Dashboard renders + 8 critical paths covered", "pnpm smoke", "done"],
-    ["Docker Compose", "lore-api · dashboard · postgres in one file", "docker", "done"],
+    ["Evidence Ledger", "Trace-centric proof of retrieved, used, ignored, and risky memory", "ledger", "done"],
+    ["Next Dashboard", "Trace explorer, evidence summary, eval comparison, policy review queue", "next 16", "done"],
+    ["Quickstart helper", "Local keys, port checks, first query curl, and MCP config snippets", "pnpm quickstart", "done"],
+    ["Golden integrations", "Claude Code, Cursor, and Qwen Code copy-paste setup paths", "mcp config", "done"],
+    ["Docker Compose + Postgres", "lore-api · dashboard · postgres with explicit secrets", "pg 16", "done"],
     ["Cloud sync (private)", "Behind a flag · single-tenant · invite only", "flag", "partial"],
-    ["Eval autopilot", "Scheduled runs against shadow traffic · in review", "next", "partial"]
+    ["Design partner timing", "10-minute activation target · ready for human timing", "next", "partial"]
   ];
   return `<section id="alpha" class="section">
     <div class="shell">
       ${sectionHead(t.sectionNums[3], t.alphaTitle, t.alphaCopy, t.sectionEyebrows?.[3])}
       <div class="alpha-grid">
         <div class="alpha-list">${rows.map(([name, desc, status, state]) => `<div class="alpha-row"><b class="${state}">${state === "done" ? "✓" : "◐"}</b><span><strong>${name}</strong><small>${desc}</small></span><em>${status}</em></div>`).join("")}</div>
-        <div class="manifest alpha-side"><div class="manifest-head"><h3>Build manifest</h3><span>v0.4.0 · 28.04.2026</span></div><dl><dt>version</dt><dd>v0.4.0-alpha</dd><dt>commit</dt><dd>release tag</dd><dt>runtime</dt><dd>node 22+ · pg 16</dd><dt>smoke</dt><dd class="ok-text">passing · local gate</dd><dt>bundle</dt><dd>static website · Docker images</dd><dt>memory floor</dt><dd>512 MB</dd><dt>telemetry</dt><dd class="ok-text">off by default</dd><dt>license</dt><dd>Apache 2.0</dd></dl><div class="run-card"><span># first run</span><code>git clone github.com/Lore-Context/lore-context<br />pnpm install &amp;&amp; pnpm seed:demo<br />pnpm test <span class="ok-text"># release gate</span></code></div></div>
+        <div class="manifest alpha-side"><div class="manifest-head"><h3>Build manifest</h3><span>v0.5.0 · 29.04.2026</span></div><dl><dt>version</dt><dd>v0.5.0-alpha</dd><dt>commit</dt><dd>release tag</dd><dt>runtime</dt><dd>node 22+ · pg 16</dd><dt>smoke</dt><dd class="ok-text">passing · local gate</dd><dt>bundle</dt><dd>static website · Docker images</dd><dt>memory floor</dt><dd>512 MB</dd><dt>telemetry</dt><dd class="ok-text">off by default</dd><dt>license</dt><dd>Apache 2.0</dd></dl><div class="run-card"><span># first run</span><code>git clone github.com/Lore-Context/lore-context<br />pnpm install &amp;&amp; pnpm quickstart -- --dry-run<br />pnpm openapi:check <span class="ok-text"># release gate</span></code></div></div>
       </div>
     </div>
   </section>`;
@@ -1034,7 +1033,7 @@ function evalSection(t) {
     <div class="shell">
       ${sectionHead(t.sectionNums[4], t.evalTitle, t.evalCopy, t.sectionEyebrows?.[4])}
       <div class="eval-shell">
-        <div class="eval-head"><span>eval/run-0276</span><span>seed: lore-demo · 4,200 q · retriever: bge-m3 · reranker: cohere-r3</span><span class="live-pill">LOCAL · v0.4.0-alpha · smoke passing</span></div>
+        <div class="eval-head"><span>eval/run-0276</span><span>seed: lore-demo · 4,200 q · retriever: bge-m3 · reranker: cohere-r3</span><span class="live-pill">LOCAL · v0.5.0-alpha · smoke passing</span></div>
         <div class="eval-metrics">${evalMetric("Recall@5", "0.928", "+0.041", "good", "0,22 7,20 14,18 21,16 28,17 35,14 42,12 49,11 56,10 63,8 70,9 77,6 84,7 96,4")}${evalMetric("Precision@5", "0.814", "+0.022", "good", "0,18 7,17 14,16 21,15 28,14 35,15 42,12 49,13 56,10 63,11 70,9 77,8 84,7 96,5")}${evalMetric("MRR", "0.762", "+0.018", "good", "0,20 7,18 14,17 21,15 28,14 35,12 42,13 49,11 56,10 63,8 70,9 77,7 84,6 96,5")}${evalMetric("Stale-hit", "2.1%", "-0.6pt", "warn", "0,8 7,9 14,11 21,12 28,13 35,14 42,15 49,16 56,17 63,18 70,19 77,21 84,22 96,24")}${evalMetric("p95 latency", "142ms", "+8ms", "info", "0,18 7,17 14,16 21,17 28,15 35,14 42,15 49,13 56,12 63,14 70,11 77,12 84,10 96,8")}</div>
         <div class="eval-detail">
           <div class="eval-trace"><h3>Per-stage span timing · last 8 traces</h3>${["embed", "retrieve.pgvec", "rerank.cohere", "eval.score", "policy.gate", "compose", "trace.flush"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:${[0, 12, 50, 78, 86, 90, 98][index]}%;width:${[12, 38, 28, 8, 4, 8, 2][index]}%"></i></b><em>${[14, 46, 32, 9, 4, 11, 3][index]}ms</em></div>`).join("")}</div>
@@ -1064,9 +1063,9 @@ function finalSection(t, locale) {
     <div class="shell final-grid">
       <div>${sectionHead(t.sectionNums[6], t.finalTitle, t.finalCopy, t.sectionEyebrows?.[6])}<div class="hero-actions"><a class="button primary large" href="${pathFor(locale, "docs")}">${escapeHtml(t.ctaRun)} →</a><a class="button secondary large" href="${pathFor(locale, "architecture")}">${escapeHtml(t.ctaArch)}</a></div></div>
 	      <pre class="terminal" aria-label="Local alpha commands"><code>$ pnpm install
-$ pnpm build
-$ pnpm seed:demo
-$ pnpm smoke:dashboard</code><span class="terminal-status">verified · no remote assets · smoke passing</span></pre>
+$ pnpm quickstart -- --dry-run
+$ pnpm openapi:check
+$ pnpm smoke:dashboard</code><span class="terminal-status">verified · OpenAPI · evidence · smoke passing</span></pre>
 	    </div>
 	  </section>`;
 }
@@ -1114,7 +1113,7 @@ function pageBody(locale, slug) {
   if (slug === "docs") return docsPageBody(locale);
   const rows = {
     architecture: [["API", "REST /v1/context, /v1/memory, /v1/eval"], ["Transport", "MCP stdio"], ["Storage", "Postgres 16 audit log"], ["Governance", "review, redact, reject, forget"]],
-    changelog: [["v0.4.0-alpha", "website v3, local alpha proof, deterministic static build"], ["v0.4", "context query, eval report, governance queue"]],
+    changelog: [["v0.5.0-alpha", "OpenAPI, quickstart, Evidence Ledger, golden integrations"], ["v0.4.0-alpha", "production hardening, local alpha proof, deterministic static build"]],
     company: [["Legal entity", "REDLAND PTE. LTD."], ["UEN", "202304648K"], ["Registered office", "1 North Bridge Road, #11-02, High Street Centre, Singapore 179094"], ["Activity", "Software and application development"]],
     contact: [["Email", "redland2024@gmail.com"], ["Response scope", "Product, security, privacy, and partnership questions"], ["GitHub", githubUrl]],
     privacy: [["Data posture", "Local-first alpha; private deployment by default"], ["Website", "No advertising cookies or third-party tracking scripts"], ["Requests", "Contact redland2024@gmail.com for access, correction, or deletion requests"]],
@@ -1130,31 +1129,31 @@ function docsPageBody(locale) {
   const repoLocale = docsRepoLocale(locale);
   const docsBase = repoLocale ? `${githubUrl}/tree/main/docs/i18n/${repoLocale}` : `${githubUrl}/tree/main/docs`;
   const primaryDocs = [
-    ["Getting started", "Install, generate keys, run the local alpha, and connect the first MCP client.", `${docsBase}/getting-started.md`],
-    ["API reference", "Read the REST routes, request shapes, auth model, and error contracts.", `${docsBase}/api-reference.md`],
-    ["Architecture", "Trace API, MCP, eval, governance, persistence, and portability boundaries.", pathFor(locale, "architecture")],
+    ["Getting started", "Install, run quickstart, generate keys, and connect the first MCP client.", `${docsBase}/getting-started.md`],
+    ["API reference", "Read REST routes, OpenAPI, Evidence Ledger, auth model, and error contracts.", `${docsBase}/api-reference.md`],
+    ["Architecture", "Trace API, MCP, Evidence Ledger, eval, governance, persistence, and portability boundaries.", pathFor(locale, "architecture")],
     ["Deployment", "Run the private Docker Compose stack with Postgres, dashboard, Basic Auth, and health checks.", repoLocale ? `${docsBase}/deployment.md` : `${githubUrl}/tree/main/docs/deployment`],
     ["Integrations", "Claude Code, Cursor, Qwen Code, Dify, FastGPT, OpenWebUI, Hermes, and generic MCP.", repoLocale ? `${docsBase}/integrations.md` : `${githubUrl}/tree/main/docs/integrations`],
     ["Security", "Review supported versions, secret handling, auth defaults, disclosure process, and hardening notes.", repoLocale ? `${docsBase}/SECURITY.md` : `${githubUrl}/blob/main/SECURITY.md`]
   ];
   const steps = [
     ["01", "Install", "pnpm install"],
-    ["02", "Build", "pnpm build"],
-    ["03", "Verify", "pnpm test"],
+    ["02", "Quickstart", "pnpm quickstart -- --dry-run"],
+    ["03", "OpenAPI", "pnpm openapi:check"],
     ["04", "Smoke", "pnpm smoke:dashboard"]
   ];
   const releaseChecks = [
     ["Build", "11 packages compile through Turbo"],
+    ["OpenAPI", "28 REST paths verified by pnpm openapi:check"],
+    ["Evidence", "Context traces expose used and ignored memory rows"],
     ["Website", "17 locales and 183 static files generated"],
-    ["Security", "Placeholder secrets rejected in production"],
-    ["Dashboard", "Production Basic Auth covered by smoke"],
-    ["Deployment", "Private Compose fails closed without required env"],
-    ["Audit", "Public release tree excludes internal launch plans"]
+    ["Dashboard", "Browser smoke covers desktop and mobile docs"],
+    ["Audit", "Public release tree excludes private cloud runbooks"]
   ];
   return `<div class="docs-hub">
     <div class="docs-toolbar">
       <a class="button primary" href="${githubUrl}" rel="noreferrer">GitHub source ↗</a>
-      <a class="button secondary" href="${githubUrl}/releases/tag/v0.4.0-alpha" rel="noreferrer">v0.4.0-alpha release ↗</a>
+      <a class="button secondary" href="${githubUrl}/releases/tag/v0.5.0-alpha" rel="noreferrer">v0.5.0-alpha release ↗</a>
       <a class="button secondary" href="${pathFor(locale, "changelog")}">${escapeHtml(t.pages.changelog[0])}</a>
     </div>
     <div class="doc-quickstart">
@@ -1166,8 +1165,9 @@ function docsPageBody(locale) {
       <pre class="code-block"><code>git clone https://github.com/Lore-Context/lore-context
 cd lore-context
 pnpm install
-pnpm build
-pnpm test</code></pre>
+pnpm quickstart -- --dry-run
+pnpm openapi:check
+pnpm smoke:dashboard</code></pre>
     </div>
     <div class="doc-steps">${steps.map(([num, label, command]) => `<div class="doc-step"><span>${num}</span><strong>${label}</strong><code>${escapeHtml(command)}</code></div>`).join("")}</div>
     <div class="doc-grid">${primaryDocs.map(([title, copy, href]) => `<a class="doc-card" href="${href}"${href.startsWith("https://") ? ' rel="noreferrer"' : ""}><span>DOC</span><strong>${escapeHtml(title)}</strong><p>${escapeHtml(copy)}</p><em>${href.startsWith("https://") ? "Open on GitHub ↗" : "Open page →"}</em></a>`).join("")}</div>

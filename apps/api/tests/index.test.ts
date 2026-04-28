@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadSchemaSql } from "../src/db/schema.js";
 import { composeContext, createLoreApi, getEvalProviders, getHealthResponse, InMemoryLoreStore, PostgresLoreStore, routeContext } from "../src/index.js";
+import { openApiDocument, requiredOpenApiOperations, requiredOpenApiPaths } from "../src/openapi.js";
 
 describe("getHealthResponse", () => {
   it("returns a stable API health payload", () => {
@@ -13,6 +14,34 @@ describe("getHealthResponse", () => {
       status: "ok",
       service: "lore-api",
       timestamp: "2026-04-27T00:00:00.000Z"
+    });
+  });
+});
+
+describe("openapi", () => {
+  it("documents every v0.5 adoption endpoint", () => {
+    const paths = Object.keys(openApiDocument.paths);
+    expect(openApiDocument.openapi).toBe("3.1.0");
+    expect(openApiDocument.components.securitySchemes).toMatchObject({
+      bearerAuth: expect.objectContaining({ type: "http", scheme: "bearer" }),
+      loreApiKey: expect.objectContaining({ type: "apiKey", name: "x-lore-api-key" })
+    });
+    for (const path of requiredOpenApiPaths) {
+      expect(paths).toContain(path);
+    }
+    for (const [method, path] of requiredOpenApiOperations) {
+      expect(openApiDocument.paths[path]?.[method]).toBeDefined();
+    }
+    expect(() => JSON.parse(JSON.stringify(openApiDocument))).not.toThrow();
+  });
+
+  it("serves /openapi.json without API auth", async () => {
+    const app = createLoreApi({ apiKeys: [{ key: "locked", role: "admin" }] });
+    const response = await app.handle(new Request("http://localhost/openapi.json"));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      openapi: "3.1.0",
+      info: expect.objectContaining({ title: "Lore Context API" })
     });
   });
 });
@@ -558,6 +587,56 @@ describe("createLoreApi", () => {
     });
   });
 
+  it("builds an Evidence Ledger for used, ignored, and missing trace memory", async () => {
+    const app = createLoreApi({ now: () => new Date("2026-04-28T00:00:00.000Z") });
+    const memoryIds: string[] = [];
+    for (let index = 0; index < 6; index += 1) {
+      const response = await app.handle(
+        jsonRequest("http://localhost/v1/memory/write", {
+          content: `Ledger adoption memory ${index}`,
+          memory_type: "project_rule",
+          project_id: "demo",
+          confidence: 0.9
+        })
+      );
+      const body = (await response.json()) as { memory: { id: string } };
+      memoryIds.push(body.memory.id);
+    }
+
+    const context = await app.handle(jsonRequest("http://localhost/v1/context/query", { query: "Ledger adoption memory", project_id: "demo" }));
+    const contextBody = (await context.json()) as { traceId: string };
+
+    await app.handle(
+      jsonRequest("http://localhost/v1/memory/forget", {
+        memory_ids: [memoryIds[0]],
+        reason: "verify missing ledger rows after hard delete",
+        hard_delete: true
+      })
+    );
+
+    const ledgerResponse = await app.handle(new Request(`http://localhost/v1/evidence/ledger/${encodeURIComponent(contextBody.traceId)}`));
+    expect(await ledgerResponse.json()).toMatchObject({
+      ledger: expect.objectContaining({
+        traceId: contextBody.traceId,
+        summary: expect.objectContaining({
+          retrieved: 6,
+          composed: 5,
+          ignored: 1
+        }),
+        rows: expect.arrayContaining([
+          expect.objectContaining({ disposition: "used" }),
+          expect.objectContaining({ disposition: "ignored" }),
+          expect.objectContaining({ memoryId: memoryIds[0], disposition: "missing", contentPreview: "[memory unavailable]" })
+        ])
+      })
+    });
+
+    const ledgersResponse = await app.handle(new Request("http://localhost/v1/evidence/ledgers?project_id=demo&limit=5"));
+    expect(await ledgersResponse.json()).toMatchObject({
+      ledgers: [expect.objectContaining({ traceId: contextBody.traceId })]
+    });
+  });
+
   it("imports memories, ingests events, and runs retrieval eval", async () => {
     const app = createLoreApi({ now: () => new Date("2026-04-28T00:00:00.000Z") });
     const imported = await app.handle(
@@ -616,6 +695,12 @@ describe("createLoreApi", () => {
     const providers = await app.handle(new Request("http://localhost/v1/eval/providers"));
     expect(await providers.json()).toMatchObject({
       providers: expect.arrayContaining([expect.objectContaining({ id: "agentmemory-export" })])
+    });
+
+    const report = await app.handle(new Request("http://localhost/v1/eval/report?format=json"));
+    expect(await report.json()).toMatchObject({
+      publicSafe: true,
+      evalRun: expect.objectContaining({ provider: "lore-local" })
     });
   });
 
@@ -861,9 +946,22 @@ describe("createLoreApi", () => {
     expect(scopedSearchBody.hits.map((hit) => hit.memory.id)).not.toContain(otherMemory.memory.id);
 
     const scopedContext = await app.handle(authJsonRequest("http://localhost/v1/context/query", { query: "project scoped" }, "demo-reader"));
-    expect(await scopedContext.json()).toMatchObject({
+    const scopedContextBody = (await scopedContext.json()) as { traceId: string; contextBlock: string };
+    expect(scopedContextBody).toMatchObject({
       contextBlock: expect.stringContaining("Demo project scoped memory")
     });
+
+    const scopedLedger = await app.handle(authGet(`http://localhost/v1/evidence/ledger/${encodeURIComponent(scopedContextBody.traceId)}`, "demo-reader"));
+    expect(scopedLedger.status).toBe(200);
+
+    const forbiddenLedger = await app.handle(authGet(`http://localhost/v1/evidence/ledger/${encodeURIComponent(scopedContextBody.traceId)}`, "other-admin"));
+    expect(forbiddenLedger.status).toBe(403);
+
+    await app.handle(authJsonRequest("http://localhost/v1/context/query", { query: "project scoped", project_id: "other" }, "global-admin"));
+    const filteredTraces = await app.handle(authGet("http://localhost/v1/traces?project_id=demo&limit=1", "global-admin"));
+    const filteredTraceBody = (await filteredTraces.json()) as { traces: Array<{ projectId?: string }> };
+    expect(filteredTraceBody.traces).toHaveLength(1);
+    expect(filteredTraceBody.traces[0]?.projectId).toBe("demo");
 
     const forbiddenDetail = await app.handle(authGet(`http://localhost/v1/memory/${encodeURIComponent(otherMemory.memory.id)}`, "demo-reader"));
     expect(forbiddenDetail.status).toBe(403);

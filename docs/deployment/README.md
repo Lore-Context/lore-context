@@ -115,6 +115,39 @@ The containerized launcher is useful for reproducible workstation setup, but it 
 - Leave `LORE_AGENTMEMORY_REQUIRED=0` unless the private deployment really depends on a live agentmemory runtime.
 - Keep `LORE_POSTGRES_AUTO_SCHEMA=true` only for controlled internal environments. Once schema bootstrapping is part of your release process, you can pin it to `false`.
 
+## v0.5 Private Alpha Direction
+
+The `v0.5.0-alpha` public release remains local/private-deployment focused. Hosted
+multi-tenant cloud sync is not part of this release.
+
+Use the v0.5 public release to validate private alpha readiness before adding
+cloud-only features:
+
+```bash
+pnpm quickstart -- --dry-run
+pnpm openapi:check
+pnpm smoke:api
+pnpm smoke:mcp
+pnpm smoke:dashboard
+```
+
+After a real `context.query`, inspect `GET /v1/evidence/ledger/:trace_id` or the
+Dashboard Recent Traces evidence summary before exposing the workflow to a design
+partner.
+
+Private alpha work belongs in the closed `Lore-Context/lore-cloud` repository and
+should focus on:
+
+- tenant model: organization, project, user, API key scope;
+- auth boundary: dashboard access, API-key lifecycle, admin invite policy;
+- Cloudflare Access + AWS single-host Compose runbook;
+- backup and restore drill for Postgres-backed deployments;
+- basic health checks, structured logs, and alert checklist;
+- customer data policy for memories, traces, eval datasets, support access, and deletion.
+
+Do not add billing, self-serve signup, enterprise SSO, or public hosted dashboard
+until design partners have validated the private alpha workflow.
+
 ## Files To Reuse
 
 - Compose sample: [compose.private-demo.yml](/Users/shuanbaozhu/Desktop/Lore/docs/deployment/compose.private-demo.yml)

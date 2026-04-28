@@ -12,6 +12,7 @@ Status: REST API and local stdio MCP launcher are available. Lore is not replaci
 Start Lore first:
 
 ```bash
+pnpm quickstart -- --dry-run
 pnpm build
 PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
 ```
@@ -21,6 +22,7 @@ Register Lore as a project-scoped Claude Code MCP server:
 ```bash
 claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
+  -e LORE_MCP_TRANSPORT=sdk \
   lore \
   -- node /Users/shuanbaozhu/Desktop/Lore/apps/mcp-server/dist/index.js
 ```
@@ -31,6 +33,7 @@ If the API is protected with `LORE_API_KEY`, include it as another environment v
 claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
   -e LORE_API_KEY="$LORE_API_KEY" \
+  -e LORE_MCP_TRANSPORT=sdk \
   lore \
   -- node /Users/shuanbaozhu/Desktop/Lore/apps/mcp-server/dist/index.js
 ```
@@ -45,6 +48,21 @@ claude mcp get lore
 - Prefer read tools first: `context_query`, `memory_search`, `trace_get`.
 - Add mutating tools only when the workflow truly needs write-back.
 - Do not opt into broad trust-by-default behavior.
+
+Smoke the path:
+
+```bash
+pnpm config:integrations
+pnpm smoke:mcp
+```
+
+Troubleshooting:
+
+- If stdout contains package-manager banners, run the built server with `node apps/mcp-server/dist/index.js`, not `pnpm`.
+- If Lore returns `401` or `403`, pass the same `LORE_API_KEY` that protects the API.
+- If port `3000` is already in use, set `LORE_API_URL` to the API port you actually started.
+- If project-scoped keys fail, include the matching `project_id` in write/query calls.
+- If agentmemory is offline, use Lore's local memory paths or start with `LORE_AGENTMEMORY_REQUIRED=0` during local testing.
 
 ## Migration and Portability
 

@@ -34,13 +34,15 @@ const config = {
     }
   },
   claudeCode: {
-    lore: {
-      command,
-      args,
-      env: {
-        LORE_API_URL: apiUrl,
-        LORE_API_KEY: apiKey,
-        LORE_MCP_TRANSPORT: transport
+    mcpServers: {
+      lore: {
+        command,
+        args,
+        env: {
+          LORE_API_URL: apiUrl,
+          LORE_API_KEY: apiKey,
+          LORE_MCP_TRANSPORT: transport
+        }
       }
     }
   },

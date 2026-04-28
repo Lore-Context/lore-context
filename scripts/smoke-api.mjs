@@ -24,6 +24,10 @@ try {
   server = startServer(port, storePath);
   await waitForHealth(baseUrl);
 
+  const openapi = await getJson(`${baseUrl}/openapi.json`);
+  assert(openapi.openapi === "3.1.0", "openapi.json did not return OpenAPI 3.1");
+  assert(openapi.paths?.["/v1/evidence/ledger/{trace_id}"], "openapi.json did not document Evidence Ledger");
+
   const write = await postJson(`${baseUrl}/v1/memory/write`, {
     content: "Smoke test memory persists across restarts.",
     memory_type: "project_rule",
@@ -53,6 +57,10 @@ try {
   });
   assert(String(context.contextBlock ?? "").includes("survives process restarts"), "context.query did not compose the current memory");
   assert(context.traceId, "context.query did not return trace id");
+
+  const ledger = await getJson(`${baseUrl}/v1/evidence/ledger/${encodeURIComponent(context.traceId)}`);
+  assert(ledger.ledger?.summary?.composed === 1, "Evidence Ledger did not report composed memory");
+  assert(ledger.ledger?.rows?.some((row) => row.disposition === "used"), "Evidence Ledger did not include a used row");
 
   const currentDetail = await getJson(`${baseUrl}/v1/memory/${encodeURIComponent(superseded.memory.id)}`);
   assert(currentDetail.memory?.useCount === 1, "context.query did not record composed memory use");

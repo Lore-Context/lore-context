@@ -1,8 +1,9 @@
 # Architecture
 
 Lore Context is a local-first control plane around memory, search, traces, evaluation,
-migration, and governance. v0.4.0-alpha is a TypeScript monorepo deployable as a single
-process or a small Docker Compose stack.
+migration, and governance. v0.5.0-alpha is a TypeScript monorepo deployable as a single
+process or a small Docker Compose stack, with adoption tooling for OpenAPI, quickstart,
+Evidence Ledger, and golden-path MCP clients.
 
 ## Component Map
 
@@ -19,6 +20,44 @@ process or a small Docker Compose stack.
 | Eval | `packages/eval` | `EvalRunner` + metric primitives (Recall@K, Precision@K, MRR, staleHit, p95) |
 | Governance | `packages/governance` | Six-state state machine, risk-tag scanning, poisoning heuristics, audit log |
 
+## v0.5 Architecture Direction
+
+`v0.5.0-alpha` is the Alpha Adoption Sprint. The architecture goal is to make the
+existing control plane easier to activate and easier to explain, not to introduce
+a new hosted sync layer.
+
+Shipped v0.5 additions:
+
+| Addition | Path | Purpose |
+|---|---|---|
+| OpenAPI document | `apps/api/src/openapi.ts`, `GET /openapi.json` | Machine-readable REST contract for docs, clients, and smoke validation |
+| Quickstart runner | `scripts/lore-quickstart.mjs` | Generate local keys, seed demo data, run checks, and print MCP config snippets without mutating global IDE config |
+| Evidence Ledger read model | `apps/api`, `packages/shared` | Turn existing trace fields into an explainable ledger of retrieved, used, ignored, and risky memory evidence |
+| Evidence Ledger UI | `apps/dashboard` | Make a context query auditable from the operator dashboard |
+| Golden-path integrations | `docs/integrations/claude-code.md`, `cursor.md`, `qwen-code.md` | Keep three setup paths copy-pasteable and smoke-testable |
+| Public-safe eval reports | `scripts/export-eval-report.mjs`, `packages/eval` | Export shareable reports without leaking raw sensitive memory content |
+
+The central v0.5 read model is trace-centric:
+
+```text
+ContextTrace
+  ├── retrievedMemoryIds
+  ├── composedMemoryIds
+  ├── ignoredMemoryIds
+  ├── warnings
+  └── feedback
+        │
+        v
+EvidenceLedger
+  ├── summary: retrieved / used / ignored / warnings / risk tags
+  ├── rows: one row per memory disposition
+  └── actions: view / forget / supersede / mark wrong / mark outdated
+```
+
+This uses existing persisted trace and memory records first. Schema changes should
+be avoided unless implementation proves the derived read model cannot satisfy the
+dashboard and API requirements.
+
 ## Runtime Shape
 
 The API is dependency-light and supports three storage tiers:
@@ -31,7 +70,7 @@ The API is dependency-light and supports three storage tiers:
    Schema lives at `apps/api/src/db/schema.sql` and ships B-tree indexes on
    `(project_id)`, `(status)`, `(created_at)` plus GIN indexes on the jsonb
    `content` and `metadata` columns. `LORE_POSTGRES_AUTO_SCHEMA` defaults to `false`
-   in v0.4.0-alpha — apply schema explicitly via `pnpm db:schema`.
+   in v0.5.0-alpha — apply schema explicitly via `pnpm db:schema`.
 
 Context composition only injects `active` memories. `candidate`, `flagged`,
 `redacted`, `superseded`, and `deleted` records remain inspectable through inventory
@@ -172,21 +211,28 @@ flowchart LR
   Logger -.-> Router
 ```
 
-## Non-Goals For v0.4.0-alpha
+## Non-Goals For v0.5.0-alpha
 
 - No direct public exposure of raw `agentmemory` endpoints.
 - No managed cloud sync (planned for v0.6).
 - No remote multi-tenant billing.
-- No OpenAPI/Swagger packaging (planned for v0.5; prose reference in
-  `docs/api-reference.md` is authoritative).
 - No automated continuous-translation tooling for documentation (community PRs
   via `docs/i18n/`).
+- No public hosted SaaS signup.
+- No billing or Stripe integration.
+- No remote MCP HTTP transport as the default path.
+- No deep end-to-end work for non-golden integrations beyond documentation.
+- No private IaC, customer configuration, or internal runbook content in the
+  public `lore-context` repository.
 
 ## Related Documents
 
 - [Getting Started](getting-started.md) — 5-minute developer quickstart.
 - [API Reference](api-reference.md) — REST and MCP surface.
 - [Deployment](deployment/README.md) — local, Postgres, Docker Compose.
+- [Project Plan](project-plan.md) — current product plan and v0.5 implementation path.
+- [Roadmap](roadmap.md) — release themes and future decision points.
+- [Release Governance](release-governance.md) — public/private repository boundary.
 - [Integrations](integrations/README.md) — agent-IDE setup matrix.
 - [Security Policy](../SECURITY.md) — disclosure and built-in hardening.
 - [Contributing](../CONTRIBUTING.md) — development workflow and commit format.
