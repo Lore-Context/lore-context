@@ -1,47 +1,177 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { generateSiteFiles, localeCodes, pageSlugs } from "../src/site.mjs";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const html = await readFile(join(root, "src", "index.html"), "utf8");
-
-const required = [
-  "Lore Context",
-  "The control plane for AI-agent memory, eval, and governance.",
-  "Context Ledger",
-  "used_in_response",
-  "stale_score",
-  "Recall@5",
-  "Agents remember. Teams need proof.",
-  "MCP clients",
-  "Memory Eval Playground",
-  "Private Deployment",
-  "pnpm seed:demo && pnpm smoke:dashboard",
-  "prefers-reduced-motion"
-];
+const dist = join(root, "dist");
+const files = generateSiteFiles();
+const rootUrl = new URL("https://lorecontext.com");
 
 const failures = [];
+const languageLabels = [
+  "English",
+  "한국어",
+  "日本語",
+  "简体中文",
+  "繁體中文",
+  "Tiếng Việt",
+  "Español",
+  "Português",
+  "Русский",
+  "Türkçe",
+  "Deutsch",
+  "Français",
+  "Italiano",
+  "Ελληνικά",
+  "Polski",
+  "Українська",
+  "Bahasa Indonesia"
+];
+const heroChips = ["LOCAL ALPHA OPEN", "REST API", "MCP STDIO", "POSTGRES 16", "DASHBOARD", "PRIVATE DEPLOY"];
+const homeRuntimeLabels = [
+  "redland2024@gmail.com",
+  "context.ledger",
+  "Memories tracked",
+  "Pending review",
+  "used_in_response",
+  "stale_score",
+  "review_status",
+  "Recall@5",
+  "Precision@5",
+  "p95 latency",
+  "pnpm seed:demo && pnpm smoke:dashboard",
+  "MCP clients",
+  "context.query",
+  "composer",
+  "Postgres",
+  "Docker Compose",
+  "Eval Playground",
+  "Private Deployment",
+  "problem-visual",
+  "system-board",
+  "feature-viz",
+  "eval-shell"
+];
+const englishV3Copy = [
+  "<h1>Lore Context.</h1>",
+  "The control plane for AI-agent memory, eval, and governance.",
+  "Know what every agent remembered, used, and should forget before memory becomes production risk.",
+  "Agents remember. Teams need proof.",
+  "Start with a local alpha. Prove memory quality before you scale it."
+];
+const motionKeys = ["cursorBlink", "ledgerScan", "nodePulse", "barReveal", "sparkDraw", "flowDash"];
 
-for (const text of required) {
-  if (!html.includes(text)) {
-    failures.push(`Missing required text: ${text}`);
+const expectedFileCount = 3 + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
+if (files.size !== expectedFileCount) {
+  failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
+}
+
+for (const locale of localeCodes) {
+  const homePath = `${locale}/index.html`;
+  const html = files.get(homePath);
+  if (!html) {
+    failures.push(`Missing locale homepage: ${homePath}`);
+    continue;
+  }
+
+  requireTexts(homePath, html, ["Lore Context", "REDLAND PTE. LTD.", ...heroChips, ...homeRuntimeLabels]);
+
+  if (locale === "en") {
+    requireTexts(homePath, html, englishV3Copy);
+  } else if (html.includes("The control plane for AI-agent memory, eval, and governance.")) {
+    failures.push(`${homePath} leaked English hero statement into a non-English locale.`);
+  }
+
+  if (!html.includes(`lang="${htmlLang(locale)}"`)) {
+    failures.push(`${homePath} missing expected html lang.`);
+  }
+
+  if ((html.match(/rel="alternate"/g) ?? []).length !== localeCodes.length + 1) {
+    failures.push(`${homePath} should include hreflang alternates for every supported locale plus x-default.`);
+  }
+
+  if ((html.match(/<a\s+data-locale-link/g) ?? []).length !== localeCodes.length) {
+    failures.push(`${homePath} should expose ${localeCodes.length} language switch links.`);
+  }
+
+  for (const label of languageLabels) {
+    if (!html.includes(label)) failures.push(`${homePath} missing language label: ${label}`);
+  }
+
+  if (!html.includes("<footer") || !html.includes("UEN 202304648K")) {
+    failures.push(`${homePath} missing production footer/company information.`);
   }
 }
 
-if (/<script\s+[^>]*src=/i.test(html)) {
-  failures.push("Website must not load external script files.");
+for (const locale of localeCodes) {
+  for (const slug of pageSlugs) {
+    const path = `${locale}/${slug}.html`;
+    if (!files.has(path)) failures.push(`Missing localized page: ${path}`);
+  }
 }
 
-if (/<link\s+[^>]*href=["']https?:/i.test(html) || /<script[\s\S]*https?:/i.test(html)) {
-  failures.push("Website must not depend on remote assets.");
+for (const path of ["index.html", "robots.txt", "sitemap.xml", ...pageSlugs.map((slug) => `${slug}.html`)]) {
+  if (!files.has(path)) failures.push(`Missing release file: ${path}`);
 }
 
-if (!/class="ledger-row active"/.test(html)) {
+for (const locale of localeCodes) {
+  if (!files.get("sitemap.xml")?.includes(`https://lorecontext.com/${locale}/`)) {
+    failures.push(`sitemap.xml missing locale homepage: ${locale}`);
+  }
+}
+
+const idIndex = new Map();
+for (const [path, html] of files) {
+  if (!path.endsWith(".html")) continue;
+  idIndex.set(path, new Set([...html.matchAll(/\bid=["']([^"']+)["']/g)].map((match) => match[1])));
+}
+
+for (const [path, html] of files) {
+  if (!path.endsWith(".html")) continue;
+
+  if (/support@lorecontext\.com|security@lorecontext\.com|privacy@lorecontext\.com/.test(html)) {
+    failures.push(`${path} still contains an old lorecontext.com contact email.`);
+  }
+
+  if (/href=["']#["']/.test(html)) failures.push(`${path} contains placeholder href="#".`);
+  if (/<script\b[^>]*\bsrc=["']https?:/i.test(html)) failures.push(`${path} loads a remote script asset.`);
+  if (/<link\b(?=[^>]*rel=["']stylesheet["'])(?=[^>]*href=["']https?:)/i.test(html)) failures.push(`${path} loads a remote stylesheet asset.`);
+  if (/<(?:img|source|video|audio|iframe)\b[^>]*(?:src|srcset)=["']https?:/i.test(html)) failures.push(`${path} loads a remote media asset.`);
+  if (/@import\s+(?:url\()?["']?https?:/i.test(html) || /url\(["']?https?:/i.test(html)) {
+    failures.push(`${path} depends on a remote CSS asset.`);
+  }
+
+  for (const tag of html.matchAll(/<(?:a|link)\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi)) {
+    validateHref(path, tag[0], tag[1], idIndex);
+  }
+}
+
+const english = files.get("en/index.html") ?? "";
+if (!/class="ledger-row active"/.test(english)) {
   failures.push("Hero should expose an active ledger row for evidence motion.");
 }
 
-if (!/@keyframes\s+ledgerScan/.test(html) || !/@keyframes\s+nodePulse/.test(html)) {
-  failures.push("Expected subtle evidence-processing motion keyframes.");
+for (const key of motionKeys) {
+  if (!new RegExp(`@keyframes\\s+${key}`).test(english)) failures.push(`Missing motion keyframe: ${key}`);
+}
+
+if (!/@media\(prefers-reduced-motion:reduce\)/.test(english)) {
+  failures.push("Motion must respect prefers-reduced-motion.");
+}
+
+try {
+  const actualFiles = await walk(dist);
+  const expectedFiles = new Set(files.keys());
+  for (const path of actualFiles) {
+    if (!expectedFiles.has(path)) failures.push(`Unexpected stale dist file: ${path}`);
+  }
+  for (const [path, generated] of files) {
+    const built = await readFile(join(dist, path), "utf8");
+    if (built !== generated) failures.push(`Built dist/${path} does not match generated source.`);
+  }
+} catch {
+  // Running verify before build is allowed; in-memory generation is still checked.
 }
 
 if (failures.length > 0) {
@@ -49,4 +179,73 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("Website design verification passed.");
+console.log(`Website production verification passed for ${localeCodes.length} locales and ${files.size} generated files.`);
+
+function requireTexts(path, html, texts) {
+  for (const text of texts) {
+    if (!html.includes(text)) failures.push(`${path} missing required text: ${text}`);
+  }
+}
+
+function htmlLang(locale) {
+  if (locale === "zh-hans") return "zh-Hans";
+  if (locale === "zh-hant") return "zh-Hant";
+  return locale;
+}
+
+function validateHref(currentPath, tag, href, idIndex) {
+  if (/^(mailto:|tel:)/i.test(href)) return;
+
+  const target = resolveHref(currentPath, href);
+  if (!target) {
+    if (href.startsWith("https://github.com/") && /rel=["'][^"']*noreferrer/i.test(tag)) return;
+    failures.push(`${currentPath} has unapproved external href: ${href}`);
+    return;
+  }
+
+  if (!files.has(target.path)) {
+    failures.push(`${currentPath} links to missing internal file: ${href}`);
+    return;
+  }
+
+  if (target.fragment && !idIndex.get(target.path)?.has(target.fragment)) {
+    failures.push(`${currentPath} links to missing fragment: ${href}`);
+  }
+}
+
+function resolveHref(currentPath, href) {
+  const [raw, fragment = ""] = href.split("#");
+  if (href.startsWith("#")) return { path: currentPath, fragment };
+  if (/^https?:\/\//i.test(href)) {
+    const parsed = new URL(href);
+    if (parsed.origin !== rootUrl.origin) return null;
+    return { path: generatedPathFromUrlPath(parsed.pathname), fragment: parsed.hash.slice(1) };
+  }
+  if (href.startsWith("/")) return { path: generatedPathFromUrlPath(raw), fragment };
+  if (raw.endsWith(".html")) {
+    const base = currentPath.includes("/") ? currentPath.slice(0, currentPath.lastIndexOf("/") + 1) : "";
+    return { path: generatedPathFromUrlPath(`/${base}${raw}`), fragment };
+  }
+  return null;
+}
+
+function generatedPathFromUrlPath(pathname) {
+  const clean = decodeURIComponent(pathname).replace(/^\/+/, "");
+  if (!clean) return "index.html";
+  if (clean.endsWith("/")) return `${clean}index.html`;
+  return clean;
+}
+
+async function walk(dir, prefix = "") {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const paths = [];
+  for (const entry of entries) {
+    const nextPrefix = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      paths.push(...(await walk(join(dir, entry.name), nextPrefix)));
+    } else {
+      paths.push(nextPrefix);
+    }
+  }
+  return paths.sort();
+}

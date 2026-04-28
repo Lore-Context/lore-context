@@ -105,7 +105,11 @@ importers:
 
   packages/eval: {}
 
-  packages/governance: {}
+  packages/governance:
+    dependencies:
+      '@lore/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   packages/mif:
     dependencies:

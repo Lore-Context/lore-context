@@ -1,12 +1,20 @@
-import { copyFile, mkdir } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { generateSiteFiles } from "../src/site.mjs";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const src = join(root, "src", "index.html");
 const dist = join(root, "dist");
 
+await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
-await copyFile(src, join(dist, "index.html"));
 
-console.log("Built apps/website/dist/index.html");
+const files = generateSiteFiles();
+
+for (const [relativePath, contents] of files) {
+  const target = join(dist, relativePath);
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, contents);
+}
+
+console.log(`Built apps/website/dist with ${files.size} files`);

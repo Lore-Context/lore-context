@@ -1,4 +1,4 @@
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream, existsSync, statSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
@@ -21,9 +21,13 @@ await mkdir(dist, { recursive: true });
 const server = createServer((request, response) => {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
   const safePath = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, "");
-  const filePath = safePath === "/" ? join(dist, "index.html") : join(dist, safePath);
+  const requested = safePath === "/" ? join(dist, "index.html") : join(dist, safePath);
+  const filePath =
+    existsSync(requested) && statSync(requested).isDirectory()
+      ? join(requested, "index.html")
+      : requested;
   const fallback = join(dist, "index.html");
-  const target = existsSync(filePath) ? filePath : fallback;
+  const target = existsSync(filePath) && statSync(filePath).isFile() ? filePath : fallback;
 
   response.setHeader("content-type", mime.get(extname(target)) ?? "application/octet-stream");
   createReadStream(target)

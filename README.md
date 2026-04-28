@@ -1,155 +1,212 @@
+<div align="center">
+
 # Lore Context
 
-Lore Context is an AI-agent context control plane. The current MVP is a local-first TypeScript monorepo for memory, context composition, evaluation, migration, governance, and MCP integration.
+**The control plane for AI-agent memory, eval, and governance.**
 
-## Current Milestone
+Know what every agent remembered, used, and should forget — before memory becomes production risk.
 
-Phase 1 local MVP kernel.
+[![CI](https://github.com/Lore-Context/lore-context/actions/workflows/ci.yml/badge.svg)](https://github.com/Lore-Context/lore-context/actions/workflows/ci.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-v0.4.0--alpha-orange.svg)](CHANGELOG.md)
+[![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 
-## Current Status
+[Getting Started](docs/getting-started.md) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
 
-- Implemented today: workspace package scaffolds, shared TypeScript build/test pipeline, Lore memory/context/eval/audit types, `agentmemory` adapter boundary, local REST API, context router/composer, JSON-file persistence, optional Postgres runtime store with incremental upsert flushing, memory detail/edit/supersede/forget flows with explicit hard delete, real memory-use accounting, trace feedback, governance-preserving MIF-like import/export, secret scanning, direct session-based eval metrics, provider comparison eval runs, eval run listing, API-key protection with reader/writer/admin roles, governance review queue, audit-log API, API-served dashboard HTML, standalone Next.js dashboard, demo seed data, integration config generation, private Docker/Compose packaging, and legacy plus official-SDK stdio MCP transports.
-- Current repo health: `pnpm build` and `pnpm test` both pass at the workspace root on the latest verification run.
-- `pnpm smoke:api` starts the built API, writes memory, composes context, renders the dashboard, restarts the API, and verifies persisted memory survives.
-- `pnpm smoke:postgres` starts the local pgvector Postgres service, runs the API with `LORE_STORE_DRIVER=postgres`, writes memory, restarts the API, and verifies the memory survives through Postgres.
-- `pnpm smoke:mcp` validates both the legacy JSON-RPC stdio transport and the official `@modelcontextprotocol/sdk` stdio transport.
-- `pnpm smoke:dashboard` starts a temporary API and production Next dashboard, then uses Playwright Chromium to verify the operator UI renders memory, traces, and eval results.
-- `pnpm smoke:agentmemory` validates the live local `agentmemory` contract when it is running, and records the current 0.9.3 behavior that smart-search searches observations rather than freshly remembered memories.
-- `pnpm seed:demo` loads the packaged `demo-private` memory/eval dataset into a running local API; `pnpm eval:report` exports the latest eval run as Markdown or JSON.
-- Planned but not implemented yet: managed cloud sync and hosted multi-tenant billing.
-- Integration docs in [`docs/integrations/README.md`](docs/integrations/README.md) include runnable local MCP setup templates for Qwen-style `mcpServers` JSON, Claude Code, and Cursor.
-- Private deployment docs and Compose packaging live in [`docs/deployment/README.md`](docs/deployment/README.md).
+🌐 **Read this in your language**: [English](README.md) · [简体中文](docs/i18n/zh-CN/README.md) · [繁體中文](docs/i18n/zh-TW/README.md) · [日本語](docs/i18n/ja/README.md) · [한국어](docs/i18n/ko/README.md) · [Tiếng Việt](docs/i18n/vi/README.md) · [Español](docs/i18n/es/README.md) · [Português](docs/i18n/pt/README.md) · [Русский](docs/i18n/ru/README.md) · [Türkçe](docs/i18n/tr/README.md) · [Deutsch](docs/i18n/de/README.md) · [Français](docs/i18n/fr/README.md) · [Italiano](docs/i18n/it/README.md) · [Ελληνικά](docs/i18n/el/README.md) · [Polski](docs/i18n/pl/README.md) · [Українська](docs/i18n/uk/README.md) · [Bahasa Indonesia](docs/i18n/id/README.md)
 
-## Commands
+</div>
 
-```bash
-pnpm install
-pnpm build
-pnpm test
-pnpm smoke:api
-pnpm smoke:mcp
-pnpm smoke:dashboard
-pnpm smoke:postgres
-pnpm smoke:agentmemory
-pnpm seed:demo
-pnpm run doctor
-pnpm config:integrations
-pnpm eval:report -- --project-id demo-private
-pnpm clean
-docker compose up -d postgres
-pnpm db:schema
-pnpm db:schema:dry-run
-pnpm --filter @lore/api test
-pnpm --filter @lore/mcp-server test
-pnpm --filter @lore/agentmemory-adapter test
-```
+---
 
-Run the local API:
+## What is Lore Context
+
+Lore Context is an **open-core control plane** for AI-agent memory: it composes context across memory, search, and tool traces; evaluates retrieval quality on your own datasets; routes governance review for sensitive content; and exports memory as a portable interchange format you can move between backends.
+
+It does not try to be another memory database. The unique value is what sits on top of memory:
+
+- **Context Query** — single endpoint composes memory + web + repo + tool traces, returns a graded context block with provenance.
+- **Memory Eval** — runs Recall@K, Precision@K, MRR, stale-hit-rate, p95 latency on datasets you own; persists runs and diffs them for regression detection.
+- **Governance Review** — six-state lifecycle (`candidate / active / flagged / redacted / superseded / deleted`), risk-tag scanning, poisoning heuristics, immutable audit log.
+- **MIF-like Portability** — JSON + Markdown export/import preserving `provenance / validity / confidence / source_refs / supersedes / contradicts`. Works as a migration format between memory backends.
+- **Multi-Agent Adapter** — first-class `agentmemory` integration with version probe + degraded-mode fallback; clean adapter contract for additional runtimes.
+
+## When to use it
+
+| Use Lore Context when... | Use a memory database (agentmemory, Mem0, Supermemory) when... |
+|---|---|
+| You need to **prove** what your agent remembered, why, and whether it was used | You just need raw memory storage |
+| You run multiple agents (Claude Code, Cursor, Qwen, Hermes, Dify) and want shared trustable context | You're building a single agent and OK with a vendor-locked memory tier |
+| You require local or private deployment for compliance | You prefer a hosted SaaS |
+| You need eval on your own datasets, not vendor benchmarks | Vendor benchmarks are sufficient signal |
+| You want to migrate memory between systems | You don't plan to ever switch backends |
+
+## Quick Start
 
 ```bash
-pnpm build
-PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
+# 1. Clone + install
+git clone https://github.com/Lore-Context/lore-context.git
+cd lore-context && pnpm install
+
+# 2. Generate a real API key (do not use placeholders in any environment beyond local-only dev)
+export LORE_API_KEY=$(openssl rand -hex 32)
+
+# 3. Start the API (file-backed, no Postgres required)
+pnpm build && PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
+
+# 4. Write a memory
+curl -H "Authorization: Bearer $LORE_API_KEY" -H "Content-Type: application/json" \
+  -X POST http://127.0.0.1:3000/v1/memory/write \
+  -d '{"content":"Use Postgres pgvector for Lore Context production storage.","memory_type":"project_rule","project_id":"demo"}'
+
+# 5. Query context
+curl -H "Authorization: Bearer $LORE_API_KEY" -H "Content-Type: application/json" \
+  -X POST http://127.0.0.1:3000/v1/context/query \
+  -d '{"query":"production storage","project_id":"demo","token_budget":1200}'
 ```
 
-Run the standalone Next.js dashboard after the API is up:
+For full setup (Postgres, Docker Compose, Dashboard, MCP integration), see [docs/getting-started.md](docs/getting-started.md).
 
-```bash
-LORE_API_URL=http://127.0.0.1:3000 pnpm dev:dashboard
+## Architecture
+
+```text
+                       ┌─────────────────────────────────────────────┐
+   MCP clients ──────► │ apps/api  (REST + auth + rate limit + logs) │
+   (Claude Code,       │   ├── context router (memory/web/repo/tool) │
+    Cursor, Qwen,      │   ├── context composer                      │
+    Dify, Hermes...)   │   ├── governance + audit                    │
+                       │   ├── eval runner                           │
+                       │   └── MIF import/export                     │
+                       └────────┬────────────────────────────────────┘
+                                │
+                  ┌─────────────┼──────────────────────────┐
+                  ▼             ▼                          ▼
+           Postgres+pgvector   agentmemory adapter     packages/search
+           (incremental        (version-probed,        (BM25 / hybrid
+            persistence)        degraded-mode safe)     pluggable)
+                                                                 ▲
+                       ┌─────────────────────────────┐           │
+                       │ apps/dashboard  (Next.js)   │ ──────────┘
+                       │   protected by Basic Auth   │
+                       │   memory · traces · eval    │
+                       │   governance review queue   │
+                       └─────────────────────────────┘
 ```
 
-Run the local MCP launcher after the API is up:
+For detail, see [docs/architecture.md](docs/architecture.md).
 
-```bash
-LORE_API_URL=http://127.0.0.1:3000 node apps/mcp-server/dist/index.js
+## What's in v0.4.0-alpha
+
+| Capability | Status | Where |
+|---|---|---|
+| REST API with API-key auth (reader/writer/admin) | ✅ Production | `apps/api` |
+| MCP stdio server (legacy + official SDK transport) | ✅ Production | `apps/mcp-server` |
+| Next.js dashboard with HTTP Basic Auth gating | ✅ Production | `apps/dashboard` |
+| Postgres + pgvector incremental persistence | ✅ Optional | `apps/api/src/db/` |
+| Governance state machine + audit log | ✅ Production | `packages/governance` |
+| Eval runner (Recall@K / Precision@K / MRR / staleHit / p95) | ✅ Production | `packages/eval` |
+| MIF v0.2 import/export with `supersedes` + `contradicts` | ✅ Production | `packages/mif` |
+| `agentmemory` adapter with version probe + degraded mode | ✅ Production | `packages/agentmemory-adapter` |
+| Rate limiting (per-IP + per-key with backoff) | ✅ Production | `apps/api` |
+| Structured JSON logging with sensitive-field redaction | ✅ Production | `apps/api/src/logger.ts` |
+| Docker Compose private deployment | ✅ Production | `docker-compose.yml` |
+| Demo dataset + smoke tests + Playwright UI test | ✅ Production | `examples/`, `scripts/` |
+| Hosted multi-tenant cloud sync | ⏳ Roadmap | — |
+
+See [CHANGELOG.md](CHANGELOG.md) for the full v0.4.0-alpha release notes.
+
+## Integrations
+
+Lore Context speaks MCP and REST and integrates with most agent IDEs and chat frontends:
+
+| Tool | Setup guide |
+|---|---|
+| Claude Code | [docs/integrations/claude-code.md](docs/integrations/claude-code.md) |
+| Cursor | [docs/integrations/cursor.md](docs/integrations/cursor.md) |
+| Qwen Code | [docs/integrations/qwen-code.md](docs/integrations/qwen-code.md) |
+| OpenClaw | [docs/integrations/openclaw.md](docs/integrations/openclaw.md) |
+| Hermes | [docs/integrations/hermes.md](docs/integrations/hermes.md) |
+| Dify | [docs/integrations/dify.md](docs/integrations/dify.md) |
+| FastGPT | [docs/integrations/fastgpt.md](docs/integrations/fastgpt.md) |
+| Cherry Studio | [docs/integrations/cherry-studio.md](docs/integrations/cherry-studio.md) |
+| Roo Code | [docs/integrations/roo-code.md](docs/integrations/roo-code.md) |
+| OpenWebUI | [docs/integrations/openwebui.md](docs/integrations/openwebui.md) |
+| Other / generic MCP | [docs/integrations/README.md](docs/integrations/README.md) |
+
+## Deployment
+
+| Mode | Use when | Doc |
+|---|---|---|
+| **Local file-backed** | Solo dev, prototype, smoke testing | This README, Quick Start above |
+| **Local Postgres+pgvector** | Production-grade single-node, semantic search at scale | [docs/deployment/README.md](docs/deployment/README.md) |
+| **Docker Compose private** | Self-hosted team deployment, isolated network | [docs/deployment/compose.private-demo.yml](docs/deployment/compose.private-demo.yml) |
+| **Cloud-managed** | Coming in v0.6 | — |
+
+All deployment paths require explicit secrets: `POSTGRES_PASSWORD`, `LORE_API_KEYS`, `DASHBOARD_BASIC_AUTH_USER/PASS`. The `scripts/check-env.mjs` script refuses production startup if any value matches a placeholder pattern.
+
+## Security
+
+v0.4.0-alpha implements a defense-in-depth posture appropriate for non-public alpha deployments:
+
+- **Authentication**: API-key bearer tokens with role separation (`reader`/`writer`/`admin`) and per-project scoping. Empty-keys mode fails closed in production.
+- **Rate limiting**: per-IP + per-key dual bucket with auth-failure backoff (429 after 5 fails in 60s, 30s lockout).
+- **Dashboard**: HTTP Basic Auth middleware. Refuses to start in production without `DASHBOARD_BASIC_AUTH_USER/PASS`.
+- **Containers**: all Dockerfiles run as non-root `node` user; HEALTHCHECK on api + dashboard.
+- **Secrets**: zero hardcoded credentials; all defaults are required-or-fail variables. `scripts/check-env.mjs` rejects placeholder values in production.
+- **Governance**: PII / API key / JWT / private-key regex scanning on writes; risk-tagged content auto-routed to review queue; immutable audit log on every state transition.
+- **Memory poisoning**: heuristic detection on consensus + imperative-verb patterns.
+- **MCP**: zod schema validation on every tool input; mutating tools require `reason` (≥8 chars) and surface `destructiveHint: true`; upstream errors sanitized before client return.
+- **Logging**: structured JSON with auto-redaction of `content`, `query`, `memory`, `value`, `password`, `secret`, `token`, `key` fields.
+
+Vulnerability disclosures: [SECURITY.md](SECURITY.md).
+
+## Project structure
+
+```text
+apps/
+  api/                # REST API + Postgres + governance + eval (TypeScript)
+  dashboard/          # Next.js 16 dashboard with Basic Auth middleware
+  mcp-server/         # MCP stdio server (legacy + official SDK transports)
+  web/                # Server-side HTML renderer (no-JS fallback UI)
+  website/            # Marketing site (handled separately)
+packages/
+  shared/             # Shared types, errors, ID/token utilities
+  agentmemory-adapter # Bridge to upstream agentmemory + version probe
+  search/             # Pluggable search providers (BM25 / hybrid)
+  mif/                # Memory Interchange Format (v0.2)
+  eval/               # EvalRunner + metric primitives
+  governance/         # State machine + risk scan + poisoning + audit
+docs/
+  i18n/<lang>/        # Localized README in 17 languages
+  integrations/       # 11 agent-IDE integration guides
+  deployment/         # Local + Postgres + Docker Compose
+  legal/              # Privacy / Terms / Cookies (Singapore law)
+scripts/
+  check-env.mjs       # Production-mode env validation
+  smoke-*.mjs         # End-to-end smoke tests
+  apply-postgres-schema.mjs
 ```
 
-Use the official MCP SDK stdio transport by setting `LORE_MCP_TRANSPORT=sdk`:
-
-```bash
-LORE_MCP_TRANSPORT=sdk LORE_API_URL=http://127.0.0.1:3000 node apps/mcp-server/dist/index.js
-```
-
-Do not wrap the MCP command in `pnpm start`; MCP stdio clients require stdout to contain only JSON-RPC messages.
-
-Smoke test:
-
-```bash
-pnpm smoke:api
-curl http://localhost:3000/health
-curl -X POST http://localhost:3000/v1/memory/write \
-  -H "Content-Type: application/json" \
-  -d '{"content":"Use Qwen for Lore Context.","memory_type":"project_rule","project_id":"demo"}'
-curl -X POST http://localhost:3000/v1/context/query \
-  -H "Content-Type: application/json" \
-  -d '{"query":"继续 Qwen 最新 文档","project_id":"demo","token_budget":1200}'
-```
-
-Optional local configuration starts from `.env.example`. Do not put production cloud keys or raw provider secrets in committed files.
-
-Set `LORE_API_KEY` before any remote exposure. With no API keys configured, Lore only accepts unkeyed development traffic from loopback hosts. When a key is configured, every route except `/health` requires `Authorization: Bearer <key>` or `x-lore-api-key`; the legacy single key is treated as `admin`.
-
-For local role separation, set `LORE_API_KEYS` to a JSON array:
-
-```bash
-LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
-```
-
-The packaged private demo uses project id `demo-private`:
-
-```bash
-LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
-```
-
-Roles:
-
-- `reader`: dashboard, context query, search, memory list/detail, traces, eval results, integration health.
-- `writer`: reader permissions plus memory write/update/supersede, events, eval runs, trace feedback.
-- `admin`: all routes, including sync, import/export, soft or explicit hard delete, governance review, and audit logs.
-
-Optional `projectIds` restricts a key to those projects. Scoped writer/admin keys must include an allowed `project_id` for mutating routes; scoped readers only see matching project memories, traces, eval runs, and audits. Full `agentmemory` sync requires an unscoped admin key because it can import cross-project data.
-
-Postgres runtime storage is opt-in. The default remains in-memory or JSON-file storage. To run against Postgres:
-
-```bash
-docker compose up -d postgres
-pnpm db:schema
-LORE_STORE_DRIVER=postgres LORE_DATABASE_URL=postgres://lore:lore_dev_password@127.0.0.1:5432/lore_context PORT=3000 pnpm start:api
-```
-
-`pnpm db:schema` applies `apps/api/src/db/schema.sql` through `psql` using `LORE_DATABASE_URL`, `DATABASE_URL`, or the local docker-compose default. `pnpm smoke:postgres` does not require a local `psql`; it uses the API's auto-schema path against the Docker pgvector service.
-
-Requirements:
+## Requirements
 
 - Node.js `>=22`
 - pnpm `10.30.1`
+- (Optional) Postgres 16 with pgvector for semantic-search-grade memory
 
-## Structure
+## Contributing
 
-```text
-apps/api
-apps/dashboard
-apps/mcp-server
-apps/web
-packages/shared
-packages/agentmemory-adapter
-packages/search
-packages/mif
-packages/eval
-packages/governance
-```
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, commit message protocol, and review expectations.
 
-## Integration Docs
+For documentation translations, see the [i18n contributor guide](docs/i18n/README.md).
 
-- [Integration overview](docs/integrations/README.md)
-- [Qwen Code](docs/integrations/qwen-code.md)
-- [Claude Code](docs/integrations/claude-code.md)
-- [Cursor](docs/integrations/cursor.md)
-- [OpenClaw](docs/integrations/openclaw.md)
-- [Hermes](docs/integrations/hermes.md)
-- [Dify](docs/integrations/dify.md)
-- [FastGPT](docs/integrations/fastgpt.md)
-- [Cherry Studio](docs/integrations/cherry-studio.md)
-- [Roo Code](docs/integrations/roo-code.md)
-- [OpenWebUI](docs/integrations/openwebui.md)
+## Operated by
 
-The detailed product plan is kept in `Lore_Context_项目计划书_2026-04-27.md`.
+Lore Context is operated by **REDLAND PTE. LTD.** (Singapore, UEN 202304648K). Company profile, legal terms, and data handling are documented under [`docs/legal/`](docs/legal/).
+
+## License
+
+The Lore Context repository is licensed under [Apache License 2.0](LICENSE). Individual packages under `packages/*` declare MIT to enable downstream consumption. See [NOTICE](NOTICE) for upstream attribution.
+
+## Acknowledgments
+
+Lore Context builds on top of [agentmemory](https://github.com/agentmemory/agentmemory) as a local memory runtime. Upstream contract details and version-compatibility policy are documented in [UPSTREAM.md](UPSTREAM.md).
