@@ -1,7 +1,7 @@
 import { AgentMemoryAdapter } from "@lore/agentmemory-adapter";
 import { redactSensitiveContent, scanRiskTags, shouldRequireReview } from "@lore/governance";
 import { meanReciprocalRank, percentile, precisionAtK, recallAtK, staleHitRate } from "@lore/eval";
-import { exportLoreJson, exportLoreMarkdown, importLoreJson, importSimpleMarkdown } from "@lore/mif";
+import { exportLoreJson, exportLoreMarkdown, importLoreJson, importSimpleMarkdown, toLoreMemoryItem } from "@lore/mif";
 import { noopSearchProvider, type SearchProvider } from "@lore/search";
 import { renderDashboardHtml } from "@lore/web";
 import {
@@ -31,6 +31,105 @@ import { dirname } from "node:path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Pool, type PoolClient } from "pg";
 import { loadSchemaSql } from "./db/schema.js";
+import { log } from "./logger.js";
+
+const LORE_MAX_JSON_BYTES = Number(process.env.LORE_MAX_JSON_BYTES ?? 1048576);
+const LORE_REQUEST_TIMEOUT_MS = Number(process.env.LORE_REQUEST_TIMEOUT_MS ?? 30000);
+
+interface RateBucket {
+  count: number;
+  windowStart: number;
+}
+
+interface FailBucket {
+  failures: number;
+  windowStart: number;
+  blockedUntil?: number;
+}
+
+interface RateLimiter {
+  check(ip: string, apiKey?: string): Response | undefined;
+  recordAuthFailure(ip: string): void;
+}
+
+function createRateLimiter(): RateLimiter {
+  const disabled = process.env.LORE_RATE_LIMIT_DISABLED === "1";
+  const perIp = Number(process.env.LORE_RATE_LIMIT_PER_IP ?? 60);
+  const perKey = Number(process.env.LORE_RATE_LIMIT_PER_KEY ?? 600);
+  const ipBuckets = new Map<string, RateBucket>();
+  const keyBuckets = new Map<string, RateBucket>();
+  const failBuckets = new Map<string, FailBucket>();
+
+  return {
+    check(ip: string, apiKey?: string): Response | undefined {
+      if (disabled) {
+        return undefined;
+      }
+      const now = Date.now();
+      const windowMs = 60_000;
+
+      const failBucket = failBuckets.get(ip);
+      if (failBucket?.blockedUntil && now < failBucket.blockedUntil) {
+        return tooManyRequestsError("too many failed auth attempts, retry after 30s");
+      }
+
+      if (apiKey) {
+        const bucket = keyBuckets.get(apiKey) ?? { count: 0, windowStart: now };
+        if (now - bucket.windowStart > windowMs) {
+          bucket.count = 0;
+          bucket.windowStart = now;
+        }
+        bucket.count += 1;
+        keyBuckets.set(apiKey, bucket);
+        if (bucket.count > perKey) {
+          return tooManyRequestsError("rate limit exceeded for API key");
+        }
+      } else {
+        const bucket = ipBuckets.get(ip) ?? { count: 0, windowStart: now };
+        if (now - bucket.windowStart > windowMs) {
+          bucket.count = 0;
+          bucket.windowStart = now;
+        }
+        bucket.count += 1;
+        ipBuckets.set(ip, bucket);
+        if (bucket.count > perIp) {
+          return tooManyRequestsError("rate limit exceeded for IP");
+        }
+      }
+      return undefined;
+    },
+
+    recordAuthFailure(ip: string): void {
+      if (disabled) {
+        return;
+      }
+      const now = Date.now();
+      const windowMs = 60_000;
+      const bucket = failBuckets.get(ip) ?? { failures: 0, windowStart: now };
+      if (now - bucket.windowStart > windowMs) {
+        bucket.failures = 0;
+        bucket.windowStart = now;
+        bucket.blockedUntil = undefined;
+      }
+      bucket.failures += 1;
+      if (bucket.failures >= 5) {
+        bucket.blockedUntil = now + 30_000;
+      }
+      failBuckets.set(ip, bucket);
+    }
+  };
+}
+
+function tooManyRequestsError(message: string): Response {
+  return new Response(JSON.stringify({ error: { code: "rate_limit", message, status: 429 } }), {
+    status: 429,
+    headers: { "content-type": "application/json; charset=utf-8", "retry-after": "30" }
+  });
+}
+
+function getClientIp(request: Request): string {
+  return request.headers.get("x-lore-remote-address") ?? "unknown";
+}
 
 export interface HealthResponse {
   status: "ok";
@@ -404,9 +503,12 @@ export class PostgresLoreStore extends InMemoryLoreStore {
 
   constructor(options: PostgresLoreStoreOptions) {
     super();
-    this.pool = options.pool ?? new Pool({ connectionString: options.databaseUrl });
+    this.pool = options.pool ?? new Pool({
+      connectionString: options.databaseUrl,
+      statement_timeout: 15_000
+    });
     this.ownsPool = !options.pool;
-    this.autoApplySchema = options.autoApplySchema ?? true;
+    this.autoApplySchema = options.autoApplySchema ?? false;
     this.defaultOrganizationId = options.defaultOrganizationId ?? "local";
     this.now = options.now ?? (() => new Date());
     this.ready = this.initialize();
@@ -554,22 +656,38 @@ export class PostgresLoreStore extends InMemoryLoreStore {
   }
 
   private async loadSnapshotFromPostgres(): Promise<LoreStoreSnapshot> {
+    const pageSize = 1000;
+
+    async function loadPaged<T>(pool: Pool, table: string, mapper: (row: PostgresRow) => T): Promise<T[]> {
+      const results: T[] = [];
+      let offset = 0;
+      while (true) {
+        const res = await pool.query(`SELECT * FROM ${table} ORDER BY created_at ASC LIMIT $1 OFFSET $2`, [pageSize, offset]);
+        results.push(...res.rows.map(mapper));
+        if (res.rows.length < pageSize) {
+          break;
+        }
+        offset += pageSize;
+      }
+      return results;
+    }
+
     const [memories, traces, events, evalRuns, audits] = await Promise.all([
-      this.pool.query("SELECT * FROM memory_records ORDER BY created_at ASC"),
-      this.pool.query("SELECT * FROM context_traces ORDER BY created_at ASC"),
-      this.pool.query("SELECT * FROM event_log ORDER BY created_at ASC"),
-      this.pool.query("SELECT * FROM eval_runs ORDER BY created_at ASC"),
-      this.pool.query("SELECT * FROM audit_logs ORDER BY created_at ASC")
+      loadPaged(this.pool, "memory_records", rowToMemoryRecord),
+      loadPaged(this.pool, "context_traces", rowToContextTrace),
+      loadPaged(this.pool, "event_log", rowToEventRecord),
+      loadPaged(this.pool, "eval_runs", rowToEvalRunRecord),
+      loadPaged(this.pool, "audit_logs", rowToAuditLog)
     ]);
 
     return {
       version: "0.1",
       savedAt: this.now().toISOString(),
-      memories: memories.rows.map(rowToMemoryRecord),
-      traces: traces.rows.map(rowToContextTrace),
-      events: events.rows.map(rowToEventRecord),
-      evalRuns: evalRuns.rows.map(rowToEvalRunRecord),
-      audits: audits.rows.map(rowToAuditLog)
+      memories,
+      traces,
+      events,
+      evalRuns,
+      audits
     };
   }
 
@@ -1111,23 +1229,86 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
   const searchProvider = deps.searchProvider ?? noopSearchProvider;
   const now = deps.now ?? (() => new Date());
   const apiKeys = resolveApiKeys(deps);
+  const rateLimiter = createRateLimiter();
 
   return {
     store,
     async handle(request: Request): Promise<Response> {
+      const requestId = randomUUID();
+      const clientIp = getClientIp(request);
+
+      const rateLimitResponse = rateLimiter.check(clientIp);
+      if (rateLimitResponse) {
+        return rateLimitResponse;
+      }
+
+      const handleWithTimeout = async (): Promise<Response> => {
+        try {
+          await store.whenReady();
+          const url = new URL(request.url);
+          const path = url.pathname;
+
+          if (request.method === "GET" && path === "/health") {
+            return json(getHealthResponse(now()));
+          }
+
+          const auth = authenticateRequest(request, apiKeys);
+          if (!auth) {
+            rateLimiter.recordAuthFailure(clientIp);
+            return authError();
+          }
+
+          const presentedKey = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1]
+            ?? request.headers.get("x-lore-api-key")
+            ?? undefined;
+          const keyRateLimitResponse = presentedKey ? rateLimiter.check(clientIp, presentedKey) : undefined;
+          if (keyRateLimitResponse) {
+            return keyRateLimitResponse;
+          }
+
+          return await handleRequest(request, url, path, auth, store, agentMemory, searchProvider, now, requestId);
+        } catch (error) {
+          const serialized = serializeError(error);
+          log.error("request error", { requestId, status: serialized.status, code: serialized.code });
+          return json({ error: serialized }, serialized.status);
+        } finally {
+          await flushStoreAfterRequest(store);
+        }
+      };
+
+      return Promise.race([
+        handleWithTimeout(),
+        new Promise<Response>((resolve) =>
+          setTimeout(() => resolve(json({ error: { code: "timeout", message: "request timed out", status: 504 } }, 504)), LORE_REQUEST_TIMEOUT_MS)
+        )
+      ]);
+    }
+  };
+}
+
+function requireScopedProjectId(auth: AuthContext, projectId: string | undefined, endpoint: string): void {
+  if ((auth.role === "reader" || auth.role === "writer") && auth.projectIds) {
+    if (!projectId) {
+      throw new LoreError("auth.project_id_required", `${endpoint} requires project_id when using a scoped API key`, 400);
+    }
+    if (!auth.projectIds.includes(projectId)) {
+      throw new LoreError("auth.project_forbidden", `API key cannot access project ${projectId}`, 403);
+    }
+  }
+}
+
+async function handleRequest(
+  request: Request,
+  url: URL,
+  path: string,
+  auth: AuthContext,
+  store: InMemoryLoreStore,
+  agentMemory: AgentMemoryAdapter,
+  searchProvider: SearchProvider,
+  now: () => Date,
+  requestId: string
+): Promise<Response> {
       try {
-        await store.whenReady();
-        const url = new URL(request.url);
-        const path = url.pathname;
-
-        if (request.method === "GET" && path === "/health") {
-          return json(getHealthResponse(now()));
-        }
-
-        const auth = authenticateRequest(request, apiKeys);
-        if (!auth) {
-          return authError();
-        }
 
         if (request.method === "GET" && (path === "/" || path === "/dashboard")) {
           const evalRuns = filterEvalRunsForAuth([...store.evalRuns.values()], auth);
@@ -1222,6 +1403,8 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
         }
 
         if (request.method === "GET" && path === "/v1/memory/list") {
+          const listProjectId = readOptionalString(url.searchParams.get("project_id") ?? url.searchParams.get("projectId"));
+          requireScopedProjectId(auth, listProjectId, "/v1/memory/list");
           return json({ memories: listMemories(store, url, auth) });
         }
 
@@ -1238,7 +1421,8 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
             resourceType: "memory",
             metadata: { format, count: memories.length, projectIds: [...new Set(memories.map((memory) => memory.projectId).filter(Boolean))] }
           }, now());
-          return new Response(format === "markdown" ? exportLoreMarkdown(memories, now()) : exportLoreJson(memories, now()), {
+          const loreItems = memories.map((m) => toLoreMemoryItem(m));
+          return new Response(format === "markdown" ? exportLoreMarkdown(loreItems, now()) : exportLoreJson(loreItems, now()), {
             headers: { "content-type": format === "markdown" ? "text/markdown; charset=utf-8" : "application/json; charset=utf-8" }
           });
         }
@@ -1379,6 +1563,8 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
 
         if (request.method === "POST" && path === "/v1/memory/import") {
           requireRole(auth, "admin");
+          const importProjectId = readOptionalString(url.searchParams.get("project_id") ?? url.searchParams.get("projectId"));
+          requireScopedProjectId(auth, importProjectId, "/v1/memory/import");
           const bodyText = await request.text();
           const imported = importMemories(bodyText, request.headers.get("content-type"));
           imported.forEach((memory) => requireProjectMutationAccess(auth, memory.projectId));
@@ -1500,12 +1686,9 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
         throw new LoreError("route.not_found", `${request.method} ${path} not found`, 404);
       } catch (error) {
         const serialized = serializeError(error);
+        log.error("handler error", { requestId, code: serialized.code, status: serialized.status });
         return json({ error: serialized }, serialized.status);
-      } finally {
-        await flushStoreAfterRequest(store);
       }
-    }
-  };
 }
 
 function createDefaultStore(deps: LoreApiDependencies): InMemoryLoreStore {
@@ -1514,9 +1697,13 @@ function createDefaultStore(deps: LoreApiDependencies): InMemoryLoreStore {
     if (!databaseUrl) {
       throw new LoreError("store.postgres_missing_url", "LORE_DATABASE_URL is required when LORE_STORE_DRIVER=postgres", 500);
     }
+    const autoSchema = process.env.LORE_POSTGRES_AUTO_SCHEMA === "true";
+    if (!autoSchema) {
+      log.info("LORE_POSTGRES_AUTO_SCHEMA is not set to 'true'; schema will NOT be auto-applied. Run 'pnpm db:schema' manually.", {});
+    }
     return new PostgresLoreStore({
       databaseUrl,
-      autoApplySchema: process.env.LORE_POSTGRES_AUTO_SCHEMA !== "false",
+      autoApplySchema: autoSchema,
       defaultOrganizationId: process.env.LORE_DEFAULT_ORGANIZATION_ID ?? "local",
       now: deps.now
     });
@@ -1530,7 +1717,7 @@ async function flushStoreAfterRequest(store: InMemoryLoreStore): Promise<void> {
   try {
     await store.flushNow();
   } catch (error) {
-    console.error("Lore store flush failed", error);
+    log.error("store flush failed", { error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -1584,8 +1771,41 @@ export function startServer(port = Number(process.env.PORT ?? 3000)): void {
     res.end(await response.text());
   });
   server.listen(port, () => {
-    console.log(`Lore API listening on http://localhost:${port}`);
+    log.info("Lore API listening", { port });
   });
+
+  let shuttingDown = false;
+
+  const shutdown = (signal: string): void => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
+    log.info("graceful shutdown initiated", { signal });
+
+    const forceExit = setTimeout(() => {
+      log.error("forced exit after timeout", {});
+      process.exit(1);
+    }, 15_000);
+    forceExit.unref();
+
+    server.close(async () => {
+      try {
+        await app.store.flushNow();
+        if (app.store instanceof PostgresLoreStore) {
+          await app.store.close();
+        }
+      } catch (error) {
+        log.error("shutdown flush error", { error: error instanceof Error ? error.message : String(error) });
+      }
+      clearTimeout(forceExit);
+      log.info("graceful shutdown complete", {});
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
 
 if (process.argv[1]?.endsWith("/dist/index.js")) {
@@ -1622,7 +1842,31 @@ async function readJson(request: Request): Promise<Record<string, unknown>> {
     return {};
   }
 
-  return (await request.json()) as Record<string, unknown>;
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    totalBytes += value.byteLength;
+    if (totalBytes > LORE_MAX_JSON_BYTES) {
+      reader.cancel().catch(() => undefined);
+      throw new LoreError("request.payload_too_large", `request body exceeds ${LORE_MAX_JSON_BYTES} bytes`, 413);
+    }
+    chunks.push(value);
+  }
+
+  const combined = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    combined.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const text = new TextDecoder().decode(combined);
+  return JSON.parse(text) as Record<string, unknown>;
 }
 
 function json(payload: unknown, status = 200, headers?: Record<string, string>): Response {
@@ -1646,7 +1890,13 @@ function parseApiKeyRules(raw: string | undefined): LoreApiKeyRule[] {
     return [];
   }
 
-  const parsed = JSON.parse(raw) as unknown;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    log.error("LORE_API_KEYS is not valid JSON — check format. Expected a JSON array of {key, role} objects.", {});
+    process.exit(1);
+  }
   if (!Array.isArray(parsed)) {
     throw new Error("LORE_API_KEYS must be a JSON array");
   }
@@ -1666,20 +1916,34 @@ function parseApiKeyRules(raw: string | undefined): LoreApiKeyRule[] {
 }
 
 function authenticateRequest(request: Request, apiKeys: LoreApiKeyRule[]): AuthContext | undefined {
-  if (apiKeys.length === 0) {
-    return isLoopbackRequest(request) ? { configured: false, role: "admin" } : undefined;
-  }
   const bearer = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
   const headerKey = request.headers.get("x-lore-api-key");
   const presented = bearer ?? headerKey;
+
+  if (apiKeys.length === 0) {
+    if (process.env.NODE_ENV === "production") {
+      return undefined;
+    }
+    if (isLoopbackRequest(request)) {
+      return { configured: false, role: "admin" };
+    }
+    return undefined;
+  }
+
   const match = apiKeys.find((item) => item.key === presented);
   return match ? { configured: true, role: match.role, projectIds: match.projectIds } : undefined;
 }
 
 function isLoopbackRequest(request: Request): boolean {
   const url = new URL(request.url);
+  if (!isLoopbackAddress(url.hostname)) {
+    return false;
+  }
   const remoteAddress = request.headers.get("x-lore-remote-address");
-  return isLoopbackAddress(url.hostname) && (!remoteAddress || isLoopbackAddress(remoteAddress));
+  if (remoteAddress && !isLoopbackAddress(remoteAddress)) {
+    return false;
+  }
+  return true;
 }
 
 function isLoopbackAddress(value: string): boolean {
