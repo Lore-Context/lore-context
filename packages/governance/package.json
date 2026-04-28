@@ -9,5 +9,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@lore/shared": "workspace:*"
   }
 }
