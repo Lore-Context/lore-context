@@ -26,4 +26,8 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
+RUN chown -R node:node /app
+
+USER node
+
 CMD ["node", "apps/mcp-server/dist/index.js"]

@@ -26,6 +26,13 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
+RUN chown -R node:node /app
+
 EXPOSE 3000
+
+USER node
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-3000}/health || exit 1
 
 CMD ["node", "apps/api/dist/index.js"]
