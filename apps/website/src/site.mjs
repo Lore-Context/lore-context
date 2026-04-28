@@ -667,20 +667,119 @@ function layout({ locale, slug = "", title, description, body, isHome = false })
         </div>
       </nav>
     </header>
-    <main id="content">${body}</main>
-    ${footer(locale)}
-    <script>
-      try {
-        localStorage.setItem("lore_locale", ${JSON.stringify(locale)});
-        document.querySelectorAll("[data-locale-link]").forEach(function(link) {
+	    <main id="content">${body}</main>
+	    ${footer(locale)}
+	    <script>
+	      try {
+	        localStorage.setItem("lore_locale", ${JSON.stringify(locale)});
+	        document.querySelectorAll("[data-locale-link]").forEach(function(link) {
           link.addEventListener("click", function() {
             try { localStorage.setItem("lore_locale", link.getAttribute("hreflang").toLowerCase()); } catch (e) {}
           });
-        });
-      } catch (e) {}
-    </script>
-  </body>
-</html>`;
+	        });
+	      } catch (e) {}
+	      ${motionScript()}
+	    </script>
+	  </body>
+	</html>`;
+}
+
+function motionScript() {
+  return `
+	      (function initLoreMotion() {
+	        var root = document.documentElement;
+	        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	        root.classList.add(reduce ? "motion-reduced" : "is-enhanced");
+	        if (reduce) return;
+
+	        var revealItems = Array.from(document.querySelectorAll(".section-head,.problem-card,.system-board,.feature-card,.alpha-row,.manifest,.eval-shell,.integration,.terminal,.final .hero-actions"));
+	        revealItems.forEach(function(item, index) {
+	          item.classList.add("reveal");
+	          item.style.setProperty("--reveal-index", String(Math.min(index % 10, 9)));
+	        });
+
+	        var observer = "IntersectionObserver" in window
+	          ? new IntersectionObserver(function(entries) {
+	              entries.forEach(function(entry) {
+	                if (entry.isIntersecting) {
+	                  entry.target.classList.add("in-view");
+	                  observer.unobserve(entry.target);
+	                }
+	              });
+	            }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" })
+	          : null;
+	        revealItems.forEach(function(item) {
+	          if (observer) observer.observe(item);
+	          else item.classList.add("in-view");
+	        });
+
+	        Array.from(document.querySelectorAll(".metric strong,.surface-stat strong")).forEach(function(node) {
+	          var text = node.textContent || "";
+	          var numeric = Number(text.replace(/[^0-9.]/g, ""));
+	          if (!Number.isFinite(numeric)) return;
+	          var decimals = text.includes(".") ? Math.min(3, (text.split(".")[1] || "").replace(/[^0-9]/g, "").length) : 0;
+	          var prefix = text.match(/^[^0-9]*/)[0] || "";
+	          var suffix = (text.match(/[^0-9.,]+$/) || [""])[0];
+	          var comma = text.includes(",");
+	          node.textContent = prefix + (decimals ? (0).toFixed(decimals) : "0") + suffix;
+	          var started = false;
+	          var animate = function() {
+	            if (started) return;
+	            started = true;
+	            var start = performance.now();
+	            var duration = 900 + Math.min(520, numeric * 6);
+	            function frame(now) {
+	              var progress = Math.min(1, (now - start) / duration);
+	              var eased = 1 - Math.pow(1 - progress, 3);
+	              var value = numeric * eased;
+	              var formatted = decimals ? value.toFixed(decimals) : Math.round(value).toLocaleString("en-US");
+	              if (!comma && !decimals) formatted = String(Math.round(value));
+	              node.textContent = prefix + formatted + suffix;
+	              if (progress < 1) requestAnimationFrame(frame);
+	              else node.textContent = text;
+	            }
+	            requestAnimationFrame(frame);
+	          };
+	          if ("IntersectionObserver" in window) {
+	            var metricObserver = new IntersectionObserver(function(entries) {
+	              entries.forEach(function(entry) {
+	                if (entry.isIntersecting) {
+	                  animate();
+	                  metricObserver.disconnect();
+	                }
+	              });
+	            }, { threshold: 0.7 });
+	            metricObserver.observe(node);
+	          } else {
+	            animate();
+	          }
+	        });
+
+	        var rows = Array.from(document.querySelectorAll(".ledger-row"));
+	        if (rows.length > 1) {
+	          var active = rows.findIndex(function(row) { return row.classList.contains("active"); });
+	          if (active < 0) active = 0;
+	          window.setInterval(function() {
+	            rows[active].classList.remove("active");
+	            active = (active + 1) % rows.length;
+	            rows[active].classList.add("active");
+	          }, 2600);
+	        }
+
+	        Array.from(document.querySelectorAll(".surface,.system-board,.eval-shell")).forEach(function(panel) {
+	          panel.addEventListener("pointermove", function(event) {
+	            var rect = panel.getBoundingClientRect();
+	            var x = (event.clientX - rect.left) / rect.width - 0.5;
+	            var y = (event.clientY - rect.top) / rect.height - 0.5;
+	            panel.style.setProperty("--tilt-x", (y * -3).toFixed(2) + "deg");
+	            panel.style.setProperty("--tilt-y", (x * 3).toFixed(2) + "deg");
+	          });
+	          panel.addEventListener("pointerleave", function() {
+	            panel.style.setProperty("--tilt-x", "0deg");
+	            panel.style.setProperty("--tilt-y", "0deg");
+	          });
+	        });
+	      })();`;
 }
 
 function homePage(locale) {
@@ -964,12 +1063,12 @@ function finalSection(t, locale) {
   return `<section id="start" class="section final">
     <div class="shell final-grid">
       <div>${sectionHead(t.sectionNums[6], t.finalTitle, t.finalCopy, t.sectionEyebrows?.[6])}<div class="hero-actions"><a class="button primary large" href="${pathFor(locale, "docs")}">${escapeHtml(t.ctaRun)} →</a><a class="button secondary large" href="${pathFor(locale, "architecture")}">${escapeHtml(t.ctaArch)}</a></div></div>
-      <pre class="terminal" aria-label="Local alpha commands"><code>$ pnpm install
+	      <pre class="terminal" aria-label="Local alpha commands"><code>$ pnpm install
 $ pnpm build
 $ pnpm seed:demo
-$ pnpm smoke:dashboard</code></pre>
-    </div>
-  </section>`;
+$ pnpm smoke:dashboard</code><span class="terminal-status">verified · no remote assets · smoke passing</span></pre>
+	    </div>
+	  </section>`;
 }
 
 function sectionHead(num, title, copy, eyebrow = "") {
@@ -1071,12 +1170,31 @@ function sitemap() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((url) => `  <url><loc>${rootUrl}${url || "/"}</loc></url>`).join("\n")}
 </urlset>
+	`;
+}
+
+function cloudflareHeaders() {
+  return `/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests
+  Cache-Control: public, max-age=300
+
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
 `;
 }
 
 export function generateSiteFiles() {
   const files = new Map();
   files.set("index.html", rootIndex());
+  files.set("_headers", cloudflareHeaders());
   files.set("robots.txt", robots());
   files.set("sitemap.xml", sitemap());
   for (const slug of pageSlugs) files.set(`${slug}.html`, redirectPage(slug));
@@ -1100,10 +1218,11 @@ function styles() {
 .feature-viz{width:100%;height:104px;margin:18px 0 8px;display:block}.feature-viz rect{fill:var(--paper-3);stroke:var(--line-2)}.feature-viz line,.feature-viz path{stroke:var(--line-2);fill:none}.feature-viz .read{stroke:var(--cyan);stroke-width:1.5;animation:flowDash 5s linear infinite}.feature-viz .rank-bar{fill:var(--cyan);stroke:none;opacity:.68;transform-origin:left;animation:barReveal 1.8s ease-out both}.feature-viz circle{fill:var(--green);stroke:none;animation:nodePulse 2.4s ease-in-out infinite}.feature-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}.feature-meta span{border:1px solid var(--line);border-radius:5px;background:var(--paper-3);padding:4px 7px;color:var(--muted);font:850 10px ui-monospace,SFMono-Regular,Menlo,monospace}
 .manifest-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:14px}.manifest-head h3{margin:0}.manifest-head span{font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.run-card{margin-top:14px;border:1px solid var(--line);border-radius:6px;background:var(--paper);padding:13px 14px;color:var(--muted);font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.run-card span{display:block;color:var(--ink-2);margin-bottom:6px}.run-card code{font:inherit;color:#33414c}
 .eval-shell{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);overflow:hidden}.eval-shell .spark{width:100%;height:30px;margin-top:10px}.eval-shell .spark polyline{fill:none;stroke:var(--green);stroke-width:1.5;stroke-dasharray:130;stroke-dashoffset:130;animation:sparkDraw 2.2s ease-out forwards}.eval-shell .metric.warn .spark polyline{stroke:var(--amber)}.eval-shell .metric.info .spark polyline{stroke:var(--cyan)}.eval-shell .metric small{display:block;margin-top:4px;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.eval-detail{display:grid;grid-template-columns:1.25fr .75fr;border-top:1px solid var(--line)}.eval-trace,.eval-side{padding:20px}.eval-trace{border-right:1px solid var(--line)}.eval-trace h3,.eval-side h3{margin:0 0 14px;font-size:14px}.trace-row,.dist-row{display:grid;grid-template-columns:132px 1fr 54px;gap:12px;align-items:center;min-height:30px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.trace-row b,.dist-row b{position:relative;height:8px;border-radius:8px;background:rgba(0,0,0,.08);overflow:hidden}.trace-row i{position:absolute;top:0;height:100%;border-radius:8px;background:var(--cyan);animation:barReveal 1.8s ease-out both}.dist-row i{display:block;height:100%;border-radius:8px;background:var(--cyan);animation:barReveal 1.8s ease-out both}.trace-row em,.dist-row em{font-style:normal;text-align:right}.eval-note{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.eval-note span:last-child{color:var(--green)}
-.final .button.primary{background:var(--paper);border-color:var(--paper);color:var(--ink)}.final .button.secondary{background:transparent;border-color:rgba(248,247,242,.28);color:var(--paper)}.final .button:hover{box-shadow:0 12px 32px rgba(255,255,255,.08)}
-@keyframes cursorBlink{0%,45%{opacity:1}46%,100%{opacity:0}}@keyframes ledgerScan{0%{transform:translateX(-100%);opacity:0}20%,72%{opacity:1}100%{transform:translateX(100%);opacity:0}}@keyframes nodePulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.16)}}@keyframes barReveal{from{transform:scaleX(.25)}to{transform:scaleX(1)}}@keyframes sparkDraw{to{stroke-dashoffset:0}}@keyframes flowDash{to{stroke-dashoffset:-90}}
+	.final .button.primary{background:var(--paper);border-color:var(--paper);color:var(--ink)}.final .button.secondary{background:transparent;border-color:rgba(248,247,242,.28);color:var(--paper)}.final .button:hover{box-shadow:0 12px 32px rgba(255,255,255,.08)}
+	.surface,.system-board,.eval-shell{position:relative;transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .22s ease,box-shadow .22s ease}.is-enhanced .surface:hover,.is-enhanced .system-board:hover,.is-enhanced .eval-shell:hover{box-shadow:0 32px 78px rgba(17,20,24,.16)}.is-enhanced .surface:after,.is-enhanced .system-board:after,.is-enhanced .eval-shell:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 40%,rgba(255,255,255,.42) 49%,transparent 58%);mix-blend-mode:soft-light;transform:translateX(-130%);animation:surfaceSweep 8s ease-in-out infinite}.is-enhanced .system-board:after,.is-enhanced .eval-shell:after{animation-delay:1.4s}.is-enhanced .reveal{opacity:0;transform:translateY(18px);filter:blur(8px);transition:opacity .72s ease,transform .72s ease,filter .72s ease;transition-delay:calc(var(--reveal-index,0) * 42ms)}.is-enhanced .reveal.in-view{opacity:1;transform:translateY(0);filter:blur(0)}.is-enhanced .hero-copy>*{animation:revealRise .72s ease both}.is-enhanced .hero-copy>*:nth-child(1){animation-delay:.04s}.is-enhanced .hero-copy>*:nth-child(2){animation-delay:.12s}.is-enhanced .hero-copy>*:nth-child(3){animation-delay:.19s}.is-enhanced .hero-copy>*:nth-child(4){animation-delay:.25s}.is-enhanced .hero-copy>*:nth-child(5){animation-delay:.31s}.is-enhanced .hero-copy>*:nth-child(6){animation-delay:.37s}.is-enhanced .hero-copy>*:nth-child(7){animation-delay:.43s}.is-enhanced .hero{background-position:0 0,0 0;animation:gridDrift 18s linear infinite}.is-enhanced .chip.live:before,.is-enhanced .live-pill:before{box-shadow:0 0 0 0 rgba(10,143,102,.28);animation:signalRing 2.4s ease-out infinite}.is-enhanced .problem-card,.is-enhanced .feature-card,.is-enhanced .integration,.is-enhanced .alpha-row,.is-enhanced .system-strip div{transition:transform .2s ease,background .2s ease,border-color .2s ease}.is-enhanced .problem-card:hover,.is-enhanced .feature-card:hover,.is-enhanced .integration:hover,.is-enhanced .alpha-row:hover,.is-enhanced .system-strip div:hover{transform:translateY(-3px);background:rgba(255,255,255,.48);border-color:rgba(8,174,190,.28)}.is-enhanced .ledger-row.active{color:var(--ink);background:rgba(8,174,190,.045)}.is-enhanced .terminal{position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 30px 80px rgba(0,0,0,.2)}.is-enhanced .terminal code{display:block;animation:terminalClip 1.5s steps(4,end) both;white-space:pre}.terminal-status{display:inline-flex;margin-top:12px;border:1px solid rgba(10,143,102,.38);border-radius:6px;padding:3px 7px;color:#8ff0bf;font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}.is-enhanced .terminal-status{animation:statusGlow 2.6s ease-in-out infinite}
+	@keyframes cursorBlink{0%,45%{opacity:1}46%,100%{opacity:0}}@keyframes ledgerScan{0%{transform:translateX(-100%);opacity:0}20%,72%{opacity:1}100%{transform:translateX(100%);opacity:0}}@keyframes nodePulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.16)}}@keyframes barReveal{from{transform:scaleX(.25)}to{transform:scaleX(1)}}@keyframes sparkDraw{to{stroke-dashoffset:0}}@keyframes flowDash{to{stroke-dashoffset:-90}}@keyframes surfaceSweep{0%,18%{transform:translateX(-130%);opacity:0}34%,44%{opacity:.85}62%,100%{transform:translateX(130%);opacity:0}}@keyframes revealRise{from{opacity:0;transform:translateY(18px);filter:blur(7px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}@keyframes gridDrift{to{background-position:42px 42px,42px 42px}}@keyframes signalRing{70%{box-shadow:0 0 0 8px rgba(10,143,102,0)}100%{box-shadow:0 0 0 0 rgba(10,143,102,0)}}@keyframes terminalClip{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}@keyframes statusGlow{0%,100%{border-color:rgba(10,143,102,.24);color:#8ff0bf}50%{border-color:rgba(8,174,190,.72);color:#d8f8e8}}
 @media(max-width:1120px){.nav-links{display:none}.hero-grid{grid-template-columns:1fr}.surface{max-width:760px}.problem-grid,.features-grid{grid-template-columns:repeat(2,1fr)}.problem-card:nth-child(2n),.feature-card:nth-child(2n){border-right:0}.pipeline{grid-template-columns:1fr 1fr}.pipe-step:after{display:none}.integrations-grid{grid-template-columns:repeat(3,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.alpha-grid,.final-grid{grid-template-columns:1fr}}
-@media(max-width:720px){.shell{width:calc(100% - 28px)}.nav{min-height:58px}.version,.nav-actions .secondary{display:none}.brand{font-size:14px}.hero-grid{padding:34px 0 52px}.hero-copy{order:2}.surface{order:1}.hero h1{margin-top:28px;font-size:42px}.metric-strip,.surface-stats,.eval-metrics{grid-template-columns:repeat(2,1fr)}.ledger-head,.ledger-row{grid-template-columns:1.15fr .62fr .62fr .8fr}.ledger-head span:nth-child(3),.ledger-head span:nth-child(6),.ledger-head span:nth-child(7),.ledger-row span:nth-child(3),.ledger-row span:nth-child(6),.ledger-row span:nth-child(7){display:none}.problem-grid,.features-grid,.pipeline,.integrations-grid,.footer-grid,.language-grid{grid-template-columns:1fr}.problem-card,.feature-card,.integration{border-right:0}.section{padding:68px 0}.section-head{grid-template-columns:1fr;gap:14px}.section-head>div:first-child{gap:8px}.manifest dl,.info-panel dl{grid-template-columns:1fr}.trace-list div{grid-template-columns:1fr}.flow-visual svg{height:176px}.composer-card{position:relative;left:auto;top:auto;margin:12px;width:auto}.gov-gate{left:18px;top:78px}.footer{padding-bottom:90px}}
+	@media(max-width:720px){.shell{width:calc(100% - 28px)}.nav{min-height:58px}.version,.nav-actions .secondary{display:none}.brand{font-size:14px}.hero-grid{padding:34px 0 52px}.hero-copy{order:1}.surface{order:2}.hero h1{margin-top:28px;font-size:42px}.metric-strip,.surface-stats,.eval-metrics{grid-template-columns:repeat(2,1fr)}.ledger-head,.ledger-row{grid-template-columns:1.15fr .62fr .62fr .8fr}.ledger-head span:nth-child(3),.ledger-head span:nth-child(6),.ledger-head span:nth-child(7),.ledger-row span:nth-child(3),.ledger-row span:nth-child(6),.ledger-row span:nth-child(7){display:none}.problem-grid,.features-grid,.pipeline,.integrations-grid,.footer-grid,.language-grid{grid-template-columns:1fr}.problem-card,.feature-card,.integration{border-right:0}.section{padding:68px 0}.section-head{grid-template-columns:1fr;gap:14px}.section-head>div:first-child{gap:8px}.manifest dl,.info-panel dl{grid-template-columns:1fr}.trace-list div{grid-template-columns:1fr}.flow-visual svg{height:176px}.composer-card{position:relative;left:auto;top:auto;margin:12px;width:auto}.gov-gate{left:18px;top:78px}.footer{padding-bottom:90px}}
 @media(max-width:1120px){.system-strip{grid-template-columns:repeat(2,1fr)}.system-strip div:nth-child(2n){border-right:0}.eval-detail{grid-template-columns:1fr}.eval-trace{border-right:0;border-bottom:1px solid var(--line)}}@media(max-width:720px){.problem-visual{height:86px}.system-strip{grid-template-columns:1fr}.system-strip div{border-right:0}.board-head{align-items:flex-start;flex-direction:column;padding:12px 14px}.feature-viz{height:94px}.trace-row,.dist-row{grid-template-columns:1fr}.eval-metrics .metric:nth-child(2n){border-right:0}.alpha-side{min-height:auto}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
 `;

@@ -29,6 +29,7 @@ try {
   server = start("node", ["scripts/serve.mjs", "--port", String(port)]);
   await waitForUrl(`${baseUrl}/`);
   await verifyLanguageChooser();
+  await verifyReleaseAssets();
   await verifyLocaleRoutes();
 
   browser = await chromium.launch({ headless: true });
@@ -56,6 +57,26 @@ async function verifyLocaleRoutes() {
     assert.match(html, new RegExp(`<html lang="${escapeRegex(htmlLang)}"`), `${locale} route should render locale html lang.`);
     assert.match(html, /redland2024@gmail\.com/, `${locale} route should keep the REDLAND contact email.`);
   }
+}
+
+async function verifyReleaseAssets() {
+  const headers = await fetch(`${baseUrl}/_headers`);
+  assert.equal(headers.status, 200, "_headers should return 200.");
+  assert.match(headers.headers.get("content-type") ?? "", /^text\/plain/, "_headers should use a text/plain content type.");
+  assert.match(await headers.text(), /Content-Security-Policy: default-src 'self'/, "_headers should define a restrictive CSP for Cloudflare Pages.");
+
+  const robots = await fetch(`${baseUrl}/robots.txt`);
+  assert.equal(robots.status, 200, "robots.txt should return 200.");
+  assert.match(robots.headers.get("content-type") ?? "", /^text\/plain/, "robots.txt should use a text/plain content type.");
+  assert.match(await robots.text(), /Sitemap: https:\/\/lorecontext\.com\/sitemap\.xml/, "robots.txt should advertise the production sitemap.");
+
+  const sitemap = await fetch(`${baseUrl}/sitemap.xml`);
+  assert.equal(sitemap.status, 200, "sitemap.xml should return 200.");
+  assert.match(sitemap.headers.get("content-type") ?? "", /application\/xml/, "sitemap.xml should use an XML content type.");
+  assert.match(await sitemap.text(), /https:\/\/lorecontext\.com\/en\//, "sitemap.xml should include localized production URLs.");
+
+  const malformed = await fetch(`${baseUrl}/%E0%A4%A`);
+  assert.equal(malformed.status, 400, "Malformed URL encoding should be rejected without crashing the preview server.");
 }
 
 async function verifyDesktop(browser) {

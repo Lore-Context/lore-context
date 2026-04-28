@@ -94,9 +94,22 @@ const englishV3Copy = [
   "git clone github.com/lore/context",
   "Start with a local alpha. Prove memory quality before you scale it."
 ];
-const motionKeys = ["cursorBlink", "ledgerScan", "nodePulse", "barReveal", "sparkDraw", "flowDash"];
+const motionKeys = [
+  "cursorBlink",
+  "ledgerScan",
+  "nodePulse",
+  "barReveal",
+  "sparkDraw",
+  "flowDash",
+  "surfaceSweep",
+  "revealRise",
+  "gridDrift",
+  "signalRing",
+  "terminalClip",
+  "statusGlow"
+];
 
-const expectedFileCount = 3 + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
+const expectedFileCount = 4 + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
 if (files.size !== expectedFileCount) {
   failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
 }
@@ -161,9 +174,18 @@ for (const locale of localeCodes) {
   requireTexts(contactPath, contactHtml, ["redland2024@gmail.com", 'meta name="description" content="Email: redland2024@gmail.com"']);
 }
 
-for (const path of ["index.html", "robots.txt", "sitemap.xml", ...pageSlugs.map((slug) => `${slug}.html`)]) {
+for (const path of ["index.html", "_headers", "robots.txt", "sitemap.xml", ...pageSlugs.map((slug) => `${slug}.html`)]) {
   if (!files.has(path)) failures.push(`Missing release file: ${path}`);
 }
+
+const headers = files.get("_headers") ?? "";
+requireTexts("_headers", headers, [
+  "Content-Security-Policy: default-src 'self'",
+  "X-Content-Type-Options: nosniff",
+  "Referrer-Policy: strict-origin-when-cross-origin",
+  "Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()",
+  "frame-ancestors 'none'"
+]);
 
 for (const locale of localeCodes) {
   if (!files.get("sitemap.xml")?.includes(`https://lorecontext.com/${locale}/`)) {
@@ -202,6 +224,12 @@ for (const [path, html] of files) {
 }
 
 const english = files.get("en/index.html") ?? "";
+if (!english.includes("initLoreMotion")) {
+  failures.push("Homepage should include the progressive motion enhancement script.");
+}
+if (!english.includes("terminal-status")) {
+  failures.push("Final command terminal should expose a verified status line.");
+}
 if (!/class="ledger-row active"/.test(english)) {
   failures.push("Hero should expose an active ledger row for evidence motion.");
 }
