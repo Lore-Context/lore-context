@@ -29,6 +29,33 @@ const languageLabels = [
   "Bahasa Indonesia"
 ];
 const heroChips = ["LOCAL ALPHA OPEN", "REST API", "MCP STDIO", "POSTGRES 16", "DASHBOARD", "PRIVATE DEPLOY"];
+const homepageStructureMarkers = [
+  'id="problem"',
+  'id="system"',
+  'id="features"',
+  'id="alpha"',
+  'id="eval"',
+  'id="integrations"',
+  'id="start"',
+  'class="problem-visual"',
+  'class="system-board"',
+  'class="alpha-grid"',
+  'class="eval-shell"',
+  'class="integrations-grid"',
+  'class="terminal"'
+];
+const premiumInfrastructureLabels = [
+  "Memory evidence ledger",
+  "context.compose()",
+  "gov · gate",
+  "System diagram · context plane v0.4",
+  "read path · policy gate · persist + audit",
+  "Build manifest",
+  "Cloud sync (private)",
+  "Eval autopilot",
+  "Docker Compose",
+  "Private Deployment"
+];
 const homeRuntimeLabels = [
   "redland2024@gmail.com",
   "context.ledger",
@@ -76,6 +103,7 @@ for (const locale of localeCodes) {
   }
 
   requireTexts(homePath, html, ["Lore Context", "REDLAND PTE. LTD.", ...heroChips, ...homeRuntimeLabels]);
+  requireTexts(homePath, html, [...homepageStructureMarkers, ...premiumInfrastructureLabels]);
 
   if (locale === "en") {
     requireTexts(homePath, html, englishV3Copy);
@@ -93,6 +121,18 @@ for (const locale of localeCodes) {
 
   if ((html.match(/<a\s+data-locale-link/g) ?? []).length !== localeCodes.length) {
     failures.push(`${homePath} should expose ${localeCodes.length} language switch links.`);
+  }
+
+  if ((html.match(/class="feature-card"/g) ?? []).length !== 6) {
+    failures.push(`${homePath} should expose 6 product feature cards.`);
+  }
+
+  if ((html.match(/class="alpha-row"/g) ?? []).length !== 9) {
+    failures.push(`${homePath} should expose 9 alpha/build status rows.`);
+  }
+
+  if ((html.match(/class="integration"/g) ?? []).length !== 10) {
+    failures.push(`${homePath} should expose 10 integration tiles.`);
   }
 
   for (const label of languageLabels) {
@@ -129,6 +169,10 @@ for (const [path, html] of files) {
 
 for (const [path, html] of files) {
   if (!path.endsWith(".html")) continue;
+
+  if (!html.includes("redland2024@gmail.com")) {
+    failures.push(`${path} must keep the canonical REDLAND contact email.`);
+  }
 
   if (/support@lorecontext\.com|security@lorecontext\.com|privacy@lorecontext\.com/.test(html)) {
     failures.push(`${path} still contains an old lorecontext.com contact email.`);
