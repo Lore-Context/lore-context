@@ -29,4 +29,11 @@ COPY --from=builder /app /app
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "pnpm --filter @lore/dashboard exec next start -H 0.0.0.0 -p ${PORT:-3001}"]
+RUN chown -R node:node /app
+
+USER node
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-3001} || exit 1
+
+CMD ["sh", "-c", "pnpm --filter @lore/dashboard exec next start -p ${PORT:-3001}"]

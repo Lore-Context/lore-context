@@ -209,7 +209,17 @@ export default function DashboardPage() {
       body: options.body === undefined ? undefined : JSON.stringify(options.body)
     });
     const text = await response.text();
-    const payload = text ? JSON.parse(text) : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let payload: any;
+    try {
+      payload = text ? JSON.parse(text) : {};
+    } catch {
+      if (!options.allowError) {
+        setError("Invalid JSON response from server");
+        throw new Error("Invalid JSON response from server");
+      }
+      payload = {};
+    }
     if (!response.ok && !options.allowError) {
       throw payload;
     }

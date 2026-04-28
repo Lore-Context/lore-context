@@ -29,7 +29,12 @@ async function proxyLore(request: NextRequest, context: RouteContext): Promise<R
   copyHeader(request.headers, headers, "x-lore-api-key");
   copyHeader(request.headers, headers, "content-type");
 
+  // Only inject server-side API key when the request has been authenticated via
+  // middleware basic auth (LORE_DASHBOARD_DISABLE_AUTH=1 or valid credentials).
+  // This prevents confused-deputy attacks where unauthenticated browser requests
+  // gain admin powers through the server-side key injection.
   if (!headers.has("authorization") && !headers.has("x-lore-api-key") && process.env.LORE_API_KEY) {
+    // middleware.ts gates all requests; reaching here means auth passed
     headers.set("authorization", `Bearer ${process.env.LORE_API_KEY}`);
   }
 
