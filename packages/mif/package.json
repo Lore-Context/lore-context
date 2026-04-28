@@ -1,6 +1,6 @@
 {
   "name": "@lore/mif",
-  "version": "0.0.0",
+  "version": "0.4.0-alpha.0",
   "private": true,
   "type": "module",
   "exports": {
