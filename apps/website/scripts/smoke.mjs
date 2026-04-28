@@ -14,7 +14,7 @@ try {
 }
 
 const websiteRoot = dirname(dirname(fileURLToPath(import.meta.url)));
-const port = await resolveSmokePort();
+const port = Number(process.env.LORE_WEBSITE_SMOKE_PORT ?? 43174);
 const baseUrl = `http://127.0.0.1:${port}`;
 const expectedHtmlLang = new Map([
   ["zh-hans", "zh-Hans"],
@@ -100,7 +100,7 @@ async function fetchHtml(url) {
   assert.equal(response.status, 200, `${url} should return 200.`);
   const contentType = response.headers.get("content-type") ?? "";
   assert.match(contentType, /text\/html/, `${url} should return HTML.`);
-  return response.text();
+  return await response.text();
 }
 
 async function assertNoHorizontalOverflow(page, label) {
