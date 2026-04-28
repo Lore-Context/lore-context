@@ -82,6 +82,20 @@ const homeRuntimeLabels = [
   "feature-viz",
   "eval-shell"
 ];
+const docsPageMarkers = [
+  "Run the alpha locally",
+  "GitHub source",
+  "v0.4.0-alpha release",
+  "Getting started",
+  "API reference",
+  "Deployment",
+  "Integrations",
+  "RELEASE GATE",
+  "Placeholder secrets rejected in production",
+  "17 locales and 183 static files generated",
+  "LOCALIZED DOCS",
+  "Community PRs can improve translation quality"
+];
 const englishV3Copy = [
   "<h1>Lore Context.</h1>",
   "The control plane for AI-agent memory, eval, and governance.",
@@ -91,7 +105,7 @@ const englishV3Copy = [
   "Built for operators, not memory hype.",
   "Eval proof report. On your own data.",
   "The memory gap",
-  "git clone github.com/lore/context",
+  "git clone github.com/Lore-Context/lore-context",
   "Start with a local alpha. Prove memory quality before you scale it."
 ];
 const motionKeys = [
@@ -172,6 +186,19 @@ for (const locale of localeCodes) {
   const contactPath = `${locale}/contact.html`;
   const contactHtml = files.get(contactPath) ?? "";
   requireTexts(contactPath, contactHtml, ["redland2024@gmail.com", 'meta name="description" content="Email: redland2024@gmail.com"']);
+
+  const docsPath = `${locale}/docs.html`;
+  const docsHtml = files.get(docsPath) ?? "";
+  requireTexts(docsPath, docsHtml, docsPageMarkers);
+  if ((docsHtml.match(/class="doc-card"/g) ?? []).length !== 6) {
+    failures.push(`${docsPath} should expose 6 primary documentation cards.`);
+  }
+  if ((docsHtml.match(/class="doc-step"/g) ?? []).length !== 4) {
+    failures.push(`${docsPath} should expose 4 quickstart steps.`);
+  }
+  if ((docsHtml.match(/class="doc-locale-grid"/g) ?? []).length !== 1) {
+    failures.push(`${docsPath} should expose a localized docs grid.`);
+  }
 }
 
 for (const path of ["index.html", "_headers", "robots.txt", "sitemap.xml", ...pageSlugs.map((slug) => `${slug}.html`)]) {
