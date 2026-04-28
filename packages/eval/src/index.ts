@@ -1,3 +1,6 @@
+export { runEval, persistRun, loadRuns, diffRuns } from "./runner.js";
+export type { EvalDataset, RetrievalFn, EvalRunResult } from "./runner.js";
+
 export function recallAtK(relevantIds: string[], retrievedIds: string[], k: number): number {
   if (relevantIds.length === 0) {
     return 0;
