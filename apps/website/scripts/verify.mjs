@@ -87,6 +87,11 @@ const englishV3Copy = [
   "The control plane for AI-agent memory, eval, and governance.",
   "Know what every agent remembered, used, and should forget before memory becomes production risk.",
   "Agents remember. Teams need proof.",
+  "One context plane. Every agent surface.",
+  "Built for operators, not memory hype.",
+  "Eval proof report. On your own data.",
+  "The memory gap",
+  "git clone github.com/lore/context",
   "Start with a local alpha. Prove memory quality before you scale it."
 ];
 const motionKeys = ["cursorBlink", "ledgerScan", "nodePulse", "barReveal", "sparkDraw", "flowDash"];
@@ -151,6 +156,9 @@ for (const locale of localeCodes) {
     const path = `${locale}/${slug}.html`;
     if (!files.has(path)) failures.push(`Missing localized page: ${path}`);
   }
+  const contactPath = `${locale}/contact.html`;
+  const contactHtml = files.get(contactPath) ?? "";
+  requireTexts(contactPath, contactHtml, ["redland2024@gmail.com", 'meta name="description" content="Email: redland2024@gmail.com"']);
 }
 
 for (const path of ["index.html", "robots.txt", "sitemap.xml", ...pageSlugs.map((slug) => `${slug}.html`)]) {
@@ -196,6 +204,9 @@ for (const [path, html] of files) {
 const english = files.get("en/index.html") ?? "";
 if (!/class="ledger-row active"/.test(english)) {
   failures.push("Hero should expose an active ledger row for evidence motion.");
+}
+if (!/class="section-eye"/.test(english)) {
+  failures.push("Section eyebrow treatment is required for the premium infrastructure layout.");
 }
 
 for (const key of motionKeys) {
