@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-lore_context}
       POSTGRES_USER: ${POSTGRES_USER:-lore}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?must be set}
     ports:
       - "${POSTGRES_BIND_HOST:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -30,7 +30,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       LORE_STORE_DRIVER: ${LORE_STORE_DRIVER:-postgres}
-      LORE_DATABASE_URL: postgres://${POSTGRES_USER:-lore}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-lore_context}
+      LORE_DATABASE_URL: postgres://${POSTGRES_USER:-lore}:${POSTGRES_PASSWORD:?must be set}@postgres:5432/${POSTGRES_DB:-lore_context}
       LORE_POSTGRES_AUTO_SCHEMA: ${LORE_POSTGRES_AUTO_SCHEMA:-true}
       LORE_DEFAULT_ORGANIZATION_ID: ${LORE_DEFAULT_ORGANIZATION_ID:-private-demo}
       LORE_API_KEY: ${LORE_API_KEY:-}

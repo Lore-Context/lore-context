@@ -91,13 +91,13 @@ Set `LORE_API_KEY` before any remote exposure. With no API keys configured, Lore
 For local role separation, set `LORE_API_KEYS` to a JSON array:
 
 ```bash
-LORE_API_KEYS='[{"key":"read-local","role":"reader","projectIds":["demo"]},{"key":"write-local","role":"writer","projectIds":["demo"]},{"key":"admin-local","role":"admin"}]'
+LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
 ```
 
 The packaged private demo uses project id `demo-private`:
 
 ```bash
-LORE_API_KEYS='[{"key":"read-local","role":"reader","projectIds":["demo-private"]},{"key":"write-local","role":"writer","projectIds":["demo-private"]},{"key":"admin-local","role":"admin"}]'
+LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
 ```
 
 Roles:

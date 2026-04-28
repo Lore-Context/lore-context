@@ -23,7 +23,7 @@ Use the import payload to seed a private Postgres-backed deployment after the AP
 
 ```bash
 curl -X POST http://127.0.0.1:3000/v1/memory/import \
-  -H "Authorization: Bearer admin-local" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   --data @examples/demo-dataset/import/lore-demo-memories.json
 ```
@@ -32,7 +32,7 @@ Run the packaged eval request against the same seeded project:
 
 ```bash
 curl -X POST http://127.0.0.1:3000/v1/eval/run \
-  -H "Authorization: Bearer write-local" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   --data @examples/demo-dataset/eval/lore-demo-eval-request.json
 ```

@@ -1,5 +1,7 @@
 # Private Deployment
 
+> **Generate keys with `openssl rand -hex 32` — never use the placeholders below in production.**
+
 This slice packages Lore for a private demo or internal team rollout without changing the application code paths. The deployment bundle consists of:
 
 - `apps/api/Dockerfile`: REST API image.
@@ -27,9 +29,9 @@ The compose stack intentionally keeps public exposure narrow. Postgres, API, and
 Example role separation:
 
 ```bash
-LORE_API_KEYS='[{"key":"read-local","role":"reader","projectIds":["demo-private"]},{"key":"write-local","role":"writer","projectIds":["demo-private"]},{"key":"admin-local","role":"admin"}]'
-DASHBOARD_LORE_API_KEY=admin-local
-MCP_LORE_API_KEY=write-local
+LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
+DASHBOARD_LORE_API_KEY=<YOUR_ADMIN_KEY>
+MCP_LORE_API_KEY=<YOUR_WRITER_KEY>
 ```
 
 ## Start The Stack
@@ -53,7 +55,7 @@ For the Postgres-backed compose stack, import the packaged demo memories after t
 
 ```bash
 curl -X POST http://127.0.0.1:${API_PORT:-3000}/v1/memory/import \
-  -H "Authorization: Bearer ${ADMIN_LORE_API_KEY:-admin-local}" \
+  -H "Authorization: Bearer ${ADMIN_LORE_API_KEY:-<YOUR_API_KEY>}" \
   -H "Content-Type: application/json" \
   --data @examples/demo-dataset/import/lore-demo-memories.json
 ```
@@ -62,7 +64,7 @@ Run the packaged eval request:
 
 ```bash
 curl -X POST http://127.0.0.1:${API_PORT:-3000}/v1/eval/run \
-  -H "Authorization: Bearer ${WRITE_LORE_API_KEY:-write-local}" \
+  -H "Authorization: Bearer ${WRITE_LORE_API_KEY:-<YOUR_API_KEY>}" \
   -H "Content-Type: application/json" \
   --data @examples/demo-dataset/eval/lore-demo-eval-request.json
 ```
@@ -88,7 +90,7 @@ Host-based launcher:
 ```bash
 LORE_MCP_TRANSPORT=sdk \
 LORE_API_URL=http://127.0.0.1:${API_PORT:-3000} \
-LORE_API_KEY=${MCP_LORE_API_KEY:-write-local} \
+LORE_API_KEY=${MCP_LORE_API_KEY:-<YOUR_API_KEY>} \
 node apps/mcp-server/dist/index.js
 ```
 
