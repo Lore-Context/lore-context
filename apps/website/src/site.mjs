@@ -787,7 +787,7 @@ function surfaceStat(label, value, delta, tone) {
 function problemSection(t) {
   return `<section id="problem" class="section">
     <div class="shell">
-      ${sectionHead(t.sectionNums[0], t.problemTitle, t.problemCopy)}
+      ${sectionHead(t.sectionNums[0], t.problemTitle, t.problemCopy, t.sectionEyebrows?.[0])}
       <div class="problem-grid">${t.problemCards.map(([title, copy], index) => `<article class="problem-card"><span>0${index + 1}</span>${problemVisual(index)}<h3>${escapeHtml(title)}</h3><p>${escapeHtml(copy)}</p></article>`).join("")}</div>
     </div>
   </section>`;
@@ -817,7 +817,7 @@ function problemVisual(index) {
 function systemSection(t) {
   return `<section id="system" class="section">
     <div class="shell">
-      ${sectionHead(t.sectionNums[1], t.systemTitle, t.systemCopy)}
+      ${sectionHead(t.sectionNums[1], t.systemTitle, t.systemCopy, t.sectionEyebrows?.[1])}
       <div class="system-board">
         <div class="board-head"><span>System diagram · context plane v0.4</span><span>read path · policy gate · persist + audit</span></div>
         <div class="system-canvas">
@@ -861,12 +861,12 @@ function systemSection(t) {
 function featuresSection(t) {
   return `<section id="features" class="section">
     <div class="shell">
-      ${sectionHead(t.sectionNums[2], t.featuresTitle, t.featuresCopy)}
+      ${sectionHead(t.sectionNums[2], t.featuresTitle, t.featuresCopy, t.sectionEyebrows?.[2])}
       <div class="features-grid">
         ${t.features
           .map(
             ([title, copy], index) => `<article class="feature-card">
-              <div class="feature-tag"><span>F · ${String(index + 1).padStart(2, "0")}</span><span>${["query", "eval", "trace", "govern", "export", "deploy"][index]}</span></div>
+              <div class="feature-tag"><span>F · ${String(index + 1).padStart(2, "0")}</span><span>${featureApiLabel(index)}</span></div>
               ${featureVisual(index)}
               <h3>${escapeHtml(title)}</h3><p>${escapeHtml(copy)}</p>
               <div class="feature-meta">${featureMeta(index).map((item) => `<span>${item}</span>`).join("")}</div>
@@ -880,13 +880,17 @@ function featuresSection(t) {
 
 function featureMeta(index) {
   return [
-    ["stdio", "http", "ttl-aware"],
+    ["stdio · http", "k=1..32", "ttl-aware"],
     ["recall@5", "precision@5", "MRR"],
-    ["span tree", "per-agent", "p95"],
-    ["policy.lore", "diff view", "review"],
+    ["span tree", "per-agent", "p50/p95/p99"],
+    ["policy.lore", "approve/reject", "diff view"],
     ["JSON Lines", ".lore.tar", "replay()"],
-    ["compose", "air-gapped", "BYO Postgres"]
+    ["docker compose", "air-gapped", "BYO Postgres"]
   ][index] ?? ["inspectable", "scriptable", "governed"];
+}
+
+function featureApiLabel(index) {
+  return ["context.query", "eval.run", "observability", "governance", "export.mif", "deploy.local"][index] ?? "surface";
 }
 
 function featureVisual(index) {
@@ -903,23 +907,23 @@ function featureVisual(index) {
 
 function alphaSection(t) {
   const rows = [
-    ["REST API", "/v1/context · /v1/memory · /v1/eval", "v0.4.2", "done"],
-    ["MCP stdio SDK transport", "drop-in compatible client transport", "mcp 0.6", "done"],
-    ["Next Dashboard", "trace explorer · eval comparison · review queue", "next 16", "done"],
-    ["Postgres incremental persistence", "audit log · idempotent writes", "pg 16", "done",
+    ["REST API", "/v1/context, /v1/memory, /v1/eval — typed, documented", "v0.4.2", "done"],
+    ["MCP stdio SDK transport", "Drop-in for any MCP-compatible client", "mcp 0.6", "done"],
+    ["Next Dashboard", "Trace explorer, eval comparison, policy review queue", "next 14", "done"],
+    ["Postgres incremental persistence", "WAL-backed, audit log, idempotent writes", "pg 16", "done",
     ],
-    ["Demo dataset", "seeded memories across fictional teams", "seed:demo", "done"],
-    ["Playwright smoke", "dashboard renders and critical paths pass", "smoke", "done"],
-    ["Docker Compose", "lore-api · dashboard · postgres in one private stack", "docker", "done"],
-    ["Cloud sync (private)", "single-tenant path behind feature flag", "flag", "partial"],
-    ["Eval autopilot", "scheduled runs in review", "next", "partial"]
+    ["Demo dataset", "4,200 seeded memories across 6 fictional teams", "pnpm seed:demo", "done"],
+    ["Playwright smoke", "Dashboard renders + 8 critical paths covered", "pnpm smoke", "done"],
+    ["Docker Compose", "lore-api · dashboard · postgres in one file", "docker", "done"],
+    ["Cloud sync (private)", "Behind a flag · single-tenant · invite only", "flag", "partial"],
+    ["Eval autopilot", "Scheduled runs against shadow traffic · in review", "next", "partial"]
   ];
   return `<section id="alpha" class="section">
     <div class="shell">
-      ${sectionHead(t.sectionNums[3], t.alphaTitle, t.alphaCopy)}
+      ${sectionHead(t.sectionNums[3], t.alphaTitle, t.alphaCopy, t.sectionEyebrows?.[3])}
       <div class="alpha-grid">
         <div class="alpha-list">${rows.map(([name, desc, status, state]) => `<div class="alpha-row"><b class="${state}">${state === "done" ? "✓" : "◐"}</b><span><strong>${name}</strong><small>${desc}</small></span><em>${status}</em></div>`).join("")}</div>
-        <div class="manifest alpha-side"><div class="manifest-head"><h3>Build manifest</h3><span>v0.4.2 · 28.04.2026</span></div><dl><dt>version</dt><dd>0.4.2-alpha</dd><dt>runtime</dt><dd>node >=22 · pg 16</dd><dt>smoke</dt><dd class="ok-text">passing · 142s</dd><dt>bundle</dt><dd>static · 182 files</dd><dt>telemetry</dt><dd class="ok-text">off by default</dd><dt>license</dt><dd>Apache 2.0</dd></dl><div class="run-card"><span># first run</span><code>pnpm install<br />pnpm seed:demo<br />pnpm smoke:dashboard<br />pnpm dev:website</code></div></div>
+        <div class="manifest alpha-side"><div class="manifest-head"><h3>Build manifest</h3><span>v0.4.2 · 26.04.2026</span></div><dl><dt>version</dt><dd>0.4.2-alpha</dd><dt>commit</dt><dd>8a4f3c1</dd><dt>runtime</dt><dd>node 20 · pg 16</dd><dt>smoke</dt><dd class="ok-text">passing · 142s</dd><dt>bundle</dt><dd>42 MB · gzip 11 MB</dd><dt>memory floor</dt><dd>512 MB</dd><dt>telemetry</dt><dd class="ok-text">off by default</dd><dt>license</dt><dd>Apache 2.0</dd></dl><div class="run-card"><span># first run</span><code>git clone github.com/lore/context<br />pnpm install &amp;&amp; pnpm seed:demo<br />pnpm dev <span class="ok-text"># localhost:4011</span></code></div></div>
       </div>
     </div>
   </section>`;
@@ -928,13 +932,13 @@ function alphaSection(t) {
 function evalSection(t) {
   return `<section id="eval" class="section">
     <div class="shell">
-      ${sectionHead(t.sectionNums[4], t.evalTitle, t.evalCopy)}
+      ${sectionHead(t.sectionNums[4], t.evalTitle, t.evalCopy, t.sectionEyebrows?.[4])}
       <div class="eval-shell">
-        <div class="eval-head"><span>eval/run-0276</span><span>seed: lore-demo · 4,200 q · retriever: local</span><span class="live-pill">LIVE</span></div>
+        <div class="eval-head"><span>eval/run-0276</span><span>seed: lore-demo · 4,200 q · retriever: bge-m3 · reranker: cohere-r3</span><span class="live-pill">LIVE · commit 8a4f3c1 · 4m 12s ago</span></div>
         <div class="eval-metrics">${evalMetric("Recall@5", "0.928", "+0.041", "good", "0,22 7,20 14,18 21,16 28,17 35,14 42,12 49,11 56,10 63,8 70,9 77,6 84,7 96,4")}${evalMetric("Precision@5", "0.814", "+0.022", "good", "0,18 7,17 14,16 21,15 28,14 35,15 42,12 49,13 56,10 63,11 70,9 77,8 84,7 96,5")}${evalMetric("MRR", "0.762", "+0.018", "good", "0,20 7,18 14,17 21,15 28,14 35,12 42,13 49,11 56,10 63,8 70,9 77,7 84,6 96,5")}${evalMetric("Stale-hit", "2.1%", "-0.6pt", "warn", "0,8 7,9 14,11 21,12 28,13 35,14 42,15 49,16 56,17 63,18 70,19 77,21 84,22 96,24")}${evalMetric("p95 latency", "142ms", "+8ms", "info", "0,18 7,17 14,16 21,17 28,15 35,14 42,15 49,13 56,12 63,14 70,11 77,12 84,10 96,8")}</div>
         <div class="eval-detail">
-          <div class="eval-trace"><h3>Per-stage span timing · last 8 traces</h3>${["embed", "retrieve.pgvec", "rerank.local", "eval.score", "policy.gate", "compose", "trace.flush"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:${[0, 12, 50, 78, 86, 90, 98][index]}%;width:${[12, 38, 28, 8, 4, 8, 2][index]}%"></i></b><em>${[14, 46, 32, 9, 4, 11, 3][index]}ms</em></div>`).join("")}</div>
-          <div class="eval-side"><h3>Top retrieval sources</h3>${["cursor", "claude-code", "qwen-code", "hermes", "dify", "fastgpt"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[86, 74, 52, 41, 28, 12][index]}%"></i></b><em>${[86, 74, 52, 41, 28, 12][index]}%</em></div>`).join("")}<div class="eval-note"><span>4,200 queries · 84,000 mem</span><span>rerun · diff vs main</span></div></div>
+          <div class="eval-trace"><h3>Per-stage span timing · last 8 traces</h3>${["embed", "retrieve.pgvec", "rerank.cohere", "eval.score", "policy.gate", "compose", "trace.flush"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:${[0, 12, 50, 78, 86, 90, 98][index]}%;width:${[12, 38, 28, 8, 4, 8, 2][index]}%"></i></b><em>${[14, 46, 32, 9, 4, 11, 3][index]}ms</em></div>`).join("")}</div>
+          <div class="eval-side"><h3>Top retrieval sources</h3>${["cursor", "claude-code", "qwen-code", "hermes", "dify", "fastgpt"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[86, 74, 52, 41, 28, 12][index]}%"></i></b><em>${[86, 74, 52, 41, 28, 12][index]}%</em></div>`).join("")}<div class="eval-note"><span>4,200 queries · 84,000 memories</span><span>↗ rerun · diff vs main</span></div></div>
         </div>
       </div>
     </div>
@@ -949,7 +953,7 @@ function integrationsSection(t) {
   const names = ["Claude Code", "Cursor", "Qwen Code", "OpenClaw", "Hermes", "Dify", "FastGPT", "Roo Code", "OpenWebUI", "Local agents"];
   return `<section id="integrations" class="section">
     <div class="shell">
-      ${sectionHead(t.sectionNums[5], t.integrationsTitle, t.integrationsCopy)}
+      ${sectionHead(t.sectionNums[5], t.integrationsTitle, t.integrationsCopy, t.sectionEyebrows?.[5])}
       <div class="integrations-grid">${names.map((name, index) => `<div class="integration"><span>${name.slice(0, 2).toUpperCase()}</span><strong>${name}</strong><small>${index < 5 ? "mcp.stdio" : "rest.v1"} · ${index < 6 ? "alpha" : "planned"}</small></div>`).join("")}</div>
     </div>
   </section>`;
@@ -958,17 +962,17 @@ function integrationsSection(t) {
 function finalSection(t, locale) {
   return `<section id="start" class="section final">
     <div class="shell final-grid">
-      <div>${sectionHead(t.sectionNums[6], t.finalTitle, t.finalCopy)}<div class="hero-actions"><a class="button primary large" href="${pathFor(locale, "docs")}">${escapeHtml(t.ctaRun)} →</a><a class="button secondary large" href="${pathFor(locale, "architecture")}">${escapeHtml(t.ctaArch)}</a></div></div>
+      <div>${sectionHead(t.sectionNums[6], t.finalTitle, t.finalCopy, t.sectionEyebrows?.[6])}<div class="hero-actions"><a class="button primary large" href="${pathFor(locale, "docs")}">${escapeHtml(t.ctaRun)} →</a><a class="button secondary large" href="${pathFor(locale, "architecture")}">${escapeHtml(t.ctaArch)}</a></div></div>
       <pre class="terminal" aria-label="Local alpha commands"><code>$ pnpm install
+$ pnpm build
 $ pnpm seed:demo
-$ pnpm smoke:dashboard
-$ pnpm dev:website</code></pre>
+$ pnpm smoke:dashboard</code></pre>
     </div>
   </section>`;
 }
 
-function sectionHead(num, title, copy) {
-  return `<div class="section-head"><span class="section-num">${escapeHtml(num)}</span><div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(copy)}</p></div></div>`;
+function sectionHead(num, title, copy, eyebrow = "") {
+  return `<div class="section-head"><div><span class="section-num">${escapeHtml(num)}</span>${eyebrow ? `<span class="section-eye">${escapeHtml(eyebrow)}</span>` : ""}</div><div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(copy)}</p></div></div>`;
 }
 
 function footer(locale) {
