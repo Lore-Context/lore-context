@@ -1,6 +1,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { z } from "zod";
 
 export type LoreMcpToolName =
   | "context_query"
@@ -65,6 +66,93 @@ interface JsonRpcRequestLike {
   method?: unknown;
   params?: unknown;
 }
+
+const REASON_FIELD = z.string().min(8, "reason must be at least 8 characters");
+
+export const toolSchemas = {
+  context_query: z.object({
+    query: z.string(),
+    project_id: z.string().optional(),
+    mode: z.enum(["auto", "memory", "web", "repo", "tool_traces"]).optional(),
+    sources: z.object({
+      memory: z.boolean().optional(),
+      web: z.boolean().optional(),
+      repo: z.boolean().optional(),
+      tool_traces: z.boolean().optional()
+    }).optional(),
+    token_budget: z.number().optional(),
+    freshness: z.enum(["none", "recent", "latest"]).optional(),
+    writeback_policy: z.enum(["explicit", "review_required", "safe_auto"]).optional(),
+    include_sources: z.boolean().optional()
+  }),
+
+  memory_write: z.object({
+    content: z.string(),
+    scope: z.enum(["user", "project", "repo", "team", "org"]),
+    memory_type: z.string().optional(),
+    project_id: z.string().optional()
+  }),
+
+  memory_search: z.object({
+    query: z.string(),
+    project_id: z.string().optional(),
+    top_k: z.number().optional()
+  }),
+
+  memory_forget: z.object({
+    reason: REASON_FIELD,
+    memory_ids: z.array(z.string()).optional(),
+    query: z.string().optional(),
+    hard_delete: z.boolean().optional()
+  }),
+
+  memory_list: z.object({
+    project_id: z.string().optional(),
+    scope: z.enum(["user", "project", "repo", "team", "org"]).optional(),
+    status: z.string().optional(),
+    memory_type: z.string().optional(),
+    q: z.string().optional(),
+    limit: z.number().optional()
+  }),
+
+  memory_get: z.object({
+    memory_id: z.string()
+  }),
+
+  memory_update: z.object({
+    memory_id: z.string(),
+    reason: REASON_FIELD,
+    content: z.string().optional(),
+    memory_type: z.string().optional(),
+    scope: z.enum(["user", "project", "repo", "team", "org"]).optional(),
+    project_id: z.string().optional(),
+    confidence: z.number().optional()
+  }),
+
+  memory_supersede: z.object({
+    memory_id: z.string(),
+    content: z.string(),
+    reason: REASON_FIELD,
+    memory_type: z.string().optional(),
+    scope: z.enum(["user", "project", "repo", "team", "org"]).optional(),
+    project_id: z.string().optional(),
+    confidence: z.number().optional()
+  }),
+
+  memory_export: z.object({
+    format: z.enum(["json", "markdown"]).optional(),
+    project_id: z.string().optional()
+  }),
+
+  eval_run: z.object({
+    dataset: z.record(z.string(), z.unknown()),
+    provider: z.string().optional()
+  }),
+
+  trace_get: z.object({
+    trace_id: z.string()
+  })
+} satisfies Record<LoreMcpToolName, z.ZodTypeAny>;
 
 export function getMcpToolDefinitions(): McpToolDefinition[] {
   return [
@@ -173,9 +261,10 @@ export function getMcpToolDefinitions(): McpToolDefinition[] {
       mutates: true,
       inputSchema: {
         type: "object",
-        required: ["memory_id"],
+        required: ["memory_id", "reason"],
         properties: {
           memory_id: { type: "string" },
+          reason: { type: "string", minLength: 8 },
           content: { type: "string" },
           memory_type: { type: "string" },
           scope: { type: "string", enum: ["user", "project", "repo", "team", "org"] },
@@ -373,7 +462,7 @@ function toMcpTool(tool: McpToolDefinition): Record<string, unknown> {
     inputSchema: tool.inputSchema,
     annotations: {
       readOnlyHint: !tool.mutates,
-      destructiveHint: tool.name === "memory_forget"
+      destructiveHint: tool.mutates
     }
   };
 }
@@ -388,7 +477,14 @@ async function callTool(params: unknown, options: LoreMcpRuntimeOptions): Promis
     throw new ProtocolError(-32602, "Unknown Lore MCP tool");
   }
 
-  const args = isObject(params.arguments) ? params.arguments : {};
+  const rawArgs = isObject(params.arguments) ? params.arguments : {};
+  const schema = toolSchemas[name];
+  const parsed = schema.safeParse(rawArgs);
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => ({ path: i.path, message: i.message }));
+    throw new ProtocolError(-32602, JSON.stringify({ invalid_params: issues }));
+  }
+  const args = parsed.data as Record<string, unknown>;
 
   try {
     const payload = await callLoreApi(name, args, options);
@@ -477,10 +573,36 @@ async function fetchJson(fetchImpl: typeof fetch, url: string, method: "GET" | "
   const payload = parseMaybeJson(text);
 
   if (!response.ok) {
-    throw new Error(typeof payload === "object" && payload && "error" in payload ? JSON.stringify(payload.error) : text);
+    const rawError = typeof payload === "object" && payload && "error" in payload
+      ? payload.error
+      : text;
+    console.error("[lore-mcp] upstream error", { status: response.status, url, error: rawError });
+    const sanitizedMessage = sanitizeUpstreamError(response.status);
+    const upstreamCode = typeof payload === "object" && payload && "error" in payload &&
+      isObject(payload.error) && typeof payload.error.code === "string"
+      ? payload.error.code
+      : "internal_error";
+    throw new UpstreamApiError(upstreamCode, sanitizedMessage, response.status);
   }
 
   return payload;
+}
+
+function sanitizeUpstreamError(status: number): string {
+  if (status === 404) return "not found";
+  if (status === 403) return "permission denied";
+  if (status === 401) return "permission denied";
+  if (status === 400) return "bad request";
+  if (status === 409) return "conflict";
+  if (status === 422) return "unprocessable request";
+  return "operation failed";
+}
+
+class UpstreamApiError extends Error {
+  constructor(readonly upstreamCode: string, message: string, readonly status: number) {
+    super(message);
+    this.name = "UpstreamApiError";
+  }
 }
 
 function renderToolText(name: LoreMcpToolName, payload: unknown): string {

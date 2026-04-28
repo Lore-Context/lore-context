@@ -82,7 +82,7 @@ describe("handleJsonRpcMessage", () => {
         method: "tools/call",
         params: {
           name: "memory_update",
-          arguments: { memory_id: "mem_1", content: "Updated memory" }
+          arguments: { memory_id: "mem_1", content: "Updated memory", reason: "correcting factual error in stored memory" }
         }
       },
       {
@@ -105,7 +105,7 @@ describe("handleJsonRpcMessage", () => {
       {
         url: "http://lore.local/v1/memory/mem_1",
         method: "PATCH",
-        body: JSON.stringify({ content: "Updated memory" })
+        body: JSON.stringify({ reason: "correcting factual error in stored memory", content: "Updated memory" })
       }
     ]);
     expect(response).toMatchObject({
@@ -230,5 +230,76 @@ describe("handleJsonRpcMessage", () => {
         message: "Unknown Lore MCP tool"
       }
     });
+  });
+
+  it("returns -32602 when memory_write receives non-string content", async () => {
+    const response = await handleJsonRpcMessage({
+      jsonrpc: "2.0",
+      id: 10,
+      method: "tools/call",
+      params: {
+        name: "memory_write",
+        arguments: { content: 42, scope: "project" }
+      }
+    });
+
+    expect(response).toMatchObject({
+      error: {
+        code: -32602
+      }
+    });
+    const issues = JSON.parse((response as { error: { message: string } }).error.message).invalid_params;
+    expect(Array.isArray(issues)).toBe(true);
+    expect(issues.some((i: { path: unknown[]; message: string }) => i.path.includes("content"))).toBe(true);
+  });
+
+  it("returns -32602 when memory_update is missing reason", async () => {
+    const response = await handleJsonRpcMessage({
+      jsonrpc: "2.0",
+      id: 11,
+      method: "tools/call",
+      params: {
+        name: "memory_update",
+        arguments: { memory_id: "mem_x", content: "new content" }
+      }
+    });
+
+    expect(response).toMatchObject({
+      error: {
+        code: -32602
+      }
+    });
+    const issues = JSON.parse((response as { error: { message: string } }).error.message).invalid_params;
+    expect(Array.isArray(issues)).toBe(true);
+    expect(issues.some((i: { path: unknown[]; message: string }) => i.path.includes("reason"))).toBe(true);
+  });
+
+  it("sanitizes upstream errors so response message contains no SQL or file paths", async () => {
+    const response = await handleJsonRpcMessage(
+      {
+        jsonrpc: "2.0",
+        id: 12,
+        method: "tools/call",
+        params: {
+          name: "context_query",
+          arguments: { query: "test query" }
+        }
+      },
+      {
+        apiBaseUrl: "http://lore.local",
+        fetchImpl: async () => {
+          return new Response(
+            JSON.stringify({ error: { code: "db_error", message: "SELECT * FROM memories WHERE id=$1 failed at /app/src/db.ts:42" } }),
+            { status: 500, headers: { "content-type": "application/json" } }
+          );
+        }
+      }
+    );
+
+    expect(response).toMatchObject({ result: { isError: true } });
+    const text = (response as { result: { content: Array<{ text: string }> } }).result.content[0].text;
+    expect(text).not.toMatch(/SELECT/i);
+    expect(text).not.toMatch(/\/app\//);
+    expect(text).toBe("operation failed");
   });
 });
