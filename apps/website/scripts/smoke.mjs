@@ -14,7 +14,7 @@ try {
 }
 
 const websiteRoot = dirname(dirname(fileURLToPath(import.meta.url)));
-const port = Number(process.env.LORE_WEBSITE_SMOKE_PORT ?? 43174);
+const port = await resolveSmokePort();
 const baseUrl = `http://127.0.0.1:${port}`;
 const expectedHtmlLang = new Map([
   ["zh-hans", "zh-Hans"],
