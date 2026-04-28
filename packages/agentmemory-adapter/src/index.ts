@@ -9,6 +9,14 @@ import {
 
 export const DEFAULT_AGENTMEMORY_URL = "http://127.0.0.1:3111";
 export const DEFAULT_AGENTMEMORY_TIMEOUT_MS = 5000;
+export const SUPPORTED_AGENTMEMORY_RANGE = ">=0.9.0 <0.11.0";
+
+export interface VersionProbeResult {
+  compatible: boolean;
+  upstreamVersion: string;
+  required: string;
+  warnings: string[];
+}
 
 export interface AgentMemoryAdapterConfig {
   baseUrl?: string;
@@ -102,12 +110,46 @@ export class AgentMemoryAdapter {
   private readonly timeoutMs: number;
   private readonly secret?: string;
   private readonly fetchImpl: FetchLike;
+  private readonly silentMode: boolean;
 
   constructor(private readonly config: AgentMemoryAdapterConfig = {}) {
     this.baseUrl = normalizeAgentMemoryUrl(config.baseUrl ?? process.env.AGENTMEMORY_URL);
     this.timeoutMs = config.timeoutMs ?? readEnvNumber(process.env.AGENTMEMORY_TIMEOUT_MS) ?? DEFAULT_AGENTMEMORY_TIMEOUT_MS;
     this.secret = config.secret ?? process.env.AGENTMEMORY_SECRET;
     this.fetchImpl = config.fetchImpl ?? fetch;
+    this.silentMode = process.env.LORE_AGENTMEMORY_REQUIRED === "0";
+  }
+
+  async validateUpstreamVersion(): Promise<VersionProbeResult> {
+    const result: VersionProbeResult = {
+      compatible: false,
+      upstreamVersion: "unknown",
+      required: SUPPORTED_AGENTMEMORY_RANGE,
+      warnings: []
+    };
+
+    try {
+      const health = await this.health();
+      if (health.status === "degraded" || !health.version) {
+        result.warnings.push(`upstream agentmemory unreachable or missing version: ${health.error ?? "no version in health response"}`);
+        return result;
+      }
+
+      result.upstreamVersion = health.version;
+      const compatible = semverInRange(health.version, SUPPORTED_AGENTMEMORY_RANGE);
+      result.compatible = compatible;
+
+      if (!compatible) {
+        result.warnings.push(
+          `agentmemory version ${health.version} is outside supported range ${SUPPORTED_AGENTMEMORY_RANGE}`
+        );
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "version probe failed";
+      result.warnings.push(message);
+    }
+
+    return result;
   }
 
   async health(): Promise<AgentMemoryHealth> {
@@ -122,6 +164,10 @@ export class AgentMemoryAdapter {
   }
 
   async smartSearch(input: SmartSearchInput): Promise<MemoryHit[]> {
+    if (this.silentMode) {
+      return [];
+    }
+
     if (input.query.trim().length === 0) {
       throw new LoreError("memory.invalid_query", "query is required", 400);
     }
@@ -139,6 +185,10 @@ export class AgentMemoryAdapter {
   }
 
   async getContext(input: LocalContextInput): Promise<LocalContextResult> {
+    if (this.silentMode) {
+      return { context: "", hits: [], warnings: ["agentmemory disabled via LORE_AGENTMEMORY_REQUIRED=0"] };
+    }
+
     const payload = await this.request("POST", "/agentmemory/context", {
       query: input.query,
       project_id: input.projectId,
@@ -157,6 +207,19 @@ export class AgentMemoryAdapter {
   }
 
   async remember(input: RememberInput): Promise<RememberResult> {
+    if (this.silentMode) {
+      const memory = createMemoryRecord({
+        content: input.content,
+        memoryType: input.memoryType,
+        scope: input.scope,
+        projectId: input.projectId,
+        agentId: input.agentId,
+        sourceProvider: "agentmemory",
+        sourceRefs: input.sourceRefs
+      });
+      return { memory };
+    }
+
     const payload = await this.request("POST", "/agentmemory/remember", {
       content: input.content,
       memory_type: input.memoryType,
@@ -185,6 +248,10 @@ export class AgentMemoryAdapter {
   async forget(input: ForgetInput): Promise<ForgetResult> {
     if (!input.reason.trim()) {
       throw new LoreError("memory.reason_required", "forget requires a reason", 400);
+    }
+
+    if (this.silentMode) {
+      return { deleted: 0, backendIds: [] };
     }
 
     if (input.memoryIds?.length) {
@@ -218,6 +285,10 @@ export class AgentMemoryAdapter {
   }
 
   async exportAll(): Promise<AgentMemoryExport> {
+    if (this.silentMode) {
+      return { raw: {}, memories: [] };
+    }
+
     const raw = await this.request("GET", "/agentmemory/export");
     const memories = extractArray(raw, ["memories", "records", "data"]).map((item, index) =>
       this.mapMemory(item, `import_${index}`)
@@ -226,6 +297,10 @@ export class AgentMemoryAdapter {
   }
 
   async importAll(input: unknown): Promise<ImportResult> {
+    if (this.silentMode) {
+      return { imported: 0, skipped: 0, warnings: ["agentmemory disabled via LORE_AGENTMEMORY_REQUIRED=0"] };
+    }
+
     const payload = await this.request("POST", "/agentmemory/import", input);
     return {
       imported: readNumber(payload, ["imported", "created", "count"]) ?? 0,
@@ -235,6 +310,10 @@ export class AgentMemoryAdapter {
   }
 
   async getAudit(input: AuditQuery = {}): Promise<AuditEntry[]> {
+    if (this.silentMode) {
+      return [];
+    }
+
     const payload = await this.request("GET", `/agentmemory/audit${input.limit ? `?limit=${input.limit}` : ""}`);
     return extractArray(payload, ["entries", "audit", "data"]).map((item) => ({
       id: readString(item, ["id"]),
@@ -386,4 +465,49 @@ function getPath(value: unknown, path: string): unknown {
 
     return undefined;
   }, value);
+}
+
+function parseSemver(version: string): [number, number, number] | null {
+  const match = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
+  if (!match) {
+    return null;
+  }
+  return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)];
+}
+
+function semverCompare(a: [number, number, number], b: [number, number, number]): number {
+  for (let i = 0; i < 3; i++) {
+    if (a[i] !== b[i]) {
+      return (a[i] ?? 0) - (b[i] ?? 0);
+    }
+  }
+  return 0;
+}
+
+function semverInRange(version: string, range: string): boolean {
+  const parsed = parseSemver(version);
+  if (!parsed) {
+    return false;
+  }
+
+  // parse each constraint token: ">=0.9.0 <0.11.0"
+  const tokens = range.trim().split(/\s+/);
+  for (const token of tokens) {
+    const match = /^(>=|<=|>|<|=)(\d+\.\d+\.\d+.*)$/.exec(token);
+    if (!match) {
+      continue;
+    }
+    const [, op, ver] = match;
+    const bound = parseSemver(ver);
+    if (!bound) {
+      return false;
+    }
+    const cmp = semverCompare(parsed, bound);
+    if (op === ">=" && cmp < 0) return false;
+    if (op === "<=" && cmp > 0) return false;
+    if (op === ">" && cmp <= 0) return false;
+    if (op === "<" && cmp >= 0) return false;
+    if (op === "=" && cmp !== 0) return false;
+  }
+  return true;
 }
