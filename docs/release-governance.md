@@ -104,6 +104,15 @@ developer checkout still had both `origin` and `closed` remotes and identical
 trees with different commit histories. This avoided a non-fast-forward public
 push while preserving the private repository boundary.
 
+Publication record:
+
+- Public commit: `4b03125`.
+- Public tag: `v0.5.0-alpha`.
+- GitHub Release: `https://github.com/Lore-Context/lore-context/releases/tag/v0.5.0-alpha`.
+- GitHub Actions gate: `CI / build-test`, run `25067254659`, passed.
+- Website: Cloudflare Pages project `lore-context`; `https://lorecontext.com/`
+  and `https://www.lorecontext.com/` verified with v0.5 docs content.
+
 The next governance task is still to clean up local workflow before v0.6 work:
 
 1. Create or verify separate public/private checkouts.

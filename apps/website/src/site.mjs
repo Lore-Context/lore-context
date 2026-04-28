@@ -1119,7 +1119,7 @@ function pageBody(locale, slug) {
     privacy: [["Data posture", "Local-first alpha; private deployment by default"], ["Website", "No advertising cookies or third-party tracking scripts"], ["Requests", "Contact redland2024@gmail.com for access, correction, or deletion requests"]],
     terms: [["Alpha notice", "Lore Context is provided for testing and evaluation"], ["No production warranty", "Validate your own use case before relying on it"], ["Governing law", "Singapore, unless a signed agreement says otherwise"]],
     cookies: [["Required cookies", "None for static browsing"], ["Local storage", "Only locale preference may be saved"], ["Advertising", "No advertising cookie layer is included"]],
-    status: [["Website", "Static and edge-cache friendly"], ["Local alpha", "Runs in your environment"], ["Incidents", "Use your own deployment logs and smoke checks"]]
+    status: [["Website", "Static and edge-cache friendly"], ["Current release", "v0.5.0-alpha · OpenAPI, quickstart, Evidence Ledger"], ["Local alpha", "Runs in your environment"], ["Incidents", "Use your own deployment logs and smoke checks"]]
   }[slug];
   return `<dl>${rows.map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${renderInfoValue(value)}</dd>`).join("")}</dl><p class="notice">${escapeHtml(t.notice)}</p>`;
 }
