@@ -37,6 +37,7 @@ const homepageStructureMarkers = [
   'id="eval"',
   'id="integrations"',
   'id="start"',
+  'class="skip-link"',
   'class="problem-visual"',
   'class="system-board"',
   'class="alpha-grid"',
@@ -58,6 +59,7 @@ const premiumInfrastructureLabels = [
 ];
 const homeRuntimeLabels = [
   "redland2024@gmail.com",
+  "mailto:redland2024@gmail.com",
   "context.ledger",
   "Memories tracked",
   "Pending review",

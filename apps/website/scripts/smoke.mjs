@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createServer as createNetServer } from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { localeCodes } from "../src/site.mjs";
@@ -13,7 +14,7 @@ try {
 }
 
 const websiteRoot = dirname(dirname(fileURLToPath(import.meta.url)));
-const port = Number(process.env.LORE_WEBSITE_SMOKE_PORT ?? 4174);
+const port = await resolveSmokePort();
 const baseUrl = `http://127.0.0.1:${port}`;
 const expectedHtmlLang = new Map([
   ["zh-hans", "zh-Hans"],
@@ -118,6 +119,27 @@ function start(command, args) {
   child.stdout.on("data", (chunk) => process.stdout.write(chunk));
   child.stderr.on("data", (chunk) => process.stderr.write(chunk));
   return child;
+}
+
+async function resolveSmokePort() {
+  if (process.env.LORE_WEBSITE_SMOKE_PORT) return parsePort(process.env.LORE_WEBSITE_SMOKE_PORT);
+
+  return new Promise((resolve, reject) => {
+    const probe = createNetServer();
+    probe.unref();
+    probe.once("error", reject);
+    probe.listen(0, "127.0.0.1", () => {
+      const address = probe.address();
+      const port = typeof address === "object" && address ? address.port : 0;
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+function parsePort(value) {
+  const port = Number(value);
+  assert.ok(Number.isInteger(port) && port > 0 && port < 65536, `Invalid LORE_WEBSITE_SMOKE_PORT: ${value}`);
+  return port;
 }
 
 async function run(command, args) {
