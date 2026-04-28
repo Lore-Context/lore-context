@@ -138,5 +138,20 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_memory_records_project_status ON memory_records(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_memory_records_project_id ON memory_records(project_id);
+CREATE INDEX IF NOT EXISTS idx_memory_records_status ON memory_records(status);
+CREATE INDEX IF NOT EXISTS idx_memory_records_created_at ON memory_records(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_memory_records_content_gin ON memory_records USING GIN (to_tsvector('simple', content));
+CREATE INDEX IF NOT EXISTS idx_memory_records_metadata_gin ON memory_records USING GIN (metadata);
+
 CREATE INDEX IF NOT EXISTS idx_context_traces_created_at ON context_traces(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_context_traces_project_id ON context_traces(project_id);
+
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource_id ON audit_logs(resource_id);
+
+CREATE INDEX IF NOT EXISTS idx_event_log_project_id ON event_log(project_id);
+CREATE INDEX IF NOT EXISTS idx_event_log_created_at ON event_log(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_eval_runs_project_id ON eval_runs(project_id);
+CREATE INDEX IF NOT EXISTS idx_eval_runs_created_at ON eval_runs(created_at DESC);
