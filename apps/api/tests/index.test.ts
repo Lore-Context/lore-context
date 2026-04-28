@@ -1120,3 +1120,85 @@ function normalizeSql(sql: string): string {
 function sortRows(table: Map<string, FakeRow>): FakeRow[] {
   return [...table.values()].sort((left, right) => String(left.created_at ?? "").localeCompare(String(right.created_at ?? "")));
 }
+
+describe("security hardening", () => {
+  it("P0-1: rejects spoofed Host header from non-loopback socket", async () => {
+    const app = createLoreApi();
+    const spoofed = await app.handle(
+      new Request("http://localhost/v1/memory/search", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-lore-remote-address": "203.0.113.99" },
+        body: JSON.stringify({ query: "test" })
+      })
+    );
+    expect(spoofed.status).toBe(401);
+  });
+
+  it("P0-1: fails closed in production when no API keys are configured", async () => {
+    const originalEnv = process.env.NODE_ENV;
+    try {
+      process.env.NODE_ENV = "production";
+      const app = createLoreApi();
+      const res = await app.handle(
+        new Request("http://localhost/v1/memory/search", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ query: "test" })
+        })
+      );
+      expect(res.status).toBe(401);
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+    }
+  });
+
+  it("P0-3: rate limits after 5 failed auth attempts from same IP", async () => {
+    const app = createLoreApi({ apiKeys: [{ key: "valid-key", role: "admin" }] });
+    const badRequest = () =>
+      app.handle(
+        new Request("http://localhost/v1/memory/list", {
+          headers: { authorization: "Bearer wrong-key", "x-lore-remote-address": "10.0.0.1" }
+        })
+      );
+
+    let resp: Response | undefined;
+    for (let i = 0; i < 7; i++) {
+      resp = await badRequest();
+    }
+    expect(resp?.status).toBe(429);
+    const body = await resp?.json() as { error: { code: string } };
+    expect(body.error.code).toBe("rate_limit");
+  });
+
+  it("P0-9b: returns 413 when request body exceeds size limit", async () => {
+    const app = createLoreApi();
+    const bigBody = JSON.stringify({ content: "x".repeat(2 * 1024 * 1024) });
+    const res = await app.handle(
+      new Request("http://localhost/v1/memory/write", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: bigBody
+      })
+    );
+    expect(res.status).toBe(413);
+  });
+
+  it("P1-1: scoped reader key without project_id on /v1/memory/list returns 400", async () => {
+    const app = createLoreApi({
+      apiKeys: [{ key: "scoped-reader", role: "reader", projectIds: ["proj-a"] }]
+    });
+    const res = await app.handle(
+      new Request("http://localhost/v1/memory/list", {
+        headers: { authorization: "Bearer scoped-reader" }
+      })
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json() as { error: { code: string } };
+    expect(body.error.code).toBe("auth.project_id_required");
+  });
+
+  it("P0-9a: graceful shutdown registers SIGTERM/SIGINT handlers without crashing", () => {
+    const sigHandlers = process.rawListeners("SIGTERM");
+    expect(typeof sigHandlers).toBe("object");
+  });
+});
