@@ -11,7 +11,7 @@ Know what every agent remembered, used, and should forget — before memory beco
 [![Version](https://img.shields.io/badge/version-v0.6.0--alpha-orange.svg)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 
-[Getting Started](docs/getting-started.md) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Project Plan](docs/project-plan.md) · [Release Status](docs/release-status.md) · [Roadmap](docs/roadmap.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
+[Getting Started](docs/getting-started.md) · [Website Quickstart](https://lorecontext.com/quickstart/) · [Benchmark Methodology](https://lorecontext.com/benchmark/) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Project Plan](docs/project-plan.md) · [Release Status](docs/release-status.md) · [Roadmap](docs/roadmap.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
 
 🌐 **Read this in your language**: [English](README.md) · [简体中文](docs/i18n/zh-CN/README.md) · [繁體中文](docs/i18n/zh-TW/README.md) · [日本語](docs/i18n/ja/README.md) · [한국어](docs/i18n/ko/README.md) · [Tiếng Việt](docs/i18n/vi/README.md) · [Español](docs/i18n/es/README.md) · [Português](docs/i18n/pt/README.md) · [Русский](docs/i18n/ru/README.md) · [Türkçe](docs/i18n/tr/README.md) · [Deutsch](docs/i18n/de/README.md) · [Français](docs/i18n/fr/README.md) · [Italiano](docs/i18n/it/README.md) · [Ελληνικά](docs/i18n/el/README.md) · [Polski](docs/i18n/pl/README.md) · [Українська](docs/i18n/uk/README.md) · [Bahasa Indonesia](docs/i18n/id/README.md)
 
@@ -70,13 +70,21 @@ curl -H "Authorization: Bearer $LORE_API_KEY" -H "Content-Type: application/json
   -d '{"query":"production storage","project_id":"demo","token_budget":1200}'
 ```
 
-For full setup (Postgres, Docker Compose, Dashboard, MCP integration), see [docs/getting-started.md](docs/getting-started.md).
+For the public website quickstart, see
+[lorecontext.com/quickstart](https://lorecontext.com/quickstart/). For full
+setup (Postgres, Docker Compose, Dashboard, MCP integration), see
+[docs/getting-started.md](docs/getting-started.md).
+
+The canonical alpha quickstart is `git clone` + `pnpm quickstart`. Lore does
+not currently publish or claim a public `@lore-context/quickstart` npm package.
 
 For AI-readable discovery, the website publishes `/llms.txt` and `/llms-full.txt`
 from public documentation only. The Official MCP Registry entry is published,
 and additional distribution drafts live under [docs/distribution](docs/distribution/).
 Launch drafts live under [docs/launch](docs/launch/), and design partner intake
-under [docs/design-partners](docs/design-partners/).
+under [docs/design-partners](docs/design-partners/). The public benchmark page
+is a reproducible methodology and small smoke-run report, not a competitive
+benchmark-win claim.
 
 ## Architecture
 
@@ -159,7 +167,8 @@ Shipped v0.6 work:
 - stricter activation proof that fails instead of skipping when the target port is occupied;
 - public-safe eval reporting and smoke coverage for eval export plus MIF JSON export;
 - Official MCP Registry publication plus distribution metadata drafts for marketplace listings and agent plugins;
-- launch content drafts and design partner intake/scorecard workflow.
+- launch content drafts and design partner intake/scorecard workflow;
+- HN-ready website surfaces for quickstart, v0.6 changelog narrative, and benchmark methodology.
 
 It deliberately does not claim public SaaS, billing, managed sync, remote MCP HTTP,
 or benchmark wins.

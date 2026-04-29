@@ -20,6 +20,7 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
 | MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active |
 | MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`, public |
+| Launch website surfaces | Homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, and `/benchmark/` in the website release train |
 
 The release tag points at the original `v0.6.0-alpha` release commit. Public
 `main` includes later release-closure, integration-validation, distribution,
@@ -33,6 +34,8 @@ release decision explicitly requires it.
 - The API exposes OpenAPI, context query, Evidence Ledger, eval, governance, memory, and MIF surfaces.
 - The website and generated docs are public-safe and exclude private runbooks, secrets, customer data, and internal planning folders.
 - Distribution, launch, and design partner materials are ready for human review.
+- The public website has HN-ready quickstart, v0.6 changelog narrative, and
+  benchmark methodology pages that avoid unsupported benchmark-win claims.
 - Project-scoped Cursor and Qwen Code MCP configs are present in `.cursor/mcp.json`
   and `.qwen/settings.json`.
 - MCP Registry metadata is valid in `server.json`; the OCI image is public on
@@ -47,6 +50,8 @@ release decision explicitly requires it.
 - No remote MCP HTTP default path.
 - No autonomous marketplace, HN, Reddit, Discord, or outreach submission.
 - No third-party benchmark win without a cited, reproducible public report.
+- No published `@lore-context/quickstart` npm package claim; the canonical alpha
+  activation path remains `git clone` plus `pnpm quickstart`.
 
 ## Next validation focus
 
@@ -75,6 +80,9 @@ matrix and open validation tasks.
   `docs/distribution/assets/`.
 - Show HN launch: draft is ready, but first submission was deferred by HN's
   new-account Show HN restriction; no thread URL exists yet.
+- HN launch readiness pages: verify production `https://lorecontext.com/quickstart/`,
+  `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap after
+  every website redeploy.
 - Public-safe eval report tested against design-partner data.
 - 3-5 design partners with activation scorecards.
 - v0.7 decision based on adoption evidence: private hosted alpha, remote MCP HTTP, enterprise/private-deployment hardening, or benchmark/report lane.

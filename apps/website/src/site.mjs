@@ -34,6 +34,20 @@ export const pageSlugs = [
   "status"
 ];
 
+const launchPagePaths = [
+  "quickstart/index.html",
+  "blog/index.html",
+  "blog/v0-6-distribution-and-trust-sprint/index.html",
+  "benchmark/index.html"
+];
+
+const quickstartCommands = `git clone https://github.com/Lore-Context/lore-context
+cd lore-context
+pnpm install
+pnpm quickstart -- --dry-run --activation-report
+pnpm openapi:check
+pnpm smoke:mcp`;
+
 const locales = {
   en: {
     label: "English",
@@ -41,17 +55,17 @@ const locales = {
     lang: "en",
     hreflang: "en",
     nav: ["Problem", "System", "Features", "Eval", "Integrations", "Docs"],
-    ctaRun: "Run local alpha",
+    ctaRun: "Try in 10 minutes",
     ctaArch: "View architecture",
     ctaDocs: "Docs",
     ctaGithub: "GitHub",
-    h1: "Lore Context.",
-    statement: "The control plane for AI-agent memory, eval, and governance.",
+    h1: "Audit, govern, and migrate your AI agent's memory.",
+    statement: "The open-source control plane for agent memory eval, evidence, and portability.",
     support:
-      "Know what every agent remembered, used, and should forget before memory becomes production risk.",
+      "Run it locally, query demo memory, and open an Evidence Ledger trace before you trust durable agent context.",
     chips: ["LOCAL ALPHA OPEN", "REST API", "MCP STDIO", "POSTGRES 16", "DASHBOARD", "PRIVATE DEPLOY"],
     sectionNums: ["01 / PROBLEM", "02 / SYSTEM", "03 / FEATURES", "04 / ALPHA", "05 / EVAL", "06 / INTEGRATIONS", "07 / START"],
-    sectionEyebrows: ["The memory gap", "Pipeline", "Product surfaces", "Shipped this week", "Last run · 4m ago", "Drop-in MCP", "Start"],
+    sectionEyebrows: ["The memory gap", "Pipeline", "Product surfaces", "Shipped this week", "Methodology", "Drop-in MCP", "Start"],
     problemTitle: "Agents remember. Teams need proof.",
     problemCopy:
       "Every coding agent, support bot, and copilot is now writing to long-term memory. Almost none of them can show the audit trail behind a single answer.",
@@ -804,23 +818,31 @@ function homePage(locale) {
       <section class="hero" id="hero">
         <div class="shell hero-grid">
           <div class="hero-copy">
+            <a class="alpha-banner" href="/en/changelog.html">v0.6.0-alpha · Local and private deployments · No hosted SaaS yet</a>
             <div class="chip-row">${t.chips.map((chip, index) => `<span class="chip ${index === 0 ? "live" : ""}">${escapeHtml(chip)}</span>`).join("")}</div>
             <h1>${escapeHtml(t.h1)}</h1>
             <p class="hero-statement">${escapeHtml(t.statement)}</p>
             <p class="hero-support">${escapeHtml(t.support)}</p>
             <div class="hero-actions">
-              <a class="button primary large" href="#start">${escapeHtml(t.ctaRun)} <span>→</span></a>
-              <a class="button secondary large" href="#system">${escapeHtml(t.ctaArch)}</a>
+              <a class="button primary large" href="/quickstart/">${escapeHtml(t.ctaRun)} <span>→</span></a>
+              <a class="button secondary large" href="${githubUrl}" rel="noreferrer">View on GitHub ↗</a>
             </div>
-            <div class="command" aria-label="Local alpha command"><span>$ pnpm seed:demo && pnpm smoke:dashboard</span><span class="cursor" aria-hidden="true"></span></div>
+            <div class="command" aria-label="Local alpha command"><span>$ pnpm quickstart -- --dry-run --activation-report</span><span class="cursor" aria-hidden="true"></span></div>
             <div class="metric-strip" aria-label="Evaluation summary">
-              ${metric("Recall@5", "0.928", "good")}
-              ${metric("Precision@5", "0.814", "good")}
-              ${metric("Stale-hit", "2.1%", "warn")}
-              ${metric("p95 latency", "142ms", "info")}
+              ${metric("Golden clients", "3", "good")}
+              ${metric("MCP tools", "11", "good")}
+              ${metric("Demo eval size", "4", "warn")}
+              ${metric("Latency", "pending", "info")}
             </div>
           </div>
           ${productSurface()}
+        </div>
+        <div class="shell use-case-strip" aria-label="Primary use cases">
+          ${[
+            ["Multiple coding agents", "Share governed context across Claude Code, Cursor, Qwen Code, and local agents."],
+            ["Audit agent memory", "Open a trace and see which rows were retrieved, used, ignored, stale, or risky."],
+            ["Migrate memory later", "Use MIF-style export fields for provenance, supersedes, and contradicts relationships."]
+          ].map(([title, copy]) => `<article><strong>${escapeHtml(title)}</strong><p>${escapeHtml(copy)}</p></article>`).join("")}
         </div>
       </section>
       ${problemSection(t)}
@@ -850,13 +872,13 @@ function productSurface() {
             <div class="surface-head">
               <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span>lore › <b>context.ledger</b></span>
-              <span class="live-dot">live · 14.2 q/s</span>
+              <span class="live-dot">local · demo fixture</span>
             </div>
             <div class="surface-stats">
-              ${surfaceStat("Memories tracked", "12,840", "↑ 312/h", "good")}
-              ${surfaceStat("Pending review", "7", "2 redact · 5 flag", "warn")}
-              ${surfaceStat("Recall@5", "0.928", "+0.041", "good")}
-              ${surfaceStat("p95 latency", "142ms", "+8ms", "info")}
+              ${surfaceStat("Demo memories", "4", "public fixture", "good")}
+              ${surfaceStat("Golden clients", "3", "Claude · Cursor · Qwen", "good")}
+              ${surfaceStat("Trace rows", "2", "retrieved and used", "good")}
+              ${surfaceStat("P95 latency", "pending", "not claimed", "info")}
             </div>
             <div class="ledger" aria-label="Memory evidence ledger">
               <div class="ledger-head"><span>source</span><span>memory</span><span>evidence</span><span>used_in_response</span><span>stale_score</span><span>sensitivity</span><span>review_status</span></div>
@@ -870,7 +892,7 @@ function productSurface() {
                 .join("")}
             </div>
             <div class="flow-visual">
-              <div class="composer-card"><strong>context.compose()</strong><br />eval 0.94<br />policy pass<br />trace 142ms<br />k 5 / 12</div>
+              <div class="composer-card"><strong>context.compose()</strong><br />demo eval<br />policy pass<br />trace linked<br />k 5</div>
               <div class="gov-gate">gov · gate</div>
               <svg viewBox="0 0 520 190" role="img" aria-label="Animated memory provenance graph">
                 <defs>
@@ -887,7 +909,7 @@ function productSurface() {
                 <text x="306" y="36">memory#a4f1</text><text x="440" y="42">STALE</text><text x="438" y="176">SENSITIVE</text>
               </svg>
             </div>
-            <div class="surface-foot"><span>postgres://lore_local · audit_log</span><span>all synced 0.4s ago</span></div>
+            <div class="surface-foot"><span>demo-private · audit_log</span><span>local alpha · public fixture</span></div>
           </div>`;
 }
 
@@ -946,7 +968,7 @@ function systemSection(t) {
             </g>
             <g class="sys-card compose-card" transform="translate(470,88)">
               <rect width="210" height="164" rx="5" /><text class="mini-label" x="16" y="24">COMPOSE</text><text class="card-title" x="16" y="48">context.compose()</text><line x1="16" y1="60" x2="194" y2="60" />
-              ${["retrieve()   k=12", "rerank()     local", "policy()     redact 2", "trace()      142ms", "return       5 / 12"].map((row, i) => `<text class="mono-small" x="16" y="${84 + i * 17}">${row}</text>`).join("")}
+              ${["retrieve()   k=12", "rerank()     local", "policy()     redact 2", "trace()      linked", "return       5 / 12"].map((row, i) => `<text class="mono-small" x="16" y="${84 + i * 17}">${row}</text>`).join("")}
             </g>
             <g class="control-stack" transform="translate(725,48)">
               ${[["eval", "recall@5 · precision · MRR", "good"], ["trace", "span tree · per-source · p95", "info"], ["governance", "policy · redact · review", "warn"]].map(([name, copy, tone], i) => `<g transform="translate(0,${i * 68})"><rect width="220" height="52" rx="5" /><rect class="${tone}" width="4" height="52" rx="2" /><text class="card-title" x="16" y="23">${name}</text><text class="mono-small" x="16" y="41">${copy}</text></g>`).join("")}
@@ -1007,10 +1029,10 @@ function featureApiLabel(index) {
 function featureVisual(index) {
   const visuals = [
     `<rect x="0" y="7" width="280" height="22" rx="4" /><text x="10" y="22">› context.query("auth flow", k:5)</text>${[180, 150, 112, 82].map((w, i) => `<rect class="rank-bar" x="0" y="${39 + i * 13}" width="${w}" height="9" rx="2" />`).join("")}`,
-    `<line x1="0" y1="31" x2="280" y2="31" class="dash" /><line x1="0" y1="72" x2="280" y2="72" />${Array.from({ length: 26 }, (_, i) => `<rect class="${i > 17 ? "active-fill" : "rank-bar"}" x="${i * 10}" y="${70 - (20 + ((i * 9) % 48))}" width="6" height="${20 + ((i * 9) % 48)}" />`).join("")}<text x="0" y="86">run #248 → #276 · +9.2%</text>`,
+    `<line x1="0" y1="31" x2="280" y2="31" class="dash" /><line x1="0" y1="72" x2="280" y2="72" />${Array.from({ length: 26 }, (_, i) => `<rect class="${i > 17 ? "active-fill" : "rank-bar"}" x="${i * 10}" y="${70 - (20 + ((i * 9) % 48))}" width="6" height="${20 + ((i * 9) % 48)}" />`).join("")}<text x="0" y="86">smoke run → report · public safe</text>`,
     `${[["0", 8, 280], ["20", 24, 180], ["210", 24, 60], ["30", 40, 84], ["122", 40, 62], ["42", 56, 52], ["54", 72, 34]].map(([x, y, w]) => `<rect class="rank-bar" x="${x}" y="${y}" width="${w}" height="9" rx="2" />`).join("")}<text x="6" y="16">compose</text><text x="26" y="32">retrieve</text><text x="216" y="32">rerank</text>`,
     `<rect x="0" y="15" width="122" height="60" rx="4" /><text x="8" y="30">+ memory#a4f1</text><text class="ok-text" x="8" y="45">+ scope:repo</text><text class="danger-text" x="8" y="60">- secret redacted</text>${["approve", "redact", "defer", "reject"].map((label, i) => `<g transform="translate(${140 + (i % 2) * 70},${18 + Math.floor(i / 2) * 30})"><rect class="${i === 0 ? "active-stroke" : i === 3 ? "danger-stroke" : ""}" width="60" height="22" rx="4" /><text x="30" y="15">${label}</text></g>`).join("")}`,
-    `<rect x="6" y="20" width="80" height="48" rx="5" /><text x="46" y="39">lore</text><text x="46" y="55">12,840 mem</text><path class="read" d="M92 44 H140" /><rect x="148" y="15" width="58" height="58" rx="5" class="dash-box" /><text x="177" y="49">⇆</text><rect x="218" y="20" width="56" height="48" rx="5" /><text x="246" y="39">qdrant</text><text x="246" y="55">replay</text>`,
+    `<rect x="6" y="20" width="80" height="48" rx="5" /><text x="46" y="39">lore</text><text x="46" y="55">mif pack</text><path class="read" d="M92 44 H140" /><rect x="148" y="15" width="58" height="58" rx="5" class="dash-box" /><text x="177" y="49">⇆</text><rect x="218" y="20" width="56" height="48" rx="5" /><text x="246" y="39">qdrant</text><text x="246" y="55">replay</text>`,
     `<rect class="dash-box" x="6" y="7" width="268" height="76" rx="4" /><text x="14" y="22">your network</text>${["lore-api", "dashboard", "postgres"].map((label, i) => `<g transform="translate(${20 + i * 70},36)"><rect width="64" height="34" rx="4" /><circle cx="10" cy="14" r="3" /><text x="18" y="18">${label}</text></g>`).join("")}<rect class="danger-stroke" x="236" y="36" width="36" height="34" rx="4" /><text class="danger-text" x="254" y="58">⊘</text>`
   ];
   return `<svg class="feature-viz" viewBox="0 0 280 88" role="img" aria-label="Feature visual ${index + 1}">${visuals[index] ?? visuals[0]}</svg>`;
@@ -1044,11 +1066,11 @@ function evalSection(t) {
     <div class="shell">
       ${sectionHead(t.sectionNums[4], t.evalTitle, t.evalCopy, t.sectionEyebrows?.[4])}
       <div class="eval-shell">
-        <div class="eval-head"><span>eval/run-0276</span><span>seed: lore-demo · 4,200 q · retriever: bge-m3 · reranker: cohere-r3</span><span class="live-pill">LOCAL · v0.6.0-alpha · smoke passing</span></div>
-        <div class="eval-metrics">${evalMetric("Recall@5", "0.928", "+0.041", "good", "0,22 7,20 14,18 21,16 28,17 35,14 42,12 49,11 56,10 63,8 70,9 77,6 84,7 96,4")}${evalMetric("Precision@5", "0.814", "+0.022", "good", "0,18 7,17 14,16 21,15 28,14 35,15 42,12 49,13 56,10 63,11 70,9 77,8 84,7 96,5")}${evalMetric("MRR", "0.762", "+0.018", "good", "0,20 7,18 14,17 21,15 28,14 35,12 42,13 49,11 56,10 63,8 70,9 77,7 84,6 96,5")}${evalMetric("Stale-hit", "2.1%", "-0.6pt", "warn", "0,8 7,9 14,11 21,12 28,13 35,14 42,15 49,16 56,17 63,18 70,19 77,21 84,22 96,24")}${evalMetric("p95 latency", "142ms", "+8ms", "info", "0,18 7,17 14,16 21,17 28,15 35,14 42,15 49,13 56,12 63,14 70,11 77,12 84,10 96,8")}</div>
+        <div class="eval-head"><span>eval/smoke-2026-04-29</span><span>demo-private · 4 memories · 4 questions · no production claim</span><span class="live-pill">LOCAL · v0.6.0-alpha · methodology published</span></div>
+        <div class="eval-metrics">${evalMetric("Recall@5", "1.000", "4-item smoke dataset", "good", "0,24 14,20 28,18 42,12 56,8 70,6 84,4 96,4")}${evalMetric("Precision@5", "0.200", "expected with k=5", "warn", "0,22 14,20 28,21 42,19 56,18 70,20 84,19 96,18")}${evalMetric("MRR", "0.875", "one query ranked #2", "good", "0,21 14,16 28,14 42,12 56,10 70,8 84,7 96,5")}${evalMetric("Stale-hit", "0.000", "no stale demo rows", "good", "0,20 14,20 28,20 42,20 56,20 70,20 84,20 96,20")}${evalMetric("p95 latency", "pending", "not measured via MCP", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}</div>
         <div class="eval-detail">
-          <div class="eval-trace"><h3>Per-stage span timing · last 8 traces</h3>${["embed", "retrieve.pgvec", "rerank.cohere", "eval.score", "policy.gate", "compose", "trace.flush"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:${[0, 12, 50, 78, 86, 90, 98][index]}%;width:${[12, 38, 28, 8, 4, 8, 2][index]}%"></i></b><em>${[14, 46, 32, 9, 4, 11, 3][index]}ms</em></div>`).join("")}</div>
-          <div class="eval-side"><h3>Top retrieval sources</h3>${["cursor", "claude-code", "qwen-code", "hermes", "dify", "fastgpt"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[86, 74, 52, 41, 28, 12][index]}%"></i></b><em>${[86, 74, 52, 41, 28, 12][index]}%</em></div>`).join("")}<div class="eval-note"><span>4,200 queries · 84,000 memories</span><span>↗ rerun · diff vs main</span></div></div>
+          <div class="eval-trace"><h3>What the smoke run proves</h3>${["pipeline retrieves gold memory", "Evidence Ledger trace is inspectable", "stale rows are reported as zero", "larger dataset still required", "latency must be measured via direct API"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:0%;width:${[100, 84, 78, 46, 36][index]}%"></i></b><em>${["pass", "pass", "pass", "todo", "todo"][index]}</em></div>`).join("")}</div>
+          <div class="eval-side"><h3>Publication guardrails</h3>${["4-item dataset", "no LOCOMO claim", "no p95 claim", "raw data archived", "methodology first"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[34, 100, 100, 82, 90][index]}%"></i></b><em>${["small", "true", "true", "yes", "yes"][index]}</em></div>`).join("")}<div class="eval-note"><span>Use this as methodology, not a benchmark win.</span><a class="inline-link" href="/benchmark/">Read report →</a></div></div>
         </div>
       </div>
     </div>
@@ -1072,8 +1094,10 @@ function integrationsSection(t) {
 function finalSection(t, locale) {
   return `<section id="start" class="section final">
     <div class="shell final-grid">
-      <div>${sectionHead(t.sectionNums[6], t.finalTitle, t.finalCopy, t.sectionEyebrows?.[6])}<div class="hero-actions"><a class="button primary large" href="${pathFor(locale, "docs")}">${escapeHtml(t.ctaRun)} →</a><a class="button secondary large" href="${pathFor(locale, "architecture")}">${escapeHtml(t.ctaArch)}</a></div></div>
-	      <pre class="terminal" aria-label="Local alpha commands"><code>$ pnpm install
+      <div>${sectionHead(t.sectionNums[6], t.finalTitle, t.finalCopy, t.sectionEyebrows?.[6])}<div class="hero-actions"><a class="button primary large" href="/quickstart/">${escapeHtml(t.ctaRun)} →</a><a class="button secondary large" href="${pathFor(locale, "architecture")}">${escapeHtml(t.ctaArch)}</a></div></div>
+	      <pre class="terminal" aria-label="Local alpha commands"><code>$ git clone https://github.com/Lore-Context/lore-context
+$ cd lore-context
+$ pnpm install
 $ pnpm quickstart -- --dry-run --activation-report
 $ pnpm openapi:check
 $ pnpm smoke:dashboard</code><span class="terminal-status">verified · OpenAPI · evidence · smoke passing</span></pre>
@@ -1158,7 +1182,7 @@ function docsPageBody(locale) {
     ["Build", "11 packages compile through Turbo"],
     ["OpenAPI", "28 REST paths verified by pnpm openapi:check"],
     ["Evidence", "Context traces expose used and ignored memory rows"],
-    ["Website", "17 locales and 185 static files generated"],
+    ["Website", "17 locales and 189 static files generated"],
     ["Dashboard", "Browser smoke covers desktop and mobile docs"],
     ["Audit", "Public release tree excludes private cloud runbooks"]
   ];
@@ -1211,6 +1235,165 @@ function docsRepoLocale(locale) {
     "zh-hant": "zh-TW"
   };
   return map[locale] ?? locale;
+}
+
+function standalonePage({ path, title, description, body }) {
+  const canonicalUrl = `${rootUrl}${path}`;
+  return `<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="${escapeHtml(description)}" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lore Context" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <title>${escapeHtml(title)} - Lore Context</title>
+    <style>${styles()}</style>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <header class="site-header">
+      <nav class="nav shell" aria-label="Primary navigation">
+        <a class="brand" href="/en/" aria-label="Lore Context home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Lore Context</span>
+          <span class="version">v0.6.0-alpha</span>
+        </a>
+        <div class="nav-links" aria-label="Sections">
+          <a href="/quickstart/">Quickstart</a>
+          <a href="/benchmark/">Benchmark</a>
+          <a href="/blog/">Blog</a>
+          <a href="/en/docs.html">Docs</a>
+        </div>
+        <div class="nav-actions">
+          <a class="button secondary" href="${githubUrl}" rel="noreferrer">GitHub ↗</a>
+          <a class="button primary" href="/quickstart/">Try in 10 minutes →</a>
+        </div>
+      </nav>
+    </header>
+    <main id="content">${body}</main>
+    ${footer("en")}
+  </body>
+</html>`;
+}
+
+function quickstartPage() {
+  return standalonePage({
+    path: "/quickstart/",
+    title: "Quickstart",
+    description: "Clone Lore Context, run the local alpha quickstart, and generate the first activation report.",
+    body: `<section class="section page">
+      <div class="shell article">
+        <span class="section-num">QUICKSTART / LOCAL ALPHA</span>
+        <h1>From fresh clone to first Evidence Ledger.</h1>
+        <p class="lead">This path is intentionally boring: no signup, no hosted SaaS, no cloud sync. It proves the local API, demo memory path, and MCP-facing context query from public source.</p>
+        <div class="info-panel">
+          <div class="doc-quickstart">
+            <div>
+              <span class="section-num">COPY / PASTE</span>
+              <h2>Run the current public path</h2>
+              <p>Use Node 22+ and pnpm 10. The quickstart dry run prints a redacted activation report and the exact follow-up commands.</p>
+            </div>
+            <pre class="code-block"><code>${escapeHtml(quickstartCommands)}</code></pre>
+          </div>
+          <div class="release-checks">
+            ${[
+              ["Node", "Node.js 22 or newer is required."],
+              ["pnpm", "The repository pins pnpm 10.30.1."],
+              ["Port", "If port 3000 is occupied, set LORE_API_URL to another local port."],
+              ["Trace", "The first query returns a trace ID that opens the Evidence Ledger path."]
+            ].map(([label, copy]) => `<div><b>✓</b><span><strong>${label}</strong><small>${copy}</small></span></div>`).join("")}
+          </div>
+          <p class="notice">The npm package <code>@lore-context/quickstart</code> is not required for Show HN readiness. Until it is published and tested, the canonical public path is <code>git clone</code> plus <code>pnpm quickstart</code>.</p>
+        </div>
+      </div>
+    </section>`
+  });
+}
+
+function blogIndexPage() {
+  return standalonePage({
+    path: "/blog/",
+    title: "Blog",
+    description: "Lore Context launch notes and alpha release narratives.",
+    body: `<section class="section page">
+      <div class="shell article">
+        <span class="section-num">BLOG</span>
+        <h1>Lore Context updates.</h1>
+        <p class="lead">Release notes and launch narratives for the local-first agent memory control plane.</p>
+        <div class="doc-grid">
+          <a class="doc-card" href="/blog/v0-6-distribution-and-trust-sprint/"><span>APR 29 2026</span><strong>v0.6: distribution and trust sprint</strong><p>AI-readable docs, activation proof, MCP Registry publication, and honest launch readiness.</p><em>Read post →</em></a>
+        </div>
+      </div>
+    </section>`
+  });
+}
+
+function changelogBlogPage() {
+  return standalonePage({
+    path: "/blog/v0-6-distribution-and-trust-sprint/",
+    title: "v0.6: distribution and trust sprint",
+    description: "What Lore Context v0.6 shipped, what it proves, and what remains alpha.",
+    body: `<section class="section page">
+      <div class="shell article">
+        <span class="section-num">CHANGELOG BLOG / 2026-04-29</span>
+        <h1>v0.6 turns Lore from a local alpha into something people can verify.</h1>
+        <p class="lead">The goal of v0.6 was not to add hosted SaaS or billing. It was to make the local-first control plane discoverable, reproducible, and honest enough for external review.</p>
+        <div class="info-panel">
+          <h2>What changed</h2>
+          <dl>
+            <dt>Activation proof</dt><dd><code>pnpm quickstart -- --activation-report</code> produces redacted first-value evidence instead of asking users to trust a README.</dd>
+            <dt>AI-readable docs</dt><dd><code>/llms.txt</code>, <code>/llms-full.txt</code>, canonical metadata, and public-source boundaries are live for assistants and search.</dd>
+            <dt>Agent clients</dt><dd>Claude Code, Cursor Agent, and Qwen Code golden paths were validated against the documented MCP configuration.</dd>
+            <dt>MCP distribution</dt><dd>The Official MCP Registry entry is active, backed by the public GHCR OCI image.</dd>
+            <dt>Launch materials</dt><dd>Show HN, marketplace copy, screenshots, design partner intake, and publication guardrails are prepared for human review.</dd>
+          </dl>
+          <p class="notice">What v0.6 still does not claim: public hosted SaaS, billing, managed cloud sync, production readiness, or benchmark wins.</p>
+          <h2>中文摘要</h2>
+          <p>v0.6 的重点不是做云端商业化，而是补齐外部用户可以验证的信任闭环：快速启动报告、AI 可读文档、MCP Registry、Claude/Cursor/Qwen 的真实客户端验证，以及透明的 alpha 边界。</p>
+        </div>
+      </div>
+    </section>`
+  });
+}
+
+function benchmarkPage() {
+  return standalonePage({
+    path: "/benchmark/",
+    title: "Benchmark methodology",
+    description: "Lore Context v0.6 benchmark methodology and a four-item smoke evaluation with explicit limitations.",
+    body: `<section class="section page">
+      <div class="shell article">
+        <span class="section-num">BENCHMARK / METHODOLOGY FIRST</span>
+        <h1>A four-item smoke eval, not a benchmark win.</h1>
+        <p class="lead">The v0.6 report proves the retrieval and Evidence Ledger path works on the public demo fixture. It does not compare Lore against LOCOMO, LongMemEval, Mem0, Letta, or Zep at production scale.</p>
+        <div class="info-panel">
+          <div class="eval-metrics">
+            ${evalMetric("Recall@5", "1.000", "4 gold memories found", "good", "0,24 14,20 28,18 42,12 56,8 70,6 84,4 96,4")}
+            ${evalMetric("Precision@5", "0.200", "small corpus, k=5", "warn", "0,22 14,20 28,21 42,19 56,18 70,20 84,19 96,18")}
+            ${evalMetric("MRR", "0.875", "one rank-2 tie", "good", "0,21 14,16 28,14 42,12 56,10 70,8 84,7 96,5")}
+            ${evalMetric("Stale-hit", "0.000", "no stale demo rows", "good", "0,20 14,20 28,20 42,20 56,20 70,20 84,20 96,20")}
+            ${evalMetric("p95 latency", "pending", "not measured via MCP", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}
+          </div>
+          <dl>
+            <dt>Dataset</dt><dd>4 public demo memories and 4 questions from <code>examples/demo-dataset/eval/lore-demo-eval-dataset.json</code>.</dd>
+            <dt>Method</dt><dd>Write demo memories, query top 5, compute Recall@5, Precision@5, MRR, and stale-hit rate using the same formulas as <code>@lore/eval</code>.</dd>
+            <dt>Reproduce</dt><dd><code>pnpm eval:report -- --project-id demo-private --public-safe</code> for the public-safe report path; use the demo dataset for a smoke run.</dd>
+            <dt>Limitations</dt><dd>At 4 items, any system returning all items can score Recall@5 = 1.0. The result is useful as a pipeline smoke test, not a scale claim.</dd>
+            <dt>Next</dt><dd>Run a 50+ memory dataset, measure direct API latency, and only then compare against public benchmark literature.</dd>
+          </dl>
+          <p class="notice">Raw data is tracked in the launch workspace and should be moved into a public repo path only after a second reviewer reproduces the run from a clean checkout.</p>
+        </div>
+      </div>
+    </section>`
+  });
 }
 
 function renderInfoValue(value) {
@@ -1384,7 +1567,7 @@ Use the repository issues/discussions for public questions. Website contact: red
 }
 
 function sitemap() {
-  const urls = [""];
+  const urls = ["", "/quickstart/", "/blog/", "/blog/v0-6-distribution-and-trust-sprint/", "/benchmark/"];
   for (const locale of localeOrder) {
     urls.push(pathFor(locale));
     for (const slug of pageSlugs) urls.push(pathFor(locale, slug));
@@ -1430,6 +1613,10 @@ export function generateSiteFiles() {
   files.set("sitemap.xml", sitemap());
   files.set("llms.txt", llmsTxt());
   files.set("llms-full.txt", llmsFullTxt());
+  files.set("quickstart/index.html", quickstartPage());
+  files.set("blog/index.html", blogIndexPage());
+  files.set("blog/v0-6-distribution-and-trust-sprint/index.html", changelogBlogPage());
+  files.set("benchmark/index.html", benchmarkPage());
   for (const slug of pageSlugs) files.set(`${slug}.html`, redirectPage(slug));
   for (const locale of localeOrder) {
     files.set(`${locale}/index.html`, homePage(locale));
@@ -1442,7 +1629,7 @@ function styles() {
   return `
 :root{color-scheme:light;--paper:#f8f7f2;--paper-2:#fffdf8;--paper-3:#f0efea;--ink:#111418;--ink-2:#303942;--muted:#65707c;--faint:#8a949f;--line:rgba(22,27,31,.13);--line-2:rgba(22,27,31,.22);--cyan:#08aebe;--green:#0a8f66;--amber:#c77912;--red:#c94949;--shadow:0 28px 70px rgba(17,20,24,.14)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}a{color:inherit;text-decoration:none}.skip-link{position:absolute;left:16px;top:10px;z-index:100;transform:translateY(-140%);border:1px solid var(--ink);border-radius:6px;background:var(--paper-2);padding:9px 12px;font-weight:800}.skip-link:focus{transform:translateY(0)}.inline-link{text-decoration:underline;text-underline-offset:2px}.shell{width:min(1280px,calc(100% - 48px));margin:0 auto}.site-header{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(248,247,242,.9);backdrop-filter:blur(18px)}.nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;white-space:nowrap}.brand-mark{width:20px;height:20px;border-radius:4px;background:linear-gradient(135deg,var(--ink) 0 42%,transparent 42%),linear-gradient(135deg,var(--cyan) 0 58%,var(--green) 58%)}.version{font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.nav-links,.nav-actions{display:flex;align-items:center;gap:8px}.nav-links a{padding:8px;color:var(--ink-2);font-size:13px;font-weight:750}.nav-links a:hover{color:var(--ink)}.button{border:1px solid var(--line-2);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;font-size:13px;font-weight:800;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}.button:hover{transform:translateY(-1px);border-color:rgba(8,174,190,.55);box-shadow:0 10px 26px rgba(8,174,190,.13)}.button.primary{background:var(--ink);border-color:var(--ink);color:#fff}.button.secondary{background:var(--paper-2)}.button.large{min-height:44px;padding:0 18px}.lang-menu{position:relative}.lang-menu summary{list-style:none;border:1px solid transparent;border-radius:8px;min-height:40px;padding:0 10px;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:800}.lang-menu summary::-webkit-details-marker{display:none}.lang-menu[open] summary,.lang-menu summary:hover{background:var(--paper-2);border-color:var(--line)}.lang-panel{position:absolute;right:0;top:calc(100% + 8px);width:250px;max-height:390px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);box-shadow:var(--shadow);padding:6px}.lang-panel a{display:flex;justify-content:space-between;gap:14px;border-radius:6px;padding:9px 10px;font-size:13px}.lang-panel a:hover,.lang-panel a[aria-current=true]{background:var(--paper-3)}.lang-panel a span:last-child{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan)}
-.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:linear-gradient(rgba(37,47,56,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(37,47,56,.055) 1px,transparent 1px),var(--paper);background-size:42px 42px}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(248,247,242,.96),rgba(248,247,242,.68) 47%,transparent 86%);pointer-events:none}.hero-grid{position:relative;display:grid;grid-template-columns:minmax(420px,540px) 1fr;gap:56px;align-items:start;padding:76px 0 72px}.chip-row{display:flex;gap:8px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,253,248,.82);padding:5px 9px;font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);letter-spacing:.02em}.chip:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green)}.chip.live{color:var(--green)}.hero h1{margin:44px 0 0;font-size:clamp(48px,6.2vw,82px);line-height:.95;letter-spacing:0;font-weight:780}.hero-statement{max-width:540px;margin:22px 0 0;font-size:clamp(21px,2vw,26px);line-height:1.18;font-weight:720;color:#1f262d}.hero-support{max-width:540px;margin:18px 0 0;color:#46505a;font-size:15px;line-height:1.6}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.command{margin-top:14px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:rgba(255,253,248,.88);min-height:36px;padding:0 10px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#4b5661}.cursor{width:7px;height:16px;margin-left:7px;background:var(--cyan);animation:cursorBlink 1.05s steps(2,end) infinite}.metric-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}.metric{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.84);padding:12px}.metric span{display:block;color:var(--faint);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.metric strong{display:block;margin-top:5px;font:850 17px ui-monospace,SFMono-Regular,Menlo,monospace}.metric.good strong{color:var(--green)}.metric.warn strong{color:var(--amber)}.metric.info strong{color:#07849a}.metric i{display:block;height:4px;margin-top:12px;border-radius:4px;background:currentColor;opacity:.25;transform-origin:left;animation:barReveal 1.8s ease-out both}
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:linear-gradient(rgba(37,47,56,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(37,47,56,.055) 1px,transparent 1px),var(--paper);background-size:42px 42px}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(248,247,242,.96),rgba(248,247,242,.68) 47%,transparent 86%);pointer-events:none}.hero-grid{position:relative;display:grid;grid-template-columns:minmax(420px,540px) 1fr;gap:56px;align-items:start;padding:76px 0 34px}.alpha-banner{display:inline-flex;align-items:center;border:1px solid rgba(199,121,18,.28);border-radius:6px;background:rgba(199,121,18,.1);color:#7d4c10;padding:7px 10px;font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,253,248,.82);padding:5px 9px;font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);letter-spacing:.02em}.chip:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green)}.chip.live{color:var(--green)}.hero h1{margin:34px 0 0;font-size:clamp(48px,6.2vw,82px);line-height:.95;letter-spacing:0;font-weight:780}.hero-statement{max-width:540px;margin:22px 0 0;font-size:clamp(21px,2vw,26px);line-height:1.18;font-weight:720;color:#1f262d}.hero-support{max-width:540px;margin:18px 0 0;color:#46505a;font-size:15px;line-height:1.6}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.command{margin-top:14px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:rgba(255,253,248,.88);min-height:36px;padding:0 10px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#4b5661}.cursor{width:7px;height:16px;margin-left:7px;background:var(--cyan);animation:cursorBlink 1.05s steps(2,end) infinite}.metric-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}.metric{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.84);padding:12px}.metric span{display:block;color:var(--faint);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.metric strong{display:block;margin-top:5px;font:850 17px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:lowercase}.metric.good strong{color:var(--green)}.metric.warn strong{color:var(--amber)}.metric.info strong{color:#07849a}.metric i{display:block;height:4px;margin-top:12px;border-radius:4px;background:currentColor;opacity:.25;transform-origin:left;animation:barReveal 1.8s ease-out both}.use-case-strip{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 0 58px}.use-case-strip article{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.86);padding:18px;min-height:132px}.use-case-strip strong{display:block}.use-case-strip p{margin:8px 0 0;color:var(--muted);font-size:13px}
 .surface{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.9);box-shadow:var(--shadow);overflow:hidden;backdrop-filter:blur(16px)}.surface-head,.surface-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);background:rgba(240,239,234,.78);min-height:38px;padding:0 14px;color:var(--muted);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.surface-foot{border-top:1px solid var(--line);border-bottom:0}.window-dots{display:inline-flex;gap:5px}.window-dots i{width:8px;height:8px;border-radius:50%;background:var(--green)}.window-dots i:first-child{background:var(--red)}.window-dots i:nth-child(2){background:var(--amber)}.live-dot:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:nodePulse 1.6s ease-in-out infinite}.surface-stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.surface-stat{padding:14px;border-right:1px solid var(--line)}.surface-stat:last-child{border-right:0}.surface-stat span{display:block;color:var(--faint);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.surface-stat strong{display:block;margin-top:6px;font-size:22px}.surface-stat small{display:block;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.surface-stat svg{width:100%;height:22px;margin-top:8px}.surface-stat polyline{fill:none;stroke:var(--cyan);stroke-width:1.8;stroke-dasharray:130;stroke-dashoffset:130;animation:sparkDraw 2.4s ease-out forwards}.ledger{font:10px ui-monospace,SFMono-Regular,Menlo,monospace}.ledger-head,.ledger-row{display:grid;grid-template-columns:1.1fr .66fr .95fr .86fr .9fr .74fr .95fr;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(22,27,31,.08)}.ledger-head{color:var(--faint);font-weight:850;text-transform:uppercase;background:rgba(240,239,234,.5)}.ledger-row{position:relative;color:#4c5863}.ledger-row.active:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(8,174,190,.14),transparent);animation:ledgerScan 2.9s ease-in-out infinite}.used,.review{position:relative;z-index:1;display:inline-flex;width:max-content;border-radius:5px;padding:2px 6px;font-size:9px;font-weight:850}.used.yes,.review.approved{background:rgba(10,143,102,.12);color:var(--green)}.used.no,.review.flagged,.review.review{background:rgba(199,121,18,.14);color:var(--amber)}.review.redact{background:rgba(201,73,73,.12);color:var(--red)}.stale{display:block;height:6px;border-radius:6px;background:rgba(0,0,0,.08);overflow:hidden}.stale i{display:block;height:100%;border-radius:6px;background:var(--green);animation:barReveal 2s ease-out both}.stale i.warn{background:var(--amber)}.stale i.risk{background:var(--red)}.flow-visual{position:relative;margin:12px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.5);overflow:hidden}.flow-visual svg{width:100%;height:190px;display:block}.flow{fill:none;stroke-width:1.6;stroke-dasharray:8 7;animation:flowDash 5s linear infinite}.flow-a{stroke:url(#flow-ok)}.flow-b{stroke:var(--cyan);opacity:.45}.flow-c{stroke:url(#flow-warn)}.node{fill:var(--green);opacity:.72}.node.warn{fill:var(--amber)}.node.risk{fill:var(--red)}.node.pulse{animation:nodePulse 2.2s ease-in-out infinite;transform-origin:center}.flow-visual text{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;fill:var(--muted)}.composer-card,.gov-gate{position:absolute;z-index:2;border:1px solid var(--line-2);border-radius:8px;background:rgba(255,253,248,.92);font:10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#3d4852}.composer-card{left:14px;top:50px;width:124px;padding:10px}.gov-gate{left:150px;top:82px;padding:4px 8px;color:var(--amber)}
 .section{border-bottom:1px solid var(--line);padding:90px 0}.section-head{display:grid;grid-template-columns:190px 1fr;gap:34px;margin-bottom:42px}.section-head>div:first-child{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.section-num{font:900 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green);letter-spacing:.04em;text-transform:uppercase}.section-eye{display:inline-flex;align-items:center;gap:8px;color:var(--green);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;text-transform:uppercase}.section-eye:before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor}.section h2{margin:0;font-size:clamp(32px,3.8vw,48px);line-height:1.02;letter-spacing:0}.section-head p,.lead{max-width:740px;margin:14px 0 0;color:#48535e;font-size:16px}.problem-grid,.features-grid,.integrations-grid{display:grid;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper-2)}.problem-grid{grid-template-columns:repeat(4,1fr)}.problem-card,.feature-card,.integration{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:24px;min-height:190px}.problem-card:nth-child(4n),.feature-card:nth-child(3n),.integration:nth-child(5n){border-right:0}.problem-card span,.feature-tag{color:var(--faint);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}.problem-card h3,.feature-card h3{margin:28px 0 0;font-size:19px}.problem-card p,.feature-card p{color:#56616c;font-size:14px}.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.pipe-step{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:20px;min-height:180px}.pipe-step:not(:last-child):after{content:"";position:absolute;right:-11px;top:50%;width:12px;border-top:1px solid var(--line-2)}.pipe-step span{font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.pipe-step strong{display:block;margin-top:26px;font-size:17px}.pipe-step p{color:#59636e;font-size:13px}.features-grid{grid-template-columns:repeat(3,1fr)}.feature-card{min-height:300px}.feature-tag{display:flex;justify-content:space-between}.mini-viz{width:100%;height:80px;margin:18px 0}.mini-viz rect{fill:var(--paper-3);stroke:var(--line-2)}.mini-viz path{fill:none;stroke:var(--cyan);stroke-width:1.4;stroke-dasharray:120;stroke-dashoffset:120;animation:sparkDraw 2.2s ease-out forwards}.alpha-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px}.alpha-list,.manifest,.eval-report,.info-panel{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);overflow:hidden}.alpha-row{display:grid;grid-template-columns:28px 1fr auto;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding:14px 18px}.alpha-row:last-child{border-bottom:0}.alpha-row b{display:grid;place-items:center;width:20px;height:20px;border-radius:5px;background:rgba(10,143,102,.12);color:var(--green)}.alpha-row b.partial{background:rgba(199,121,18,.14);color:var(--amber)}.alpha-row strong{display:block}.alpha-row small{display:block;color:var(--muted)}.alpha-row em{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);font-style:normal}.manifest{padding:22px}.manifest dl,.info-panel dl{display:grid;grid-template-columns:160px 1fr;gap:12px 18px}.manifest dt,.info-panel dt{color:var(--faint);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.manifest dd,.info-panel dd{margin:0;color:#313b45}.eval-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--paper-3);padding:14px 18px;font:800 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.live-pill{color:var(--green)}.eval-metrics{display:grid;grid-template-columns:repeat(5,1fr)}.eval-metrics .metric{border:0;border-right:1px solid var(--line);border-radius:0}.trace-list{padding:18px}.trace-list div{display:grid;grid-template-columns:130px 1fr 54px;gap:12px;align-items:center;min-height:30px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.trace-list b{height:7px;border-radius:7px;background:rgba(0,0,0,.08);overflow:hidden}.trace-list i{display:block;height:100%;background:var(--cyan);animation:barReveal 2s ease-out both}.trace-list em{font-style:normal;color:var(--muted);text-align:right}.integrations-grid{grid-template-columns:repeat(5,1fr)}.integration{min-height:130px}.integration span{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--ink);color:#fff;font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace}.integration strong{display:block;margin-top:16px}.integration small{color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.final{background:var(--ink);color:var(--paper);border-bottom:0}.final .section-num,.final .section-head p,.final .section-eye{color:rgba(248,247,242,.68)}.final-grid{display:grid;grid-template-columns:1fr .85fr;gap:42px;align-items:end}.terminal{margin:0;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:#080b0f;color:#d8f8e8;padding:18px;font:13px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}.footer{background:var(--ink);color:rgba(248,247,242,.62);padding:44px 0 30px}.footer-grid{display:grid;grid-template-columns:1.35fr .75fr .8fr .9fr;gap:28px}.footer a{display:block;margin-top:8px}.footer a:hover{color:#fff}.footer h3{margin:0 0 12px;color:#fff;font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.footer-brand{color:#fff;margin-bottom:14px}.footer p{margin:0;color:rgba(248,247,242,.55);font-size:13px}.legal-row{grid-column:1/-1;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);padding-top:24px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.page{min-height:62vh}.article{max-width:900px}.article h1{font-size:clamp(44px,5vw,72px);line-height:1;margin:18px 0 0}.info-panel{margin-top:34px;padding:26px}.notice{border-left:3px solid var(--green);background:rgba(10,143,102,.08);padding:12px 14px;color:#37424c}.language-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}.language-grid a{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:14px;font-weight:800}.language-grid span{float:right;color:var(--cyan);font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace}.docs-hub{display:grid;gap:22px}.docs-toolbar,.doc-steps,.doc-grid,.doc-locale-grid,.release-checks{display:grid;gap:10px}.docs-toolbar{grid-template-columns:repeat(3,max-content);align-items:center}.doc-quickstart,.doc-release-panel{display:grid;grid-template-columns:1fr .95fr;gap:24px;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:22px}.doc-quickstart h2,.doc-release-panel h2{margin:8px 0 0;font-size:28px;line-height:1.08}.doc-quickstart p,.doc-release-panel p,.doc-locale-block p{color:var(--muted)}.code-block{margin:0;border:1px solid rgba(17,20,24,.18);border-radius:7px;background:#080b0f;color:#d8f8e8;padding:16px;overflow:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.doc-steps{grid-template-columns:repeat(4,1fr)}.doc-step,.doc-card,.doc-locale-block,.release-checks>div{border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:16px}.doc-step span,.doc-card span{color:var(--green);font:900 11px ui-monospace,SFMono-Regular,Menlo,monospace}.doc-step strong,.doc-card strong{display:block;margin-top:10px}.doc-step code{display:block;margin-top:8px;color:var(--muted);font:12px ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.doc-grid{grid-template-columns:repeat(3,1fr)}.doc-card{min-height:180px;display:flex;flex-direction:column}.doc-card p{color:var(--muted);font-size:14px}.doc-card em{margin-top:auto;color:var(--cyan);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;font-style:normal}.release-checks{grid-template-columns:1fr 1fr}.release-checks>div{display:flex;gap:12px}.release-checks b{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:5px;background:rgba(10,143,102,.12);color:var(--green)}.release-checks strong,.release-checks small{display:block}.release-checks small{color:var(--muted)}.doc-locale-grid{grid-template-columns:repeat(4,1fr);margin-top:14px}.doc-locale-grid a{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:7px;background:var(--paper-2);padding:11px 12px}.doc-locale-grid b{color:var(--cyan);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}
 .footer p a.inline-link{display:inline;margin-top:0;color:rgba(248,247,242,.78)}
@@ -1454,9 +1641,9 @@ function styles() {
 	.final .button.primary{background:var(--paper);border-color:var(--paper);color:var(--ink)}.final .button.secondary{background:transparent;border-color:rgba(248,247,242,.28);color:var(--paper)}.final .button:hover{box-shadow:0 12px 32px rgba(255,255,255,.08)}
 	.surface,.system-board,.eval-shell{position:relative;transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .22s ease,box-shadow .22s ease}.is-enhanced .surface:hover,.is-enhanced .system-board:hover,.is-enhanced .eval-shell:hover{box-shadow:0 32px 78px rgba(17,20,24,.16)}.is-enhanced .surface:after,.is-enhanced .system-board:after,.is-enhanced .eval-shell:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 40%,rgba(255,255,255,.42) 49%,transparent 58%);mix-blend-mode:soft-light;transform:translateX(-130%);animation:surfaceSweep 8s ease-in-out infinite}.is-enhanced .system-board:after,.is-enhanced .eval-shell:after{animation-delay:1.4s}.is-enhanced .reveal{opacity:0;transform:translateY(18px);filter:blur(8px);transition:opacity .72s ease,transform .72s ease,filter .72s ease;transition-delay:calc(var(--reveal-index,0) * 42ms)}.is-enhanced .reveal.in-view{opacity:1;transform:translateY(0);filter:blur(0)}.is-enhanced .hero-copy>*{animation:revealRise .72s ease both}.is-enhanced .hero-copy>*:nth-child(1){animation-delay:.04s}.is-enhanced .hero-copy>*:nth-child(2){animation-delay:.12s}.is-enhanced .hero-copy>*:nth-child(3){animation-delay:.19s}.is-enhanced .hero-copy>*:nth-child(4){animation-delay:.25s}.is-enhanced .hero-copy>*:nth-child(5){animation-delay:.31s}.is-enhanced .hero-copy>*:nth-child(6){animation-delay:.37s}.is-enhanced .hero-copy>*:nth-child(7){animation-delay:.43s}.is-enhanced .hero{background-position:0 0,0 0;animation:gridDrift 18s linear infinite}.is-enhanced .chip.live:before,.is-enhanced .live-pill:before{box-shadow:0 0 0 0 rgba(10,143,102,.28);animation:signalRing 2.4s ease-out infinite}.is-enhanced .problem-card,.is-enhanced .feature-card,.is-enhanced .integration,.is-enhanced .alpha-row,.is-enhanced .system-strip div{transition:transform .2s ease,background .2s ease,border-color .2s ease}.is-enhanced .problem-card:hover,.is-enhanced .feature-card:hover,.is-enhanced .integration:hover,.is-enhanced .alpha-row:hover,.is-enhanced .system-strip div:hover{transform:translateY(-3px);background:rgba(255,255,255,.48);border-color:rgba(8,174,190,.28)}.is-enhanced .ledger-row.active{color:var(--ink);background:rgba(8,174,190,.045)}.is-enhanced .terminal{position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 30px 80px rgba(0,0,0,.2)}.is-enhanced .terminal code{display:block;animation:terminalClip 1.5s steps(4,end) both;white-space:pre}.terminal-status{display:inline-flex;margin-top:12px;border:1px solid rgba(10,143,102,.38);border-radius:6px;padding:3px 7px;color:#8ff0bf;font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}.is-enhanced .terminal-status{animation:statusGlow 2.6s ease-in-out infinite}
 	@keyframes cursorBlink{0%,45%{opacity:1}46%,100%{opacity:0}}@keyframes ledgerScan{0%{transform:translateX(-100%);opacity:0}20%,72%{opacity:1}100%{transform:translateX(100%);opacity:0}}@keyframes nodePulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.16)}}@keyframes barReveal{from{transform:scaleX(.25)}to{transform:scaleX(1)}}@keyframes sparkDraw{to{stroke-dashoffset:0}}@keyframes flowDash{to{stroke-dashoffset:-90}}@keyframes surfaceSweep{0%,18%{transform:translateX(-130%);opacity:0}34%,44%{opacity:.85}62%,100%{transform:translateX(130%);opacity:0}}@keyframes revealRise{from{opacity:0;transform:translateY(18px);filter:blur(7px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}@keyframes gridDrift{to{background-position:42px 42px,42px 42px}}@keyframes signalRing{70%{box-shadow:0 0 0 8px rgba(10,143,102,0)}100%{box-shadow:0 0 0 0 rgba(10,143,102,0)}}@keyframes terminalClip{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}@keyframes statusGlow{0%,100%{border-color:rgba(10,143,102,.24);color:#8ff0bf}50%{border-color:rgba(8,174,190,.72);color:#d8f8e8}}
-@media(max-width:1120px){.nav-links{display:none}.hero-grid{grid-template-columns:1fr}.surface{max-width:760px}.problem-grid,.features-grid{grid-template-columns:repeat(2,1fr)}.problem-card:nth-child(2n),.feature-card:nth-child(2n){border-right:0}.pipeline{grid-template-columns:1fr 1fr}.pipe-step:after{display:none}.integrations-grid{grid-template-columns:repeat(3,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.alpha-grid,.final-grid{grid-template-columns:1fr}}
+@media(max-width:1120px){.nav-links{display:none}.hero-grid{grid-template-columns:1fr}.surface{max-width:760px}.use-case-strip{grid-template-columns:1fr}.problem-grid,.features-grid{grid-template-columns:repeat(2,1fr)}.problem-card:nth-child(2n),.feature-card:nth-child(2n){border-right:0}.pipeline{grid-template-columns:1fr 1fr}.pipe-step:after{display:none}.integrations-grid{grid-template-columns:repeat(3,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.alpha-grid,.final-grid{grid-template-columns:1fr}}
 @media(max-width:1120px){.doc-grid{grid-template-columns:repeat(2,1fr)}.doc-quickstart,.doc-release-panel{grid-template-columns:1fr}.doc-locale-grid{grid-template-columns:repeat(3,1fr)}}
-	@media(max-width:720px){.shell{width:calc(100% - 28px)}.nav{min-height:58px}.version,.nav-actions .secondary{display:none}.brand{font-size:14px}.hero-grid{padding:34px 0 52px}.hero-copy{order:1}.surface{order:2}.hero h1{margin-top:28px;font-size:42px}.metric-strip,.surface-stats,.eval-metrics{grid-template-columns:repeat(2,1fr)}.ledger-head,.ledger-row{grid-template-columns:1.15fr .62fr .62fr .8fr}.ledger-head span:nth-child(3),.ledger-head span:nth-child(6),.ledger-head span:nth-child(7),.ledger-row span:nth-child(3),.ledger-row span:nth-child(6),.ledger-row span:nth-child(7){display:none}.problem-grid,.features-grid,.pipeline,.integrations-grid,.footer-grid,.language-grid{grid-template-columns:1fr}.problem-card,.feature-card,.integration{border-right:0}.section{padding:68px 0}.section-head{grid-template-columns:1fr;gap:14px}.section-head>div:first-child{gap:8px}.manifest dl,.info-panel dl{grid-template-columns:1fr}.trace-list div{grid-template-columns:1fr}.flow-visual svg{height:176px}.composer-card{position:relative;left:auto;top:auto;margin:12px;width:auto}.gov-gate{left:18px;top:78px}.footer{padding-bottom:90px}}
+	@media(max-width:720px){.shell{width:calc(100% - 28px)}.nav{min-height:58px}.version,.nav-actions .secondary{display:none}.brand{font-size:14px}.hero-grid{padding:34px 0 26px}.use-case-strip{padding-bottom:40px}.hero-copy{order:1}.surface{order:2}.hero h1{margin-top:28px;font-size:42px}.metric-strip,.surface-stats,.eval-metrics{grid-template-columns:repeat(2,1fr)}.ledger-head,.ledger-row{grid-template-columns:1.15fr .62fr .62fr .8fr}.ledger-head span:nth-child(3),.ledger-head span:nth-child(6),.ledger-head span:nth-child(7),.ledger-row span:nth-child(3),.ledger-row span:nth-child(6),.ledger-row span:nth-child(7){display:none}.problem-grid,.features-grid,.pipeline,.integrations-grid,.footer-grid,.language-grid{grid-template-columns:1fr}.problem-card,.feature-card,.integration{border-right:0}.section{padding:68px 0}.section-head{grid-template-columns:1fr;gap:14px}.section-head>div:first-child{gap:8px}.manifest dl,.info-panel dl{grid-template-columns:1fr}.trace-list div{grid-template-columns:1fr}.flow-visual svg{height:176px}.composer-card{position:relative;left:auto;top:auto;margin:12px;width:auto}.gov-gate{left:18px;top:78px}.footer{padding-bottom:90px}}
 @media(max-width:720px){.docs-toolbar,.doc-steps,.doc-grid,.doc-locale-grid,.release-checks{grid-template-columns:1fr}.docs-toolbar{align-items:stretch}.doc-quickstart,.doc-release-panel,.doc-step,.doc-card,.doc-locale-block,.release-checks>div{padding:14px}.code-block{font-size:11px}.doc-quickstart h2,.doc-release-panel h2{font-size:23px}}
 @media(max-width:1120px){.system-strip{grid-template-columns:repeat(2,1fr)}.system-strip div:nth-child(2n){border-right:0}.eval-detail{grid-template-columns:1fr}.eval-trace{border-right:0;border-bottom:1px solid var(--line)}}@media(max-width:720px){.problem-visual{height:86px}.system-strip{grid-template-columns:1fr}.system-strip div{border-right:0}.board-head{align-items:flex-start;flex-direction:column;padding:12px 14px}.feature-viz{height:94px}.trace-row,.dist-row{grid-template-columns:1fr}.eval-metrics .metric:nth-child(2n){border-right:0}.alpha-side{min-height:auto}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}

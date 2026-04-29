@@ -43,7 +43,8 @@ What is included:
 - MCP stdio tools for context query, memory write/search/export, eval, and trace inspection
 - dashboard for memory inventory, eval runs, traces, and governance review queue
 - Evidence Ledger for used/ignored memory rows
-- eval report with Recall@5, Precision@5, MRR, stale-hit rate, and p95 latency
+- eval report methodology with Recall@5, Precision@5, MRR, stale-hit rate, and
+  an explicit note that p95 latency is still pending
 - MIF-style import/export with provenance and relationship fields
 
 What is not included:
@@ -66,4 +67,3 @@ Website: https://lorecontext.com
 - Update the first paragraph with a real personal reason before posting.
 - Confirm the repository README still matches the claims above.
 - Be available for the comment thread after posting.
-

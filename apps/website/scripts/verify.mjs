@@ -62,15 +62,17 @@ const homeRuntimeLabels = [
   "redland2024@gmail.com",
   "mailto:redland2024@gmail.com",
   "context.ledger",
-  "Memories tracked",
-  "Pending review",
+  "alpha-banner",
+  "use-case-strip",
+  "Demo memories",
+  "Golden clients",
   "used_in_response",
   "stale_score",
   "review_status",
   "Recall@5",
   "Precision@5",
-  "p95 latency",
-  "pnpm seed:demo && pnpm smoke:dashboard",
+  "Latency",
+  "pnpm quickstart -- --dry-run --activation-report",
   "MCP clients",
   "context.query",
   "composer",
@@ -94,20 +96,20 @@ const docsPageMarkers = [
   "RELEASE GATE",
   "28 REST paths verified by pnpm openapi:check",
   "Context traces expose used and ignored memory rows",
-  "17 locales and 185 static files generated",
+  "17 locales and 189 static files generated",
   "LOCALIZED DOCS",
   "Community PRs can improve translation quality"
 ];
 const englishV3Copy = [
-  "<h1>Lore Context.</h1>",
-  "The control plane for AI-agent memory, eval, and governance.",
-  "Know what every agent remembered, used, and should forget before memory becomes production risk.",
+  "<h1>Audit, govern, and migrate your AI agent's memory.</h1>",
+  "The open-source control plane for agent memory eval, evidence, and portability.",
+  "Run it locally, query demo memory, and open an Evidence Ledger trace before you trust durable agent context.",
   "Agents remember. Teams need proof.",
   "One context plane. Every agent surface.",
   "Built for operators, not memory hype.",
   "Eval proof report. On your own data.",
   "The memory gap",
-  "git clone github.com/Lore-Context/lore-context",
+  "git clone https://github.com/Lore-Context/lore-context",
   "Start with a local alpha. Prove memory quality before you scale it."
 ];
 const motionKeys = [
@@ -125,7 +127,8 @@ const motionKeys = [
   "statusGlow"
 ];
 
-const expectedFileCount = 6 + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
+const launchPageCount = 4;
+const expectedFileCount = 6 + launchPageCount + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
 if (files.size !== expectedFileCount) {
   failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
 }
@@ -203,7 +206,19 @@ for (const locale of localeCodes) {
   }
 }
 
-for (const path of ["index.html", "_headers", "robots.txt", "sitemap.xml", "llms.txt", "llms-full.txt", ...pageSlugs.map((slug) => `${slug}.html`)]) {
+for (const path of [
+  "index.html",
+  "_headers",
+  "robots.txt",
+  "sitemap.xml",
+  "llms.txt",
+  "llms-full.txt",
+  "quickstart/index.html",
+  "blog/index.html",
+  "blog/v0-6-distribution-and-trust-sprint/index.html",
+  "benchmark/index.html",
+  ...pageSlugs.map((slug) => `${slug}.html`)
+]) {
   if (!files.has(path)) failures.push(`Missing release file: ${path}`);
 }
 

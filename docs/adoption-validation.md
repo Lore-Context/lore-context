@@ -19,8 +19,10 @@ partner names unless the partner has explicitly approved being named.
 | Cursor golden path | Actual client path complete | `cursor-agent` `2026.04.28-e984b46` logged in, project `.cursor/mcp.json` discovered, `mcp enable/list/list-tools lore` listed 11 tools, and headless prompt-level `context_query` + `trace_get` succeeded against demo data. Evidence: trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145`, `MATCHED=true`, 2 retrieved / 2 used rows. |
 | Qwen Code golden path | Actual client path complete | `@qwen-code/qwen-code` `0.15.5` installed; `qwen mcp list` connected to project `.qwen/settings.json`; Qwen Code non-interactive run used `mcp__lore__context_query` successfully against a temporary Lore API. |
 | Show HN | Deferred | HN redirected the submitted draft to a new-account Show HN restriction page; no thread URL exists |
+| HN launch website surfaces | Source ready for production redeploy | Homepage, `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, and `/benchmark/` are the canonical public launch pages; verify live domains after each deploy |
 | MCP Registry | Published | GHCR package `lore-context-mcp` is public; anonymous Docker manifest lookup succeeds for `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`; GitHub Actions run `25111065964` published `io.github.Lore-Context/lore-context-mcp`; Registry API returns `active`, `isLatest: true`, and publishedAt `2026-04-29T13:16:42Z`. |
 | Marketplace metadata | Draft with demo screenshots ready | copy is prepared and public-safe screenshots exist under `docs/distribution/assets/`; listings still need human final review and registry-specific schema checks before submission |
+| npm quickstart package | Not claimed | `@lore-context/quickstart` is not part of the current release claim; public docs and launch copy use `git clone` plus `pnpm quickstart` |
 
 ## Client Validation Rules
 
@@ -38,9 +40,12 @@ published instructions from a fresh user perspective.
 1. Run 3-5 design partner activation sessions using
    `docs/design-partners/intake.md` and
    `docs/design-partners/activation-scorecard.md`.
-2. Submit marketplace / MCP hub listings beyond the Official MCP Registry after
+2. Verify the production launch pages and sitemap after the current website
+   redeploy: `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, and
+   `/benchmark/`.
+3. Submit marketplace / MCP hub listings beyond the Official MCP Registry after
    human review of copy, screenshots, and registry-specific schemas.
-3. Repeat Claude Code, Cursor, and Qwen Code golden paths with fresh users and
+4. Repeat Claude Code, Cursor, and Qwen Code golden paths with fresh users and
    record second-day retention.
 
 ## Evidence Storage

@@ -17,6 +17,8 @@ Release status:
 - Public API health: `https://api.lorecontext.com/health` returns ok.
 - MCP Registry: `io.github.Lore-Context/lore-context-mcp` active; GHCR image
   `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` public.
+- HN launch pages: `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`,
+  and `/benchmark/` are in the website release train.
 
 See [release-status.md](release-status.md)
 for the public-safe release snapshot.
@@ -40,6 +42,7 @@ Shipped:
 - Redacted quickstart activation reports for dry-run and real first-value proof.
 - Public-safe eval report CLI and smoke coverage for eval/MIF export.
 - Distribution, launch, and design partner intake materials for human-reviewed release work.
+- Public launch pages for quickstart, v0.6 changelog narrative, and benchmark methodology.
 
 Still validating:
 
@@ -53,6 +56,7 @@ Still validating:
 - public-safe eval report on design-partner data;
 - marketplace / hub submissions beyond the Official MCP Registry;
 - Show HN retry after the account can post Show HNs;
+- production verification for the current HN launch pages after each website deploy;
 - second-day retention and willingness to pay for private deployment/support.
 
 ## Current validation focus after v0.6
@@ -81,6 +85,8 @@ Explicit non-goals:
 - No managed cloud sync.
 - No remote MCP HTTP as the default path.
 - No fake benchmark claims.
+- No public npm quickstart package claim until `@lore-context/quickstart` is
+  actually published and verified from a fresh shell.
 - No autonomous outreach posting or marketplace submission.
 
 Success metrics:

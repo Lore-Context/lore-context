@@ -82,7 +82,7 @@ async function verifyReleaseAssets() {
 async function verifyDesktop(browser) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   await page.goto(`${baseUrl}/en/`, { waitUntil: "networkidle" });
-  await page.getByRole("heading", { name: "Lore Context." }).waitFor();
+  await page.getByRole("heading", { name: "Audit, govern, and migrate your AI agent's memory." }).waitFor();
   await page.getByText("Agents remember. Teams need proof.", { exact: true }).waitFor();
   await page.locator(".surface .ledger-row").first().waitFor();
   await page.locator(".system-board").waitFor();
@@ -103,7 +103,7 @@ async function verifyMobile(browser) {
   try {
     const page = await context.newPage();
     await page.goto(`${baseUrl}/en/`, { waitUntil: "networkidle" });
-    await page.getByRole("heading", { name: "Lore Context." }).waitFor();
+    await page.getByRole("heading", { name: "Audit, govern, and migrate your AI agent's memory." }).waitFor();
     await assertNoHorizontalOverflow(page, "mobile /en/");
 
     await page.locator(".lang-menu summary").click();
