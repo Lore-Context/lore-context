@@ -13,21 +13,22 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | Public `main` | release tag plus post-release closure, integration validation, MCP Registry, adoption validation, marketplace assets, and HN launch-readiness commits |
+| Latest public source | `8637e37546b24caba4f170182beca613f0ba6d09`; GitHub Actions run `25120831678`, success |
 | MCP distribution baseline | `1914718c3136fab2f7eed167445e97a910b62bb0`; GitHub Actions run `25110357633`, success |
 | Adoption closure source | `1a64980682216d715d0da40a37ee03b0a752f9e9`; GitHub Actions run `25112973276`, success |
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |
 | AI-readable docs | `https://lorecontext.com/llms.txt`, `https://lorecontext.com/llms-full.txt` |
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
 | npm MCP server package | `@lore-context/server@0.6.0-alpha.1`, public and fresh-install verified |
-| MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active |
+| MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active; lists npm and OCI package entries |
 | MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`, public |
 | Launch website surfaces | Live: homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap verified after the current Cloudflare Pages production deploy |
 | Launch-readiness source | `f7fe14234ca89c02397da230de3e27f90576c469`; GitHub Actions run `25115346417`, success |
 
 The release tag points at the original `v0.6.0-alpha` release commit. Public
 `main` includes later release-closure, integration-validation, distribution,
-and adoption-closure fixes. Do not rewrite the public tag unless a future
-release decision explicitly requires it.
+adoption-closure, npm-backed MCP Registry, and launch-readiness fixes. Do not
+rewrite the public tag unless a future release decision explicitly requires it.
 
 ## What v0.6 proves
 
@@ -40,9 +41,11 @@ release decision explicitly requires it.
   benchmark methodology pages that avoid unsupported benchmark-win claims.
 - Project-scoped Cursor and Qwen Code MCP configs are present in `.cursor/mcp.json`
   and `.qwen/settings.json`.
-- MCP Registry metadata is valid in `server.json`; the OCI image is public on
-  GHCR, `@lore-context/server@0.6.0-alpha.1` is published on npm, and GitHub
-  Actions run `25120707303` published the active Official MCP Registry listing.
+- MCP Registry metadata is valid in `server.json`; the Official Registry listing
+  is active and exposes both public install paths: npm
+  `@lore-context/server@0.6.0-alpha.1` and GHCR OCI
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`. GitHub Actions run
+  `25120707303` published the active listing.
 
 ## What v0.6 does not claim
 

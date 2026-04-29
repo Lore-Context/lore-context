@@ -2,8 +2,9 @@
 
 This folder contains human-reviewed distribution materials for the v0.6
 Distribution and Trust Sprint. The Official MCP Registry listing is now
-published; the remaining files are drafts and metadata sources for additional
-hubs, galleries, marketplaces, and community surfaces. Review
+published with both npm and OCI package entries; the remaining files are drafts
+and metadata sources for additional hubs, galleries, marketplaces, and community
+surfaces. Review
 [submission-review.md](submission-review.md) before submitting anything beyond
 the Official MCP Registry.
 

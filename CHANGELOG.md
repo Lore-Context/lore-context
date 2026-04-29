@@ -67,10 +67,13 @@ turning Lore into a hosted SaaS claim.
   path.
 - Marketplace, Show HN, Reddit, Discord, and partner outreach drafts remain
   human-reviewed materials; the release does not auto-submit them.
-- Post-release distribution closure: Official MCP Registry publication completed
-  through GitHub Actions run `25111065964`; the GHCR image
-  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` is public and the
-  Registry listing `io.github.Lore-Context/lore-context-mcp` is active.
+- Post-release distribution closure: Official MCP Registry publication is active
+  through GitHub Actions run `25120707303`. The Registry entry
+  `io.github.Lore-Context/lore-context-mcp` now lists both the public npm
+  package `@lore-context/server@0.6.0-alpha.1` and the public GHCR image
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`; the latest public
+  docs/distribution source is `8637e37546b24caba4f170182beca613f0ba6d09` with
+  CI run `25120831678` passing.
 - Post-release adoption closure: Cursor Agent prompt-level MCP validation now
   succeeds against demo data, and `context_query` MCP text includes `Trace ID`
   so clients that do not expose `structuredContent` can still open the Evidence

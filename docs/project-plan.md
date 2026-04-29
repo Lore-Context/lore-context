@@ -10,10 +10,11 @@ Last updated: 2026-04-29
 
 - GitHub Release: `v0.6.0-alpha` pre-release，发布时间 `2026-04-29T08:50:21Z`。
 - Release tag: `v0.6.0-alpha` 指向 release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
-- Public `main`: release tag 之后已有文档、分发、MCP Registry、Cursor adoption validation 和 marketplace asset 闭环提交。
+- Public `main`: release tag 之后已有文档、分发、npm MCP package、MCP Registry、Cursor/Qwen adoption validation、marketplace asset 和 HN launch-readiness 闭环提交；最新公开 HEAD `8637e37546b24caba4f170182beca613f0ba6d09`，CI run `25120831678` passed。
+- Closed `lore-cloud` main: 已同步 npm-backed MCP Registry 状态，HEAD `53feedd07c08a68f9e98797ec3c1ff216049bd88`，CI run `25120962371` passed。
 - MCP distribution baseline: `1914718c3136fab2f7eed167445e97a910b62bb0`，GitHub Actions run `25110357633` passed。
 - Adoption closure source: `1a64980682216d715d0da40a37ee03b0a752f9e9`，GitHub Actions run `25112973276` passed。
-- MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T16:23:19.42298Z`；GHCR 镜像 `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` 已公开。
+- MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T16:23:19.42298Z`；Registry 当前列出 npm `@lore-context/server@0.6.0-alpha.1` 和 GHCR OCI `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` 两条公共安装路径。
 - npm MCP server package: `@lore-context/server@0.6.0-alpha.1` 已发布；fresh install 后 `lore-context-server` 通过 MCP SDK `tools/list` 返回 11 个工具。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
@@ -38,17 +39,19 @@ Last updated: 2026-04-29
 | 公开版本 | `v0.6.0-alpha` pre-release |
 | 根版本 | `0.6.0-alpha.0` |
 | 公开仓库 | `Lore-Context/lore-context` |
-| 当前公开线 | `main`，release tag 之后包含 release-closure、integration validation、MCP distribution、Cursor adoption validation、marketplace asset 和 HN launch-readiness commits |
+| 当前公开线 | `main`，HEAD `8637e37546b24caba4f170182beca613f0ba6d09`；release tag 之后包含 release-closure、integration validation、npm MCP package、MCP distribution、Cursor/Qwen adoption validation、marketplace asset 和 HN launch-readiness commits |
 | 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | MCP distribution baseline | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
 | Adoption closure CI | run `25112973276`, success on `1a64980682216d715d0da40a37ee03b0a752f9e9` |
 | Launch-readiness CI | run `25115346417`, success on `f7fe14234ca89c02397da230de3e27f90576c469` |
+| Latest public CI | run `25120831678`, success on `8637e37546b24caba4f170182beca613f0ba6d09` |
+| Closed repo sync | `lore-cloud` main at `53feedd07c08a68f9e98797ec3c1ff216049bd88`; CI run `25120962371`, success |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` live on production domains |
 | Public API | `https://api.lorecontext.com/health` returns ok |
-| MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; publish workflow run `25120707303`, success |
+| MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; npm + OCI package entries live; publish workflow run `25120707303`, success |
 | npm MCP server package | `@lore-context/server@0.6.0-alpha.1` public; fresh install + MCP `tools/list` verified |
 | HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
 | 私有云端组件 | 存在并在闭源仓库维护，不属于公开 alpha 承诺 |
@@ -99,7 +102,7 @@ Last updated: 2026-04-29
 | Claude Code golden path | 完成；真实 `claude mcp add/list/get` 跑通，并修复了参数顺序文档问题 | 收集用户按文档自助跑通证据 |
 | Cursor golden path | 完成；`cursor-agent` 登录后，真实 prompt-level `context_query` 返回 trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145` 且匹配 seeded memory；`trace_get` 返回 2 retrieved / 2 used | 后续用真实用户重复验证 |
 | Qwen Code golden path | 完成；`@qwen-code/qwen-code` `0.15.5` 已安装，`qwen mcp list` 连接项目 `.qwen/settings.json`，非交互 Qwen Code 成功调用 `mcp__lore__context_query` | 后续用真实用户重复验证 |
-| Official MCP Registry | 完成；`server.json` 通过校验，GHCR OCI 镜像公开，workflow `25120707303` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
+| Official MCP Registry | 完成；`server.json` 通过校验，npm package 和 GHCR OCI 镜像均公开，workflow `25120707303` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
 | npm MCP server package | 完成；`@lore-context/server@0.6.0-alpha.1` 已发布到 npm，`npm view` / dist-tags / fresh install / MCP `tools/list` 均通过 | 后续把 npx 安装路径纳入 marketplace 和 fresh-user 文档 |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
 | HN launch website readiness | 已完成；quickstart/blog/benchmark 页面在线上，且文案不再声明未证实 benchmark win | 后续每次官网部署后重复生产域名、sitemap 和移动端 smoke 复核 |
@@ -148,7 +151,7 @@ Lore 不应把自己定位成“更便宜的 memory database”。v0.6 已经把
 | 优先级 | 工作 | 成功证据 |
 |---|---|---|
 | P0 | Design partner intake | 3-5 个目标用户进入 activation scorecard |
-| P0 | Marketplace / MCP hub metadata 人审 | Official MCP Registry 已完成；demo screenshot 素材已生成；其他 marketplace/hub 需人工最终提交 |
+| P0 | Marketplace / MCP hub metadata 人审 | Official MCP Registry 已完成；npm + OCI 两条公共安装路径已验证；demo screenshot 素材已生成；其他 marketplace/hub 需人工最终提交 |
 | P0 | Show HN retry preparation | draft 已保存；账号限制解除后由人审重试 |
 | P0 | HN launch website redeploy verification | 本轮已完成；后续每次官网部署后复验 `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, sitemap 和首页首屏 |
 | P0 | clean checkout activation timing follow-up | 已有机器验证；再补真实用户计时 |
@@ -184,6 +187,8 @@ pnpm audit --prod
 
 - GitHub release and tag verified.
 - Public `main` CI verified.
+- Latest public docs/distribution commit `8637e37546b24caba4f170182beca613f0ba6d09` verified by CI run `25120831678`.
+- Closed `lore-cloud` mirror commit `53feedd07c08a68f9e98797ec3c1ff216049bd88` verified by CI run `25120962371`.
 - Website production domains verified.
 - `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified.
 - Public API health verified.
