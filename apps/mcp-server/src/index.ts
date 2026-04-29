@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
@@ -702,7 +705,18 @@ class ProtocolError extends Error {
   }
 }
 
-if (process.argv[1]?.endsWith("/dist/index.js")) {
+function isCliEntrypoint(): boolean {
+  const invokedPath = process.argv[1];
+  if (!invokedPath) return false;
+  const modulePath = fileURLToPath(import.meta.url);
+  try {
+    return realpathSync(invokedPath) === realpathSync(modulePath);
+  } catch {
+    return invokedPath === modulePath || invokedPath.endsWith("/dist/index.js");
+  }
+}
+
+if (isCliEntrypoint()) {
   if (process.env.LORE_MCP_TRANSPORT === "sdk") {
     await runSdkStdioServer();
   } else {

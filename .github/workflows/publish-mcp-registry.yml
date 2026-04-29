@@ -27,7 +27,9 @@ jobs:
       - name: Verify server metadata version
         run: |
           test "$(jq -r '.version' server.json)" = "${{ inputs.version }}"
-          test "$(jq -r '.packages[0].identifier' server.json)" = "${IMAGE}:${{ inputs.version }}"
+          test "$(jq -r '.packages[] | select(.registryType == "oci") | .identifier' server.json)" = "${IMAGE}:${{ inputs.version }}"
+          test "$(jq -r '.packages[] | select(.registryType == "npm") | .identifier' server.json)" = "@lore-context/server"
+          test "$(jq -r '.packages[] | select(.registryType == "npm") | .version' server.json)" = "${{ inputs.version }}"
 
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin

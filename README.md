@@ -77,6 +77,9 @@ setup (Postgres, Docker Compose, Dashboard, MCP integration), see
 
 The canonical alpha quickstart is `git clone` + `pnpm quickstart`. Lore does
 not currently publish or claim a public `@lore-context/quickstart` npm package.
+The MCP stdio server is published separately as
+[`@lore-context/server`](https://www.npmjs.com/package/@lore-context/server)
+for registry and client distribution.
 
 For AI-readable discovery, the website publishes `/llms.txt` and `/llms-full.txt`
 from public documentation only. The Official MCP Registry entry is published,
@@ -138,6 +141,7 @@ For detail, see [docs/architecture.md](docs/architecture.md).
 | Docker Compose private deployment | ✅ Production | `docker-compose.yml` |
 | Demo dataset + smoke tests + Playwright UI test | ✅ Production | `examples/`, `scripts/` |
 | Official MCP Registry + distribution docs, launch drafts, design partner intake | ✅ Alpha | `server.json`, `docs/distribution/`, `docs/launch/`, `docs/design-partners/` |
+| npm MCP server package | ✅ Alpha | `@lore-context/server@0.6.0-alpha.0` |
 | Hosted multi-tenant cloud sync | ⏳ Roadmap | — |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full v0.6.0-alpha release notes.
@@ -148,7 +152,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the full v0.6.0-alpha release notes.
 to `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`; public `main` includes the
 release-closure, integration-validation, and distribution commits with passing
 CI. The production website, AI-readable docs, public API health endpoint, GHCR
-MCP image, and Official MCP Registry listing are live.
+MCP image, npm MCP server package, and Official MCP Registry listing are live.
 
 See [docs/release-status.md](docs/release-status.md) for the current public-safe
 status snapshot.
@@ -166,7 +170,9 @@ Shipped v0.6 work:
 - `pnpm quickstart -- --activation-report` with redacted dry-run and real first-value proof;
 - stricter activation proof that fails instead of skipping when the target port is occupied;
 - public-safe eval reporting and smoke coverage for eval export plus MIF JSON export;
-- Official MCP Registry publication plus distribution metadata drafts for marketplace listings and agent plugins;
+- `@lore-context/server@0.6.0-alpha.0` npm publication, Official MCP Registry
+  publication, plus distribution metadata drafts for marketplace listings and
+  agent plugins;
 - launch content drafts and design partner intake/scorecard workflow;
 - HN-ready website surfaces for quickstart, v0.6 changelog narrative, and benchmark methodology.
 

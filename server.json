@@ -11,6 +11,37 @@
   "version": "0.6.0-alpha.0",
   "packages": [
     {
+      "registryType": "npm",
+      "identifier": "@lore-context/server",
+      "version": "0.6.0-alpha.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "LORE_API_URL",
+          "description": "Base URL of the Lore API that the MCP server should proxy tool calls to.",
+          "default": "http://127.0.0.1:3000",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "LORE_API_KEY",
+          "description": "Optional Lore API key when the API is configured to require authentication.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "LORE_MCP_TRANSPORT",
+          "description": "MCP stdio transport implementation. Use sdk unless debugging legacy JSON-RPC mode.",
+          "default": "sdk",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    },
+    {
       "registryType": "oci",
       "identifier": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0",
       "transport": {

@@ -1,14 +1,51 @@
 {
-  "name": "@lore/mcp-server",
+  "name": "@lore-context/server",
   "version": "0.6.0-alpha.0",
-  "private": true,
+  "description": "MCP stdio server for Lore Context memory, Evidence Ledger traces, evals, and governance tools.",
+  "private": false,
   "type": "module",
+  "bin": {
+    "lore-context-server": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "agent-memory",
+    "lore-context",
+    "evidence-ledger"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://lorecontext.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lore-Context/lore-context.git",
+    "directory": "apps/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/Lore-Context/lore-context/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@lore/shared": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.3.6"
   }

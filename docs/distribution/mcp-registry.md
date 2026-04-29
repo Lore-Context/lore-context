@@ -12,12 +12,17 @@ The official MCP Registry is for publicly accessible MCP servers. Server
 metadata must point to a public install method, such as an npm package, public
 OCI image, or public remote server.
 
-Current publication path:
+Current publication paths:
 
-- `server.json` uses the official `oci` package type.
+- `server.json` lists both npm and OCI package entries.
+- npm package: `@lore-context/server@0.6.0-alpha.0`.
 - OCI image: `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`.
 - MCP server name: `io.github.Lore-Context/lore-context-mcp`.
 - `mcp-publisher validate` succeeds locally.
+- npm org `@lore-context` exists; the package page is public; `npm view` returns
+  package metadata; `npm dist-tag ls` returns `alpha` and `latest`; fresh
+  install from a temporary directory succeeded; the installed
+  `lore-context-server` returned 11 tools from MCP `tools/list`.
 - `.github/workflows/publish-mcp-registry.yml` builds, smokes, pushes the GHCR
   image, authenticates with `github-oidc`, and publishes the registry entry.
 - GitHub Actions run `25111065964` succeeded.
@@ -38,8 +43,9 @@ Current publication path:
   "license": "Apache-2.0",
   "repository": "https://github.com/Lore-Context/lore-context",
   "website": "https://lorecontext.com",
-  "runtime": "OCI / node>=22",
+  "runtime": "npm / OCI / node>=22",
   "transport": "stdio",
+  "npm": "@lore-context/server@0.6.0-alpha.0",
   "image": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0",
   "environment": {
     "LORE_API_URL": "http://127.0.0.1:3000",
@@ -80,6 +86,14 @@ In the MCP client, point the server command at:
 
 ```bash
 node /absolute/path/to/lore-context/apps/mcp-server/dist/index.js
+```
+
+For an npm-based client install:
+
+```bash
+LORE_API_URL=http://127.0.0.1:3000 \
+LORE_MCP_TRANSPORT=sdk \
+npx -y @lore-context/server@0.6.0-alpha.0
 ```
 
 ## Verification
