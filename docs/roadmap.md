@@ -22,8 +22,9 @@ Release status:
 - Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` live.
 - AI-readable docs: `/llms.txt` and `/llms-full.txt` live.
 - Public API health: `https://api.lorecontext.com/health` returns ok.
-- MCP Registry: `io.github.Lore-Context/lore-context-mcp` active; GHCR image
-  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` public.
+- MCP Registry: `io.github.Lore-Context/lore-context-mcp` active; Registry
+  lists npm `@lore-context/server@0.6.0-alpha.1` and OCI
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`.
 - npm MCP server package: `@lore-context/server@0.6.0-alpha.1` public; fresh
   install and MCP `tools/list` verified.
 - HN launch pages: `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`,

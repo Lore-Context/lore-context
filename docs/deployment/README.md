@@ -10,6 +10,11 @@ not record private AWS instance IDs, SSM command IDs, account identifiers, or
 secret-bearing runbook details. Those belong in the private cloud repository and
 internal operator notes.
 
+Post-release documentation and distribution commits can be newer than the
+deployed private-demo API application source when runtime code did not change.
+Verify AWS production with SSM plus the public health endpoint before claiming a
+new runtime deployment.
+
 For the public-safe release snapshot, see
 [release-status.md](../release-status.md).
 

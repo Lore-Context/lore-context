@@ -1148,13 +1148,13 @@ function pageBody(locale, slug) {
   if (slug === "docs") return docsPageBody(locale);
   const rows = {
     architecture: [["API", "REST /v1/context, /v1/memory, /v1/eval"], ["Transport", "MCP stdio"], ["Storage", "Postgres 16 audit log"], ["Governance", "review, redact, reject, forget"]],
-    changelog: [["v0.6.0-alpha", "AI-readable docs, activation evidence, public-safe demos, distribution metadata"], ["v0.5.0-alpha", "OpenAPI, quickstart, Evidence Ledger, golden integrations"], ["v0.4.0-alpha", "production hardening, local alpha proof, deterministic static build"]],
+    changelog: [["v0.6.0-alpha", "AI-readable docs, activation evidence, npm + OCI MCP Registry distribution, public-safe demos"], ["v0.5.0-alpha", "OpenAPI, quickstart, Evidence Ledger, golden integrations"], ["v0.4.0-alpha", "production hardening, local alpha proof, deterministic static build"]],
     company: [["Legal entity", "REDLAND PTE. LTD."], ["UEN", "202304648K"], ["Registered office", "1 North Bridge Road, #11-02, High Street Centre, Singapore 179094"], ["Activity", "Software and application development"]],
     contact: [["Email", "redland2024@gmail.com"], ["Response scope", "Product, security, privacy, and partnership questions"], ["GitHub", githubUrl]],
     privacy: [["Data posture", "Local-first alpha; private deployment by default"], ["Website", "No advertising cookies or third-party tracking scripts"], ["Requests", "Contact redland2024@gmail.com for access, correction, or deletion requests"]],
     terms: [["Alpha notice", "Lore Context is provided for testing and evaluation"], ["No production warranty", "Validate your own use case before relying on it"], ["Governing law", "Singapore, unless a signed agreement says otherwise"]],
     cookies: [["Required cookies", "None for static browsing"], ["Local storage", "Only locale preference may be saved"], ["Advertising", "No advertising cookie layer is included"]],
-    status: [["Website", "Static and edge-cache friendly"], ["Current release", "v0.6.0-alpha · OpenAPI, quickstart, Evidence Ledger"], ["Local alpha", "Runs in your environment"], ["Incidents", "Use your own deployment logs and smoke checks"]]
+    status: [["Website", "Static and edge-cache friendly"], ["Current release", "v0.6.0-alpha · OpenAPI, quickstart, Evidence Ledger"], ["MCP distribution", "@lore-context/server@0.6.0-alpha.1 on npm plus GHCR OCI image"], ["Registry", "Official MCP Registry active with npm and OCI install paths"], ["Local alpha", "Runs in your environment"], ["Incidents", "Use your own deployment logs and smoke checks"]]
   }[slug];
   return `<dl>${rows.map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${renderInfoValue(value)}</dd>`).join("")}</dl><p class="notice">${escapeHtml(t.notice)}</p>`;
 }
@@ -1352,7 +1352,7 @@ function changelogBlogPage() {
             <dt>Activation proof</dt><dd><code>pnpm quickstart -- --activation-report</code> produces redacted first-value evidence instead of asking users to trust a README.</dd>
             <dt>AI-readable docs</dt><dd><code>/llms.txt</code>, <code>/llms-full.txt</code>, canonical metadata, and public-source boundaries are live for assistants and search.</dd>
             <dt>Agent clients</dt><dd>Claude Code, Cursor Agent, and Qwen Code golden paths were validated against the documented MCP configuration.</dd>
-            <dt>MCP distribution</dt><dd>The Official MCP Registry entry is active, backed by the public GHCR OCI image.</dd>
+            <dt>MCP distribution</dt><dd>The Official MCP Registry entry is active and lists both <code>@lore-context/server@0.6.0-alpha.1</code> on npm and the public GHCR OCI image.</dd>
             <dt>Launch materials</dt><dd>Show HN, marketplace copy, screenshots, design partner intake, and publication guardrails are prepared for human review.</dd>
           </dl>
           <p class="notice">What v0.6 still does not claim: public hosted SaaS, billing, managed cloud sync, production readiness, or benchmark wins.</p>

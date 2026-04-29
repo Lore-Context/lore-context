@@ -24,6 +24,7 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`, public |
 | Launch website surfaces | Live: homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap verified after the current Cloudflare Pages production deploy |
 | Launch-readiness source | `f7fe14234ca89c02397da230de3e27f90576c469`; GitHub Actions run `25115346417`, success |
+| AWS-backed public API runtime | Healthy at the public health endpoint; private AWS instance, SSM, and account details stay in closed operator notes |
 
 The release tag points at the original `v0.6.0-alpha` release commit. Public
 `main` includes later release-closure, integration-validation, distribution,
@@ -46,6 +47,9 @@ rewrite the public tag unless a future release decision explicitly requires it.
   `@lore-context/server@0.6.0-alpha.1` and GHCR OCI
   `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`. GitHub Actions run
   `25120707303` published the active listing.
+- The AWS-backed public API health endpoint is live. The deployed API application
+  source can remain older than docs/distribution-only commits when runtime code
+  did not change.
 
 ## What v0.6 does not claim
 

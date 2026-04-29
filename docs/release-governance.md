@@ -134,11 +134,22 @@ Publication record:
 
 - Public release: `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha`.
 - Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
-- Public `main` closure commit: `38fe564917de5756d8a937706a9e1120e2c26356`.
-- GitHub Actions gate: run `25102174056`, passed.
+- Public application closure source: `38fe564917de5756d8a937706a9e1120e2c26356`;
+  GitHub Actions gate run `25102174056`, passed.
+- Public `main` now also contains post-release integration validation, npm-backed
+  MCP Registry, adoption validation, marketplace assets, HN launch-readiness,
+  and status-doc refresh commits.
+- MCP Registry publication: `io.github.Lore-Context/lore-context-mcp` active;
+  `@lore-context/server@0.6.0-alpha.1` on npm and
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` on GHCR are the current
+  public install paths; workflow run `25120707303` passed.
 - Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` verified with v0.6 content.
 - AI-readable docs: `/llms.txt`, `/llms-full.txt`, and `robots.txt` LLMs pointer verified.
 - Public API health: `https://api.lorecontext.com/health` returns ok.
+- AWS-backed private demo runtime: application source remains the public
+  application closure source; later docs/distribution-only commits do not require
+  an API redeploy. Private instance IDs, SSM command IDs, and account details
+  stay out of public docs.
 - Public status snapshot: [release-status.md](release-status.md).
 
 The remaining governance task after v0.6 is to clean up local workflow:

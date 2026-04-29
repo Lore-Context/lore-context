@@ -9,7 +9,7 @@ submit to third-party sites from automation without final human approval.
 
 | Surface | Current status | Submit now? | Blocker / next action |
 |---|---|---:|---|
-| Official MCP Registry | published | complete | `server.json` validates; GHCR image is public; workflow run `25120707303` published the active listing for `io.github.Lore-Context/lore-context-mcp`. |
+| Official MCP Registry | published | complete | `server.json` validates; npm and OCI package entries are live; workflow run `25120707303` published the active listing for `io.github.Lore-Context/lore-context-mcp`. |
 | npm MCP server package | published and verified | yes | `@lore-context/server@0.6.0-alpha.1` is public on npm, has `alpha` + `latest` dist-tags, installs from a fresh temporary directory, and lists 11 MCP tools over the SDK stdio transport. |
 | MCP hubs / community directories | draft-ready with demo screenshots | human review first | Use public GitHub repo, website, Official MCP Registry entry, and `docs/distribution/assets/`; make alpha status visible. |
 | GitHub topics / repository metadata | ready | human review first | Align with `agent-memory`, `mcp`, `governance`, `eval`, `observability`, `local-first`. |
@@ -33,7 +33,9 @@ Current distribution paths are npm and OCI:
   `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`.
 - The npm package page is public; fresh install from npm succeeds; the installed
   CLI lists 11 MCP tools over the SDK stdio transport.
-- `server.json` describes `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`.
+- `server.json` describes both public install entries: npm
+  `@lore-context/server@0.6.0-alpha.1` and OCI
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`.
 - The image label `io.modelcontextprotocol.server.name` matches
   `io.github.Lore-Context/lore-context-mcp`.
 - `mcp-publisher validate` succeeds locally.

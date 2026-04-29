@@ -20,6 +20,7 @@ Last updated: 2026-04-29
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
 - HN launch website surfaces: `/quickstart/`、`/blog/v0-6-distribution-and-trust-sprint/`、`/benchmark/` 已部署到生产官网并通过 `lorecontext.com` / `www.lorecontext.com` 验证；源码移除了未被公开报告支撑的 benchmark-win 数字。
 - Public API health: `https://api.lorecontext.com/health` 返回 `status: ok`。
+- AWS-backed public API runtime: 当前线上 API 健康；运行时仍可停留在 v0.6 application closure source，因为后续 npm/Registry/文档提交不改变 API runtime。私有 AWS instance、SSM command 和账号细节只记录在闭源 operator notes。
 
 公开状态快照记录在 [release-status.md](release-status.md)。发布后的采用验证证据记录在
 [adoption-validation.md](adoption-validation.md)。
@@ -51,6 +52,7 @@ Last updated: 2026-04-29
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` live on production domains |
 | Public API | `https://api.lorecontext.com/health` returns ok |
+| AWS/API runtime | public health ok; private AWS/SSM details remain closed-only |
 | MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; npm + OCI package entries live; publish workflow run `25120707303`, success |
 | npm MCP server package | `@lore-context/server@0.6.0-alpha.1` public; fresh install + MCP `tools/list` verified |
 | HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
