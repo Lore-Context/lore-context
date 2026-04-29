@@ -14,7 +14,7 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | Public `main` | release tag plus post-release closure, integration validation, and distribution commits |
 | Latest verified distribution source | `1914718c3136fab2f7eed167445e97a910b62bb0` |
-| CI | GitHub Actions run `25110357633`, success on `1914718c` |
+| MCP distribution CI | GitHub Actions run `25110357633`, success on `1914718c` |
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |
 | AI-readable docs | `https://lorecontext.com/llms.txt`, `https://lorecontext.com/llms-full.txt` |
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |

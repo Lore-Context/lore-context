@@ -11,7 +11,7 @@ Last updated: 2026-04-29
 - GitHub Release: `v0.6.0-alpha` pre-release，发布时间 `2026-04-29T08:50:21Z`。
 - Release tag: `v0.6.0-alpha` 指向 release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
 - Public `main`: release tag 之后已有文档、分发和 MCP Registry 闭环提交；最新已验证分发源为 `1914718c3136fab2f7eed167445e97a910b62bb0`。
-- Public CI: GitHub Actions run `25110357633` passed on `1914718c`。
+- MCP distribution CI: GitHub Actions run `25110357633` passed on `1914718c`。
 - MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T13:16:42Z`；GHCR 镜像 `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` 已公开。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
@@ -38,7 +38,7 @@ Last updated: 2026-04-29
 | 当前公开线 | `main`，release tag 之后包含 release-closure、integration validation、MCP distribution commits |
 | 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
-| CI | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
+| MCP distribution CI | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | Public API | `https://api.lorecontext.com/health` returns ok |
