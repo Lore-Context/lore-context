@@ -86,8 +86,8 @@ Last updated: 2026-04-29
 |---|---|---|
 | clean checkout activation timing | 完成；fresh clone 到 first `context.query` 和 first Evidence Ledger 均为 `10.13s` | 用真实用户 session 复核可重复性 |
 | Claude Code golden path | 完成；真实 `claude mcp add/list/get` 跑通，并修复了参数顺序文档问题 | 收集用户按文档自助跑通证据 |
-| Cursor golden path | 部分完成；MCP stdio JSON 模板直连验证通过；本机有 Cursor desktop，但缺少可非交互列工具的 `cursor-agent` CLI | 用 Cursor desktop 或经批准安装 `cursor-agent` 后完成 copy-paste 验证 |
-| Qwen Code golden path | 部分完成；MCP stdio JSON 模板直连验证通过，但本机未安装真实 Qwen Code 客户端 | 安装或获得 Qwen Code 客户端后完成 copy-paste 验证 |
+| Cursor golden path | MCP client 管理路径完成；`cursor-agent` 已安装，项目 `.cursor/mcp.json` 被发现，`mcp enable/list/list-tools lore` 列出 11 个 Lore tools；prompt 级调用仍缺 Cursor auth | 提供 Cursor login 或 `CURSOR_API_KEY` 后补一次 prompt-level context_query |
+| Qwen Code golden path | 完成；`@qwen-code/qwen-code` `0.15.5` 已安装，`qwen mcp list` 连接项目 `.qwen/settings.json`，非交互 Qwen Code 成功调用 `mcp__lore__context_query` | 后续用真实用户重复验证 |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
 | public-safe eval report on partner data | 未完成 | 等 design partner 提供 sanitized data 或使用公开 fixture |
 | design partner workflow validation | 未完成 | 目标 3-5 个 activation scorecard |
@@ -133,7 +133,7 @@ Lore 不应把自己定位成“更便宜的 memory database”。v0.6 已经把
 
 | 优先级 | 工作 | 成功证据 |
 |---|---|---|
-| P0 | Cursor / Qwen Code 真实客户端 fresh-user 验证 | 不再只验证 stdio JSON；真实客户端按公开文档 copy-paste 跑通 |
+| P0 | Cursor prompt-level 验证 | Cursor MCP discovery/tool listing 已完成；补 Cursor auth 后跑 prompt-level context_query |
 | P0 | Design partner intake | 3-5 个目标用户进入 activation scorecard |
 | P0 | MCP Registry / marketplace metadata 人审 | `docs/distribution/` 通过 schema / screenshot / human review 后提交 |
 | P0 | Show HN retry preparation | draft 已保存；账号限制解除后由人审重试 |
@@ -174,7 +174,11 @@ pnpm audit --prod
 - `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified.
 - Public API health verified.
 - Clean checkout activation machine timing captured.
-- Claude Code actual-client path verified; Cursor and Qwen remain blocked on real-client availability.
+- Claude Code actual-client path verified.
+- Cursor MCP discovery/tool listing verified; prompt-level use needs Cursor auth.
+- Qwen Code actual-client context query verified.
+- MCP Registry `server.json` validates; GHCR/registry publish is automated in
+  `.github/workflows/publish-mcp-registry.yml`.
 - Private cloud and AWS production evidence are tracked in internal operator notes, not public docs.
 
 ## 5. ADR: v0.6 之后的方向

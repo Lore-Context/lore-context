@@ -1,7 +1,6 @@
 # MCP Registry Metadata
 
-Status: draft source, not submitted. Not ready for official MCP Registry
-submission until Lore publishes a public MCP server distribution artifact.
+Status: validated source, publish pending through GitHub Actions.
 
 Use this as the canonical input when creating MCP registry, hub, or gallery
 listings for Lore Context. Human review is required before submission.
@@ -12,20 +11,14 @@ The official MCP Registry is for publicly accessible MCP servers. Server
 metadata must point to a public install method, such as an npm package, public
 OCI image, or public remote server.
 
-Current blocker:
+Current submission path:
 
-- `apps/mcp-server/package.json` is a private workspace package
-  (`"private": true`).
-- No public `@lore/mcp-server` or `@lore-context/mcp-server` npm package is
-  published.
-- Lore does not expose a public remote MCP HTTP endpoint in `v0.6.0-alpha`.
-
-Do not submit to the official MCP Registry until one of these is true:
-
-1. a public npm package exists for the Lore MCP server;
-2. a public OCI image exists for the Lore MCP server; or
-3. a public remote MCP endpoint is intentionally released with a reviewed threat
-   model.
+- `server.json` uses the official `oci` package type.
+- OCI image: `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`.
+- MCP server name: `io.github.lore-context/lore-context-mcp`.
+- `mcp-publisher validate` succeeds locally.
+- `.github/workflows/publish-mcp-registry.yml` builds, smokes, pushes the GHCR
+  image, authenticates with `github-oidc`, and publishes the registry entry.
 
 ## Listing
 
@@ -39,9 +32,9 @@ Do not submit to the official MCP Registry until one of these is true:
   "license": "Apache-2.0",
   "repository": "https://github.com/Lore-Context/lore-context",
   "website": "https://lorecontext.com",
-  "runtime": "node>=22",
+  "runtime": "OCI / node>=22",
   "transport": "stdio",
-  "command": "node apps/mcp-server/dist/index.js",
+  "image": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0",
   "environment": {
     "LORE_API_URL": "http://127.0.0.1:3000",
     "LORE_API_KEY": "<reader-or-writer-key>",
@@ -92,6 +85,7 @@ pnpm build
 pnpm smoke:mcp
 pnpm smoke:api
 pnpm openapi:check
+/tmp/mcp-publisher validate
 ```
 
 ## Human Review Checklist

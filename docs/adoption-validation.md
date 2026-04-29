@@ -16,10 +16,10 @@ partner names unless the partner has explicitly approved being named.
 | Public API health | Live | `https://api.lorecontext.com/health` returns `status: ok` |
 | Clean checkout activation | Maintainer-run proof complete | fresh clone to first `context.query`: `10.13s`; first Evidence Ledger view: `10.13s` |
 | Claude Code golden path | Actual client path complete | `claude mcp add/list/get` succeeded after the docs command order was fixed |
-| Cursor golden path | Blocked on client verification | Cursor desktop is present on the validation machine, but the documented `cursor-agent` MCP CLI is not installed; stdio template validation alone is not counted as actual-client proof |
-| Qwen Code golden path | Blocked on client availability | Qwen Code CLI is not installed on the validation machine; stdio template validation alone is not counted as actual-client proof |
+| Cursor golden path | Actual MCP client management path complete; agent prompt blocked on auth | `cursor-agent` installed via Cursor CLI, project `.cursor/mcp.json` discovered, `cursor-agent mcp enable/list/list-tools lore` listed 11 Lore tools. Full prompt-level use still needs Cursor login or `CURSOR_API_KEY`. |
+| Qwen Code golden path | Actual client path complete | `@qwen-code/qwen-code` `0.15.5` installed; `qwen mcp list` connected to project `.qwen/settings.json`; Qwen Code non-interactive run used `mcp__lore__context_query` successfully against a temporary Lore API. |
 | Show HN | Deferred | HN redirected the submitted draft to a new-account Show HN restriction page; no thread URL exists |
-| MCP Registry | Not ready to submit | official registry requires a public package, public OCI image, or public remote server; `@lore/mcp-server` is currently a private workspace package |
+| MCP Registry | Metadata valid; OCI publish workflow prepared | `server.json` validates with `mcp-publisher validate`; local OCI image `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` builds and lists Lore tools. Local GHCR push is blocked by token scope, so `.github/workflows/publish-mcp-registry.yml` publishes via GitHub Actions `packages: write` and MCP Registry OIDC. |
 | Marketplace metadata | Draft, needs review assets | copy is prepared, but listings should not be submitted until screenshots/GIFs and registry-specific schemas are reviewed |
 
 ## Client Validation Rules
@@ -35,17 +35,15 @@ published instructions from a fresh user perspective.
 
 ## Open P0 Tasks
 
-1. Finish Cursor actual-client validation without changing global user config, or
-   document the exact client-side blocker.
-2. Install or access Qwen Code with user approval, then validate the documented
-   `.qwen/settings.json` / `qwen mcp add` path.
+1. Finish Cursor prompt-level validation after Cursor login or `CURSOR_API_KEY`
+   is available. MCP discovery and tool listing are already complete.
+2. Run the MCP Registry/GHCR workflow and verify the public package URL plus
+   official registry listing.
 3. Run 3-5 design partner activation sessions using
    `docs/design-partners/intake.md` and
    `docs/design-partners/activation-scorecard.md`.
 4. Produce at least one public-safe screenshot or terminal GIF before submitting
    marketplace listings.
-5. Create a public MCP server distribution artifact before submitting to the
-   official MCP Registry.
 
 ## Evidence Storage
 

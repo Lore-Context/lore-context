@@ -29,6 +29,10 @@ rewrite the public tag unless a future release decision explicitly requires it.
 - The API exposes OpenAPI, context query, Evidence Ledger, eval, governance, memory, and MIF surfaces.
 - The website and generated docs are public-safe and exclude private runbooks, secrets, customer data, and internal planning folders.
 - Distribution, launch, and design partner materials are ready for human review.
+- Project-scoped Cursor and Qwen Code MCP configs are present in `.cursor/mcp.json`
+  and `.qwen/settings.json`.
+- MCP Registry metadata is valid in `server.json`; an OCI-based publish workflow
+  is prepared for GHCR and official registry submission.
 
 ## What v0.6 does not claim
 
@@ -51,9 +55,16 @@ matrix and open validation tasks.
   users.
 - Claude Code fresh-user golden-path verification: actual CLI add/list/get path
   completed after a documentation fix.
-- Cursor and Qwen Code fresh-user golden-path verification: MCP stdio templates
-  validate directly, but actual-client copy-paste runs are still open because
-  the local validation machine does not have those clients installed.
+- Cursor fresh-user golden-path verification: `cursor-agent` can discover the
+  project config and list 11 Lore tools; prompt-level tool use still requires
+  Cursor login or `CURSOR_API_KEY`.
+- Qwen Code fresh-user golden-path verification: `qwen mcp list` connects to
+  Lore, and a Qwen Code non-interactive run successfully invoked
+  `mcp__lore__context_query` against a temporary Lore API.
+- MCP Registry / marketplace submission: `server.json` validates locally;
+  GHCR image publish and official registry publish are delegated to the
+  `Publish MCP Registry` GitHub Actions workflow because the local GitHub token
+  lacks `write:packages`.
 - Show HN launch: draft is ready, but first submission was deferred by HN's
   new-account Show HN restriction; no thread URL exists yet.
 - Public-safe eval report tested against design-partner data.

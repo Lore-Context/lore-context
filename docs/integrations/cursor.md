@@ -1,9 +1,9 @@
 # Cursor
 
-Status: REST API and local stdio MCP launcher are available. Use the JSON
-template below for Cursor MCP configuration. Actual-client validation remains
-open until Cursor can discover and list/use Lore tools from the documented
-configuration.
+Status: REST API and local stdio MCP launcher are available. Cursor Agent MCP
+discovery is verified: `cursor-agent mcp enable/list/list-tools lore` discovers
+the project config and lists 11 Lore tools. Prompt-level tool use still requires
+Cursor login or `CURSOR_API_KEY`.
 
 ## Recommended Path
 
@@ -38,6 +38,9 @@ Add Lore to Cursor's project MCP JSON configuration at `.cursor/mcp.json`:
 }
 ```
 
+This repository includes that project config with the relative command
+`node apps/mcp-server/dist/index.js`.
+
 If Cursor exposes per-server tool filtering, keep the default allowlist small:
 
 ```json
@@ -68,6 +71,9 @@ Troubleshooting:
 - If the desktop app works but the CLI cannot list MCP tools, record the exact
   Cursor version and whether `cursor-agent` is installed before counting the
   path as complete.
+- If `cursor-agent` can list tools but prompt use fails with authentication,
+  run `agent login` or set `CURSOR_API_KEY`; MCP discovery is already proven in
+  that state.
 
 ## Notes
 

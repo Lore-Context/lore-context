@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "lore": {
+      "command": "node",
+      "args": ["apps/mcp-server/dist/index.js"],
+      "env": {
+        "LORE_API_URL": "http://127.0.0.1:3000",
+        "LORE_MCP_TRANSPORT": "sdk"
+      },
+      "includeTools": [
+        "context_query",
+        "memory_search",
+        "memory_get",
+        "memory_list",
+        "trace_get"
+      ],
+      "timeout": 30000
+    }
+  },
+  "$version": 3
+}

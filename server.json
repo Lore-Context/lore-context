@@ -1,0 +1,52 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.lore-context/lore-context-mcp",
+  "title": "Lore Context",
+  "description": "Governed AI-agent memory, Evidence Ledger traces, evals, and portable context tools.",
+  "websiteUrl": "https://lorecontext.com",
+  "repository": {
+    "url": "https://github.com/Lore-Context/lore-context",
+    "source": "github"
+  },
+  "version": "0.6.0-alpha.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "LORE_API_URL",
+          "description": "Base URL of the Lore API that the MCP server should proxy tool calls to.",
+          "default": "http://host.docker.internal:3000",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "LORE_API_KEY",
+          "description": "Optional Lore API key when the API is configured to require authentication.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "LORE_MCP_TRANSPORT",
+          "description": "MCP stdio transport implementation. Use sdk unless debugging legacy JSON-RPC mode.",
+          "default": "sdk",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "tool": "mcp-publisher",
+      "release": "v0.6.0-alpha.0",
+      "build_info": {
+        "repository": "https://github.com/Lore-Context/lore-context"
+      }
+    }
+  }
+}
