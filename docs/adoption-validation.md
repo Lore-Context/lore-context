@@ -10,7 +10,7 @@ partner names unless the partner has explicitly approved being named.
 
 | Area | Status | Evidence |
 |---|---|---|
-| Public `main` | Post-release closure, distribution, adoption-validation, HN launch-readiness, and npm-backed MCP Registry commits are on `main`; latest source `8637e37546b24caba4f170182beca613f0ba6d09` | CI run `25120831678`, success |
+| Public `main` | Post-release closure, distribution, adoption-validation, HN launch-readiness, npm-backed MCP Registry, and status-doc refresh commits are on `main`; npm-backed Registry closure source `8637e37546b24caba4f170182beca613f0ba6d09` | CI run `25120831678`, success |
 | Production website | Live with HN launch pages | `https://lorecontext.com/`, `https://www.lorecontext.com/quickstart/`, `/benchmark/`, and `/blog/v0-6-distribution-and-trust-sprint/` verified after the current Cloudflare Pages production deploy |
 | AI-readable docs | Live and redeployed | `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified against current website build output |
 | Public API health | Live | `https://api.lorecontext.com/health` returns `status: ok` |

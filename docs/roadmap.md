@@ -11,10 +11,11 @@ Release status:
 - Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
 - Public `main`: release tag plus post-release closure, integration validation,
   distribution, adoption-validation, npm-backed MCP Registry, and HN
-  launch-readiness commits.
-- Latest verified public source:
+  launch-readiness plus status-doc refresh commits.
+- Verified npm-backed Registry closure source:
   `8637e37546b24caba4f170182beca613f0ba6d09`.
-- Latest public CI: GitHub Actions run `25120831678`, success on `8637e37`.
+- npm-backed Registry closure CI: GitHub Actions run `25120831678`, success on
+  `8637e37`.
 - Launch-readiness source:
   `f7fe14234ca89c02397da230de3e27f90576c469`.
 - Launch-readiness CI: GitHub Actions run `25115346417`, success on `f7fe142`.

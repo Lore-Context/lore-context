@@ -10,8 +10,8 @@ Last updated: 2026-04-29
 
 - GitHub Release: `v0.6.0-alpha` pre-release，发布时间 `2026-04-29T08:50:21Z`。
 - Release tag: `v0.6.0-alpha` 指向 release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
-- Public `main`: release tag 之后已有文档、分发、npm MCP package、MCP Registry、Cursor/Qwen adoption validation、marketplace asset 和 HN launch-readiness 闭环提交；最新公开 HEAD `8637e37546b24caba4f170182beca613f0ba6d09`，CI run `25120831678` passed。
-- Closed `lore-cloud` main: 已同步 npm-backed MCP Registry 状态，HEAD `53feedd07c08a68f9e98797ec3c1ff216049bd88`，CI run `25120962371` passed。
+- Public `main`: release tag 之后已有文档、分发、npm MCP package、MCP Registry、Cursor/Qwen adoption validation、marketplace asset、HN launch-readiness 和本轮状态文档刷新提交；npm-backed Registry closure source `8637e37546b24caba4f170182beca613f0ba6d09`，CI run `25120831678` passed。
+- Closed `lore-cloud` main: 已同步 npm-backed MCP Registry 状态并包含本轮状态文档刷新；Registry closure mirror source `53feedd07c08a68f9e98797ec3c1ff216049bd88`，CI run `25120962371` passed。
 - MCP distribution baseline: `1914718c3136fab2f7eed167445e97a910b62bb0`，GitHub Actions run `25110357633` passed。
 - Adoption closure source: `1a64980682216d715d0da40a37ee03b0a752f9e9`，GitHub Actions run `25112973276` passed。
 - MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T16:23:19.42298Z`；Registry 当前列出 npm `@lore-context/server@0.6.0-alpha.1` 和 GHCR OCI `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` 两条公共安装路径。
@@ -39,14 +39,14 @@ Last updated: 2026-04-29
 | 公开版本 | `v0.6.0-alpha` pre-release |
 | 根版本 | `0.6.0-alpha.0` |
 | 公开仓库 | `Lore-Context/lore-context` |
-| 当前公开线 | `main`，HEAD `8637e37546b24caba4f170182beca613f0ba6d09`；release tag 之后包含 release-closure、integration validation、npm MCP package、MCP distribution、Cursor/Qwen adoption validation、marketplace asset 和 HN launch-readiness commits |
+| 当前公开线 | `main`；release tag 之后包含 release-closure、integration validation、npm MCP package、MCP distribution、Cursor/Qwen adoption validation、marketplace asset、HN launch-readiness 和状态文档刷新 commits |
 | 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | MCP distribution baseline | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
 | Adoption closure CI | run `25112973276`, success on `1a64980682216d715d0da40a37ee03b0a752f9e9` |
 | Launch-readiness CI | run `25115346417`, success on `f7fe14234ca89c02397da230de3e27f90576c469` |
-| Latest public CI | run `25120831678`, success on `8637e37546b24caba4f170182beca613f0ba6d09` |
-| Closed repo sync | `lore-cloud` main at `53feedd07c08a68f9e98797ec3c1ff216049bd88`; CI run `25120962371`, success |
+| npm-backed Registry closure CI | run `25120831678`, success on `8637e37546b24caba4f170182beca613f0ba6d09` |
+| Closed repo Registry closure baseline | `lore-cloud` source `53feedd07c08a68f9e98797ec3c1ff216049bd88`; CI run `25120962371`, success |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` live on production domains |
@@ -187,8 +187,8 @@ pnpm audit --prod
 
 - GitHub release and tag verified.
 - Public `main` CI verified.
-- Latest public docs/distribution commit `8637e37546b24caba4f170182beca613f0ba6d09` verified by CI run `25120831678`.
-- Closed `lore-cloud` mirror commit `53feedd07c08a68f9e98797ec3c1ff216049bd88` verified by CI run `25120962371`.
+- npm-backed Registry closure commit `8637e37546b24caba4f170182beca613f0ba6d09` verified by CI run `25120831678`.
+- Closed `lore-cloud` Registry closure mirror commit `53feedd07c08a68f9e98797ec3c1ff216049bd88` verified by CI run `25120962371`.
 - Website production domains verified.
 - `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified.
 - Public API health verified.

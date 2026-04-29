@@ -12,8 +12,8 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Release type | Public alpha pre-release |
 | GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
-| Public `main` | release tag plus post-release closure, integration validation, MCP Registry, adoption validation, marketplace assets, and HN launch-readiness commits |
-| Latest public source | `8637e37546b24caba4f170182beca613f0ba6d09`; GitHub Actions run `25120831678`, success |
+| Public `main` | release tag plus post-release closure, integration validation, MCP Registry, adoption validation, marketplace assets, HN launch-readiness, and status-doc refresh commits |
+| npm-backed Registry closure source | `8637e37546b24caba4f170182beca613f0ba6d09`; GitHub Actions run `25120831678`, success |
 | MCP distribution baseline | `1914718c3136fab2f7eed167445e97a910b62bb0`; GitHub Actions run `25110357633`, success |
 | Adoption closure source | `1a64980682216d715d0da40a37ee03b0a752f9e9`; GitHub Actions run `25112973276`, success |
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |

@@ -58,7 +58,7 @@ turning Lore into a hosted SaaS claim.
 
 - Post-release closure: public `main` includes deployment hardening,
   integration validation, and distribution commits after the release tag. The
-  latest verified distribution source is
+  initial verified distribution baseline is
   `1914718c3136fab2f7eed167445e97a910b62bb0`, with GitHub Actions CI run
   `25110357633` passing. The release tag remains on the original release commit
   `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
@@ -71,9 +71,9 @@ turning Lore into a hosted SaaS claim.
   through GitHub Actions run `25120707303`. The Registry entry
   `io.github.Lore-Context/lore-context-mcp` now lists both the public npm
   package `@lore-context/server@0.6.0-alpha.1` and the public GHCR image
-  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`; the latest public
-  docs/distribution source is `8637e37546b24caba4f170182beca613f0ba6d09` with
-  CI run `25120831678` passing.
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`; the npm-backed
+  Registry closure source is `8637e37546b24caba4f170182beca613f0ba6d09` with CI
+  run `25120831678` passing.
 - Post-release adoption closure: Cursor Agent prompt-level MCP validation now
   succeeds against demo data, and `context_query` MCP text includes `Trace ID`
   so clients that do not expose `structuredContent` can still open the Evidence
