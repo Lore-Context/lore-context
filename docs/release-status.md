@@ -42,7 +42,7 @@ release decision explicitly requires it.
   and `.qwen/settings.json`.
 - MCP Registry metadata is valid in `server.json`; the OCI image is public on
   GHCR, `@lore-context/server@0.6.0-alpha.1` is published on npm, and GitHub
-  Actions run `25111065964` published the active Official MCP Registry listing.
+  Actions run `25120707303` published the active Official MCP Registry listing.
 
 ## What v0.6 does not claim
 
@@ -76,7 +76,7 @@ matrix and open validation tasks.
   `mcp__lore__context_query` against a temporary Lore API.
 - MCP Registry: completed. `server.json` validates locally; GHCR image publish
   and Official Registry publish succeeded through the `Publish MCP Registry`
-  workflow run `25111065964`; Registry API reports `active` and `isLatest: true`.
+  workflow run `25120707303`; Registry API reports `active` and `isLatest: true`.
 - npm MCP server package: `@lore-context/server@0.6.0-alpha.1` published on
   npm with `alpha` and `latest` dist-tags. Fresh install from a temporary
   directory succeeded, and the installed `lore-context-server` MCP SDK transport

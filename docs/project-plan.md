@@ -13,7 +13,7 @@ Last updated: 2026-04-29
 - Public `main`: release tag 之后已有文档、分发、MCP Registry、Cursor adoption validation 和 marketplace asset 闭环提交。
 - MCP distribution baseline: `1914718c3136fab2f7eed167445e97a910b62bb0`，GitHub Actions run `25110357633` passed。
 - Adoption closure source: `1a64980682216d715d0da40a37ee03b0a752f9e9`，GitHub Actions run `25112973276` passed。
-- MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T13:16:42Z`；GHCR 镜像 `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` 已公开。
+- MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T16:23:19.42298Z`；GHCR 镜像 `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` 已公开。
 - npm MCP server package: `@lore-context/server@0.6.0-alpha.1` 已发布；fresh install 后 `lore-context-server` 通过 MCP SDK `tools/list` 返回 11 个工具。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
@@ -48,7 +48,7 @@ Last updated: 2026-04-29
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` live on production domains |
 | Public API | `https://api.lorecontext.com/health` returns ok |
-| MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; publish workflow run `25111065964`, success |
+| MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; publish workflow run `25120707303`, success |
 | npm MCP server package | `@lore-context/server@0.6.0-alpha.1` public; fresh install + MCP `tools/list` verified |
 | HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
 | 私有云端组件 | 存在并在闭源仓库维护，不属于公开 alpha 承诺 |
@@ -99,7 +99,7 @@ Last updated: 2026-04-29
 | Claude Code golden path | 完成；真实 `claude mcp add/list/get` 跑通，并修复了参数顺序文档问题 | 收集用户按文档自助跑通证据 |
 | Cursor golden path | 完成；`cursor-agent` 登录后，真实 prompt-level `context_query` 返回 trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145` 且匹配 seeded memory；`trace_get` 返回 2 retrieved / 2 used | 后续用真实用户重复验证 |
 | Qwen Code golden path | 完成；`@qwen-code/qwen-code` `0.15.5` 已安装，`qwen mcp list` 连接项目 `.qwen/settings.json`，非交互 Qwen Code 成功调用 `mcp__lore__context_query` | 后续用真实用户重复验证 |
-| Official MCP Registry | 完成；`server.json` 通过校验，GHCR OCI 镜像公开，workflow `25111065964` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
+| Official MCP Registry | 完成；`server.json` 通过校验，GHCR OCI 镜像公开，workflow `25120707303` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
 | npm MCP server package | 完成；`@lore-context/server@0.6.0-alpha.1` 已发布到 npm，`npm view` / dist-tags / fresh install / MCP `tools/list` 均通过 | 后续把 npx 安装路径纳入 marketplace 和 fresh-user 文档 |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
 | HN launch website readiness | 已完成；quickstart/blog/benchmark 页面在线上，且文案不再声明未证实 benchmark win | 后续每次官网部署后重复生产域名、sitemap 和移动端 smoke 复核 |
@@ -192,7 +192,7 @@ pnpm audit --prod
 - Cursor actual-client prompt-level context query and trace retrieval verified.
 - Qwen Code actual-client context query verified.
 - MCP Registry publish verified: GHCR package is public, anonymous Docker
-  manifest lookup succeeds, and GitHub Actions run `25111065964` published
+  manifest lookup succeeds, and GitHub Actions run `25120707303` published
   `io.github.Lore-Context/lore-context-mcp` as an active Registry listing.
 - npm MCP server package verified: `@lore-context/server@0.6.0-alpha.1`
   resolves through `npm view`, installs from a fresh temporary directory, and
