@@ -18,9 +18,9 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |
 | AI-readable docs | `https://lorecontext.com/llms.txt`, `https://lorecontext.com/llms-full.txt` |
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
-| npm MCP server package | `@lore-context/server@0.6.0-alpha.0`, public and fresh-install verified |
+| npm MCP server package | `@lore-context/server@0.6.0-alpha.1`, public and fresh-install verified |
 | MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active |
-| MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`, public |
+| MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`, public |
 | Launch website surfaces | Live: homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap verified after the current Cloudflare Pages production deploy |
 | Launch-readiness source | `f7fe14234ca89c02397da230de3e27f90576c469`; GitHub Actions run `25115346417`, success |
 
@@ -41,7 +41,7 @@ release decision explicitly requires it.
 - Project-scoped Cursor and Qwen Code MCP configs are present in `.cursor/mcp.json`
   and `.qwen/settings.json`.
 - MCP Registry metadata is valid in `server.json`; the OCI image is public on
-  GHCR, `@lore-context/server@0.6.0-alpha.0` is published on npm, and GitHub
+  GHCR, `@lore-context/server@0.6.0-alpha.1` is published on npm, and GitHub
   Actions run `25111065964` published the active Official MCP Registry listing.
 
 ## What v0.6 does not claim
@@ -77,7 +77,7 @@ matrix and open validation tasks.
 - MCP Registry: completed. `server.json` validates locally; GHCR image publish
   and Official Registry publish succeeded through the `Publish MCP Registry`
   workflow run `25111065964`; Registry API reports `active` and `isLatest: true`.
-- npm MCP server package: `@lore-context/server@0.6.0-alpha.0` published on
+- npm MCP server package: `@lore-context/server@0.6.0-alpha.1` published on
   npm with `alpha` and `latest` dist-tags. Fresh install from a temporary
   directory succeeded, and the installed `lore-context-server` MCP SDK transport
   returned 11 tools from `tools/list`.

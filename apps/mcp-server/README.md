@@ -8,7 +8,7 @@ API through `LORE_API_URL`.
 ```bash
 LORE_API_URL=http://127.0.0.1:3000 \
 LORE_MCP_TRANSPORT=sdk \
-npx -y @lore-context/server@0.6.0-alpha.0
+npx -y @lore-context/server@0.6.0-alpha.1
 ```
 
 Optional environment variables:

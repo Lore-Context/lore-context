@@ -1,7 +1,8 @@
 {
   "name": "@lore-context/server",
-  "version": "0.6.0-alpha.0",
+  "version": "0.6.0-alpha.1",
   "description": "MCP stdio server for Lore Context memory, Evidence Ledger traces, evals, and governance tools.",
+  "mcpName": "io.github.Lore-Context/lore-context-mcp",
   "private": false,
   "type": "module",
   "bin": {

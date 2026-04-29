@@ -15,8 +15,8 @@ OCI image, or public remote server.
 Current publication paths:
 
 - `server.json` lists both npm and OCI package entries.
-- npm package: `@lore-context/server@0.6.0-alpha.0`.
-- OCI image: `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`.
+- npm package: `@lore-context/server@0.6.0-alpha.1`.
+- OCI image: `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1`.
 - MCP server name: `io.github.Lore-Context/lore-context-mcp`.
 - `mcp-publisher validate` succeeds locally.
 - npm org `@lore-context` exists; the package page is public; `npm view` returns
@@ -45,8 +45,8 @@ Current publication paths:
   "website": "https://lorecontext.com",
   "runtime": "npm / OCI / node>=22",
   "transport": "stdio",
-  "npm": "@lore-context/server@0.6.0-alpha.0",
-  "image": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0",
+  "npm": "@lore-context/server@0.6.0-alpha.1",
+  "image": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1",
   "environment": {
     "LORE_API_URL": "http://127.0.0.1:3000",
     "LORE_API_KEY": "<reader-or-writer-key>",
@@ -93,7 +93,7 @@ For an npm-based client install:
 ```bash
 LORE_API_URL=http://127.0.0.1:3000 \
 LORE_MCP_TRANSPORT=sdk \
-npx -y @lore-context/server@0.6.0-alpha.0
+npx -y @lore-context/server@0.6.0-alpha.1
 ```
 
 ## Verification

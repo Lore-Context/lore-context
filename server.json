@@ -8,12 +8,12 @@
     "url": "https://github.com/Lore-Context/lore-context",
     "source": "github"
   },
-  "version": "0.6.0-alpha.0",
+  "version": "0.6.0-alpha.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@lore-context/server",
-      "version": "0.6.0-alpha.0",
+      "version": "0.6.0-alpha.1",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
@@ -43,7 +43,7 @@
     },
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0",
+      "identifier": "ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1",
       "transport": {
         "type": "stdio"
       },
@@ -74,7 +74,7 @@
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "tool": "mcp-publisher",
-      "release": "v0.6.0-alpha.0",
+      "release": "v0.6.0-alpha.1",
       "build_info": {
         "repository": "https://github.com/Lore-Context/lore-context"
       }

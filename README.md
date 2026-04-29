@@ -141,7 +141,7 @@ For detail, see [docs/architecture.md](docs/architecture.md).
 | Docker Compose private deployment | ✅ Production | `docker-compose.yml` |
 | Demo dataset + smoke tests + Playwright UI test | ✅ Production | `examples/`, `scripts/` |
 | Official MCP Registry + distribution docs, launch drafts, design partner intake | ✅ Alpha | `server.json`, `docs/distribution/`, `docs/launch/`, `docs/design-partners/` |
-| npm MCP server package | ✅ Alpha | `@lore-context/server@0.6.0-alpha.0` |
+| npm MCP server package | ✅ Alpha | `@lore-context/server@0.6.0-alpha.1` |
 | Hosted multi-tenant cloud sync | ⏳ Roadmap | — |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full v0.6.0-alpha release notes.
@@ -170,7 +170,7 @@ Shipped v0.6 work:
 - `pnpm quickstart -- --activation-report` with redacted dry-run and real first-value proof;
 - stricter activation proof that fails instead of skipping when the target port is occupied;
 - public-safe eval reporting and smoke coverage for eval export plus MIF JSON export;
-- `@lore-context/server@0.6.0-alpha.0` npm publication, Official MCP Registry
+- `@lore-context/server@0.6.0-alpha.1` npm publication, Official MCP Registry
   publication, plus distribution metadata drafts for marketplace listings and
   agent plugins;
 - launch content drafts and design partner intake/scorecard workflow;
