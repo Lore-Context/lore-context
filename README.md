@@ -11,7 +11,7 @@ Know what every agent remembered, used, and should forget — before memory beco
 [![Version](https://img.shields.io/badge/version-v0.6.0--alpha-orange.svg)](CHANGELOG.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 
-[Getting Started](docs/getting-started.md) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Project Plan](docs/project-plan.md) · [Roadmap](docs/roadmap.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
+[Getting Started](docs/getting-started.md) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Project Plan](docs/project-plan.md) · [Release Status](docs/release-status.md) · [Roadmap](docs/roadmap.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
 
 🌐 **Read this in your language**: [English](README.md) · [简体中文](docs/i18n/zh-CN/README.md) · [繁體中文](docs/i18n/zh-TW/README.md) · [日本語](docs/i18n/ja/README.md) · [한국어](docs/i18n/ko/README.md) · [Tiếng Việt](docs/i18n/vi/README.md) · [Español](docs/i18n/es/README.md) · [Português](docs/i18n/pt/README.md) · [Русский](docs/i18n/ru/README.md) · [Türkçe](docs/i18n/tr/README.md) · [Deutsch](docs/i18n/de/README.md) · [Français](docs/i18n/fr/README.md) · [Italiano](docs/i18n/it/README.md) · [Ελληνικά](docs/i18n/el/README.md) · [Polski](docs/i18n/pl/README.md) · [Українська](docs/i18n/uk/README.md) · [Bahasa Indonesia](docs/i18n/id/README.md)
 
@@ -133,6 +133,17 @@ For detail, see [docs/architecture.md](docs/architecture.md).
 | Hosted multi-tenant cloud sync | ⏳ Roadmap | — |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full v0.6.0-alpha release notes.
+
+## Current release status
+
+`v0.6.0-alpha` is published as a public alpha pre-release. The release tag points
+to `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`; public `main` includes the
+deployment-hardening closure commit `38fe564917de5756d8a937706a9e1120e2c26356`
+with passing CI. The production website, AI-readable docs, and public API health
+endpoint are live.
+
+See [docs/release-status.md](docs/release-status.md) for the current public-safe
+status snapshot.
 
 ## Release focus
 

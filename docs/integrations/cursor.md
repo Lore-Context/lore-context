@@ -24,7 +24,7 @@ Add Lore to Cursor's MCP JSON configuration:
   "mcpServers": {
     "lore": {
       "command": "node",
-      "args": ["/Users/shuanbaozhu/Desktop/Lore/apps/mcp-server/dist/index.js"],
+      "args": ["<path-to-lore-context>/apps/mcp-server/dist/index.js"],
       "env": {
         "LORE_API_URL": "http://127.0.0.1:3000",
         "LORE_API_KEY": "<optional API key>",

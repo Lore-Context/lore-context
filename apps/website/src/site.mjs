@@ -1144,6 +1144,7 @@ function docsPageBody(locale) {
     ["API reference", "Read REST routes, OpenAPI, Evidence Ledger, auth model, and error contracts.", `${docsBase}/api-reference.md`],
     ["Architecture", "Trace API, MCP, Evidence Ledger, eval, governance, persistence, and portability boundaries.", pathFor(locale, "architecture")],
     ["Deployment", "Run the private Docker Compose stack with Postgres, dashboard, Basic Auth, and health checks.", repoLocale ? `${docsBase}/deployment.md` : `${githubUrl}/tree/main/docs/deployment`],
+    ["Release status", "Read the current public alpha release, CI, website, AI-readable docs, and API health snapshot.", `${githubUrl}/blob/main/docs/release-status.md`],
     ["Integrations", "Claude Code, Cursor, Qwen Code, Dify, FastGPT, OpenWebUI, Hermes, and generic MCP.", repoLocale ? `${docsBase}/integrations.md` : `${githubUrl}/tree/main/docs/integrations`],
     ["Security", "Review supported versions, secret handling, auth defaults, disclosure process, and hardening notes.", repoLocale ? `${docsBase}/SECURITY.md` : `${githubUrl}/blob/main/SECURITY.md`]
   ];
@@ -1261,6 +1262,7 @@ Lore is alpha software. Use it locally first, verify with your own dataset, and 
 - [Integrations](${githubDocsUrl}/docs/integrations/README.md): MCP and agent configuration examples.
 - [Architecture](${githubDocsUrl}/docs/architecture.md): local-first API, MCP, dashboard, governance, eval, and storage boundaries.
 - [Deployment](${githubDocsUrl}/docs/deployment/README.md): private deployment guidance.
+- [Release status](${githubDocsUrl}/docs/release-status.md): public alpha release, CI, website, AI-readable docs, and API health snapshot.
 - [Release governance](${githubDocsUrl}/docs/release-governance.md): release gates and verification expectations.
 - [Roadmap](${githubDocsUrl}/docs/roadmap.md): current alpha roadmap.
 - [Changelog](${githubDocsUrl}/CHANGELOG.md): shipped release notes.
@@ -1328,6 +1330,7 @@ Lore is not another memory database. It is a control plane above agent memory ba
 - Architecture: ${githubDocsUrl}/docs/architecture.md
 - Integrations index: ${githubDocsUrl}/docs/integrations/README.md
 - Deployment guide: ${githubDocsUrl}/docs/deployment/README.md
+- Release status: ${githubDocsUrl}/docs/release-status.md
 - Release governance: ${githubDocsUrl}/docs/release-governance.md
 - Roadmap: ${githubDocsUrl}/docs/roadmap.md
 - Security policy: ${githubDocsUrl}/SECURITY.md

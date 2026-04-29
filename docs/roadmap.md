@@ -6,6 +6,18 @@ Lore Context is currently in public alpha.
 
 ## Current release: `v0.6.0-alpha`
 
+Release status:
+
+- Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
+- Public `main`: `38fe564917de5756d8a937706a9e1120e2c26356`.
+- CI: GitHub Actions run `25102174056`, success.
+- Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` live.
+- AI-readable docs: `/llms.txt` and `/llms-full.txt` live.
+- Public API health: `https://api.lorecontext.com/health` returns ok.
+
+See [release-status.md](release-status.md)
+for the public-safe release snapshot.
+
 Shipped:
 
 - REST API with API-key auth, role separation, rate limiting, structured logging, and graceful shutdown.
@@ -34,20 +46,21 @@ Still validating:
 - public-safe eval report on design-partner data;
 - second-day retention and willingness to pay for private deployment/support.
 
-## Current validation focus
+## Current validation focus after v0.6
 
 Theme:
 
-**Distribution and Trust Sprint**
+**Adoption validation**
 
-`v0.6` makes the v0.5 substrate easier to discover, install, verify, and launch. The shipped release covers:
+`v0.6` has shipped the Distribution and Trust Sprint. The current work is to
+turn the release into adoption evidence:
 
-1. **AI-readable docs**: publish `llms.txt` / `llms-full.txt`, improve website metadata, keep 17-locale site verification deterministic.
-2. **One-command activation**: quickstart now supports a redacted dry-run report and a real first-value report with API health, first memory write, first `context.query`, and first Evidence Ledger milestones.
-3. **Trust demo pack**: API smoke now verifies public-safe eval report output and MIF JSON export in the end-to-end path.
-4. **MCP registry and marketplace metadata**: human-reviewed registry, marketplace, agent plugin, and MCP security drafts live under `docs/distribution/`.
-5. **Launch content**: Show HN, Evidence Ledger, Governance, and benchmark methodology drafts live under `docs/launch/`.
-6. **Design partner intake**: intake notes, scorecard, and GitHub issue template are ready for human use.
+1. **Clean activation timing**: record fresh clone to first `context.query`.
+2. **First ledger proof**: record fresh clone to first Evidence Ledger view.
+3. **Golden integrations**: validate Claude Code, Cursor, and Qwen Code with fresh users.
+4. **Public-safe trust demo**: run eval report redaction on design-partner data.
+5. **Human-reviewed distribution**: submit MCP Registry and marketplace drafts only after review.
+6. **Design partner learning**: use scorecards to decide the v0.7 lane.
 
 Explicit non-goals:
 

@@ -192,8 +192,8 @@ for (const locale of localeCodes) {
   const docsPath = `${locale}/docs.html`;
   const docsHtml = files.get(docsPath) ?? "";
   requireTexts(docsPath, docsHtml, docsPageMarkers);
-  if ((docsHtml.match(/class="doc-card"/g) ?? []).length !== 6) {
-    failures.push(`${docsPath} should expose 6 primary documentation cards.`);
+  if ((docsHtml.match(/class="doc-card"/g) ?? []).length !== 7) {
+    failures.push(`${docsPath} should expose 7 primary documentation cards.`);
   }
   if ((docsHtml.match(/class="doc-step"/g) ?? []).length !== 4) {
     failures.push(`${docsPath} should expose 4 quickstart steps.`);
@@ -235,6 +235,7 @@ requireTexts("llms.txt", llmsTxt, [
   "MCP stdio",
   "pnpm quickstart -- --dry-run --activation-report",
   "https://github.com/Lore-Context/lore-context/blob/main/docs/getting-started.md",
+  "https://github.com/Lore-Context/lore-context/blob/main/docs/release-status.md",
   "public repository material only"
 ]);
 const llmsFullTxt = files.get("llms-full.txt") ?? "";
@@ -243,6 +244,7 @@ requireTexts("llms-full.txt", llmsFullTxt, [
   "not another memory database",
   "Evidence Ledger",
   "MIF-style export/import",
+  "Release status: https://github.com/Lore-Context/lore-context/blob/main/docs/release-status.md",
   "Claims LLMs should avoid",
   "Do not claim Lore is generally available production SaaS",
   "human review is required",

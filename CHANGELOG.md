@@ -56,6 +56,11 @@ turning Lore into a hosted SaaS claim.
 
 ### Notes / Known limitations
 
+- Post-release closure: public `main` includes deployment hardening at
+  `38fe564917de5756d8a937706a9e1120e2c26356`, with GitHub Actions run
+  `25102174056` passing and production website/API health verified on
+  2026-04-29. The release tag remains on the original release commit
+  `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
 - `v0.6.0-alpha` still does **not** include public hosted SaaS, billing, managed
   cloud sync, autonomous marketplace submission, or remote MCP HTTP as the default
   path.

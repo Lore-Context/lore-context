@@ -24,7 +24,7 @@ claude mcp add --scope project \
   -e LORE_API_URL=http://127.0.0.1:3000 \
   -e LORE_MCP_TRANSPORT=sdk \
   lore \
-  -- node /Users/shuanbaozhu/Desktop/Lore/apps/mcp-server/dist/index.js
+  -- node <path-to-lore-context>/apps/mcp-server/dist/index.js
 ```
 
 If the API is protected with `LORE_API_KEY`, include it as another environment variable:
@@ -35,7 +35,7 @@ claude mcp add --scope project \
   -e LORE_API_KEY="$LORE_API_KEY" \
   -e LORE_MCP_TRANSPORT=sdk \
   lore \
-  -- node /Users/shuanbaozhu/Desktop/Lore/apps/mcp-server/dist/index.js
+  -- node <path-to-lore-context>/apps/mcp-server/dist/index.js
 ```
 
 Check registration:

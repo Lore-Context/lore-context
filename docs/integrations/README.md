@@ -88,12 +88,12 @@ Do not launch this through `pnpm start` from an MCP client because package-manag
 
 ## Private Deployment Alignment
 
-The private demo packaging in [docs/deployment/README.md](/Users/shuanbaozhu/Desktop/Lore/docs/deployment/README.md) assumes:
+The private demo packaging in [docs/deployment/README.md](../deployment/README.md) assumes:
 
 - Lore API and dashboard run as long-lived containers.
 - Postgres is the default durable store for shared demos.
 - The MCP launcher stays a stdio process close to the client, or runs as the optional `mcp` compose service on demand.
-- Demo seeding comes from [examples/demo-dataset/import/lore-demo-memories.json](/Users/shuanbaozhu/Desktop/Lore/examples/demo-dataset/import/lore-demo-memories.json), while eval smoke comes from [examples/demo-dataset/eval/lore-demo-eval-request.json](/Users/shuanbaozhu/Desktop/Lore/examples/demo-dataset/eval/lore-demo-eval-request.json).
+- Demo seeding comes from [examples/demo-dataset/import/lore-demo-memories.json](../../examples/demo-dataset/import/lore-demo-memories.json), while eval smoke comes from [examples/demo-dataset/eval/lore-demo-eval-request.json](../../examples/demo-dataset/eval/lore-demo-eval-request.json).
 
 For private deployments, point client launchers at the private API URL and provide the smallest role that fits:
 

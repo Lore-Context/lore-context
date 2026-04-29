@@ -2,6 +2,17 @@
 
 > **Generate keys with `openssl rand -hex 32` — never use the placeholders below in production.**
 
+## Current Public Alpha Status
+
+`v0.6.0-alpha` is published and the public API health endpoint is live at
+`https://api.lorecontext.com/health`. This public document intentionally does
+not record private AWS instance IDs, SSM command IDs, account identifiers, or
+secret-bearing runbook details. Those belong in the private cloud repository and
+internal operator notes.
+
+For the public-safe release snapshot, see
+[release-status.md](../release-status.md).
+
 This slice packages Lore for a private demo or internal team rollout without changing the application code paths. The deployment bundle consists of:
 
 - `apps/api/Dockerfile`: REST API image.
@@ -149,8 +160,8 @@ until design partners have validated the private alpha workflow.
 
 ## Files To Reuse
 
-- Compose sample: [compose.private-demo.yml](/Users/shuanbaozhu/Desktop/Lore/docs/deployment/compose.private-demo.yml)
-- API image: [apps/api/Dockerfile](/Users/shuanbaozhu/Desktop/Lore/apps/api/Dockerfile)
-- Dashboard image: [apps/dashboard/Dockerfile](/Users/shuanbaozhu/Desktop/Lore/apps/dashboard/Dockerfile)
-- MCP image: [Dockerfile](/Users/shuanbaozhu/Desktop/Lore/Dockerfile)
-- Demo data: [examples/demo-dataset/README.md](/Users/shuanbaozhu/Desktop/Lore/examples/demo-dataset/README.md)
+- Compose sample: [compose.private-demo.yml](compose.private-demo.yml)
+- API image: [apps/api/Dockerfile](../../apps/api/Dockerfile)
+- Dashboard image: [apps/dashboard/Dockerfile](../../apps/dashboard/Dockerfile)
+- MCP image: [Dockerfile](../../Dockerfile)
+- Demo data: [examples/demo-dataset/README.md](../../examples/demo-dataset/README.md)

@@ -130,6 +130,17 @@ Release-gate requirements:
 - External research snapshots and private runbooks must remain ignored or outside
   the public checkout.
 
+Publication record:
+
+- Public release: `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha`.
+- Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
+- Public `main` closure commit: `38fe564917de5756d8a937706a9e1120e2c26356`.
+- GitHub Actions gate: run `25102174056`, passed.
+- Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` verified with v0.6 content.
+- AI-readable docs: `/llms.txt`, `/llms-full.txt`, and `robots.txt` LLMs pointer verified.
+- Public API health: `https://api.lorecontext.com/health` returns ok.
+- Public status snapshot: [release-status.md](release-status.md).
+
 The remaining governance task after v0.6 is to clean up local workflow:
 
 1. Create or verify separate public/private checkouts.
