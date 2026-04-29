@@ -20,21 +20,19 @@ PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
 Register Lore as a project-scoped Claude Code MCP server:
 
 ```bash
-claude mcp add --scope project \
-  -e LORE_API_URL=http://127.0.0.1:3000 \
-  -e LORE_MCP_TRANSPORT=sdk \
-  lore \
+claude mcp add --scope project lore \
+  --env LORE_API_URL=http://127.0.0.1:3000 \
+  --env LORE_MCP_TRANSPORT=sdk \
   -- node <path-to-lore-context>/apps/mcp-server/dist/index.js
 ```
 
 If the API is protected with `LORE_API_KEY`, include it as another environment variable:
 
 ```bash
-claude mcp add --scope project \
-  -e LORE_API_URL=http://127.0.0.1:3000 \
-  -e LORE_API_KEY="$LORE_API_KEY" \
-  -e LORE_MCP_TRANSPORT=sdk \
-  lore \
+claude mcp add --scope project lore \
+  --env LORE_API_URL=http://127.0.0.1:3000 \
+  --env LORE_API_KEY="$LORE_API_KEY" \
+  --env LORE_MCP_TRANSPORT=sdk \
   -- node <path-to-lore-context>/apps/mcp-server/dist/index.js
 ```
 
@@ -59,6 +57,7 @@ pnpm smoke:mcp
 Troubleshooting:
 
 - If stdout contains package-manager banners, run the built server with `node apps/mcp-server/dist/index.js`, not `pnpm`.
+- If Claude says `Invalid environment variable format`, put the server name before the `--env` flags as shown above. Current Claude CLI treats `--env` as a variadic option.
 - If Lore returns `401` or `403`, pass the same `LORE_API_KEY` that protects the API.
 - If port `3000` is already in use, set `LORE_API_URL` to the API port you actually started.
 - If project-scoped keys fail, include the matching `project_id` in write/query calls.
