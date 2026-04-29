@@ -12,13 +12,15 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Release type | Public alpha pre-release |
 | GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
-| Public `main` | `38fe564917de5756d8a937706a9e1120e2c26356` |
-| CI | GitHub Actions run `25102174056`, success |
+| Public `main` | `3795c8af99bd2152aeee8abd868becfaeff214c8` |
+| CI | GitHub Actions run `25107479571`, success |
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |
 | AI-readable docs | `https://lorecontext.com/llms.txt`, `https://lorecontext.com/llms-full.txt` |
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
 
-The release tag points at the original `v0.6.0-alpha` release commit. Public `main` includes a later deployment-hardening closure commit. Do not rewrite the public tag unless a future release decision explicitly requires it.
+The release tag points at the original `v0.6.0-alpha` release commit. Public
+`main` includes later release-closure and copy-paste documentation fixes. Do not
+rewrite the public tag unless a future release decision explicitly requires it.
 
 ## What v0.6 proves
 
@@ -39,9 +41,21 @@ The release tag points at the original `v0.6.0-alpha` release commit. Public `ma
 
 ## Next validation focus
 
-- Fresh clone to first `context.query` in less than 10 minutes.
-- Fresh clone to first Evidence Ledger view in less than 15 minutes.
-- Claude Code, Cursor, and Qwen Code fresh-user golden-path verification.
+See [adoption-validation.md](adoption-validation.md) for the current evidence
+matrix and open validation tasks.
+
+- Fresh clone to first `context.query` in less than 10 minutes: maintainer-run
+  clean checkout proof completed at `10.13s`; repeat with real users.
+- Fresh clone to first Evidence Ledger view in less than 15 minutes:
+  maintainer-run clean checkout proof completed at `10.13s`; repeat with real
+  users.
+- Claude Code fresh-user golden-path verification: actual CLI add/list/get path
+  completed after a documentation fix.
+- Cursor and Qwen Code fresh-user golden-path verification: MCP stdio templates
+  validate directly, but actual-client copy-paste runs are still open because
+  the local validation machine does not have those clients installed.
+- Show HN launch: draft is ready, but first submission was deferred by HN's
+  new-account Show HN restriction; no thread URL exists yet.
 - Public-safe eval report tested against design-partner data.
 - 3-5 design partners with activation scorecards.
 - v0.7 decision based on adoption evidence: private hosted alpha, remote MCP HTTP, enterprise/private-deployment hardening, or benchmark/report lane.

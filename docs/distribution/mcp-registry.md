@@ -1,9 +1,31 @@
 # MCP Registry Metadata
 
-Status: draft source, not submitted.
+Status: draft source, not submitted. Not ready for official MCP Registry
+submission until Lore publishes a public MCP server distribution artifact.
 
 Use this as the canonical input when creating MCP registry, hub, or gallery
 listings for Lore Context. Human review is required before submission.
+
+## Official Registry Readiness
+
+The official MCP Registry is for publicly accessible MCP servers. Server
+metadata must point to a public install method, such as an npm package, public
+OCI image, or public remote server.
+
+Current blocker:
+
+- `apps/mcp-server/package.json` is a private workspace package
+  (`"private": true`).
+- No public `@lore/mcp-server` or `@lore-context/mcp-server` npm package is
+  published.
+- Lore does not expose a public remote MCP HTTP endpoint in `v0.6.0-alpha`.
+
+Do not submit to the official MCP Registry until one of these is true:
+
+1. a public npm package exists for the Lore MCP server;
+2. a public OCI image exists for the Lore MCP server; or
+3. a public remote MCP endpoint is intentionally released with a reviewed threat
+   model.
 
 ## Listing
 
@@ -80,4 +102,3 @@ pnpm openapi:check
 - No secrets, local machine paths, private customer names, or private hostnames.
 - Registry-specific schema validates.
 - Listing URL resolves to the public repository and public website only.
-

@@ -46,7 +46,7 @@ Look for teams already using or evaluating agent memory in a real workflow:
 Each design partner session should produce:
 
 - activation scorecard;
+- public-safe session row in `session-tracker.md`;
 - top three blockers;
 - one quote or paraphrased job-to-be-done, if approved;
 - decision on whether a second technical session is justified.
-

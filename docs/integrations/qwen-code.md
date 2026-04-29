@@ -1,6 +1,9 @@
 # Qwen Code
 
-Status: REST API and local stdio MCP launcher are available. Use the `mcpServers` template below for Qwen Code-style MCP clients that accept stdio server JSON.
+Status: REST API and local stdio MCP launcher are available. Use the
+`mcpServers` template below for Qwen Code clients that accept stdio server JSON.
+Actual-client validation remains open until a real `qwen` CLI session can
+discover and use the Lore tools.
 
 ## Recommended Path
 
@@ -17,7 +20,7 @@ pnpm build
 PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
 ```
 
-Register the MCP server:
+Register the MCP server in project scope at `.qwen/settings.json`:
 
 ```json
 {
@@ -29,7 +32,9 @@ Register the MCP server:
         "LORE_API_URL": "http://127.0.0.1:3000",
         "LORE_API_KEY": "<optional API key>",
         "LORE_MCP_TRANSPORT": "sdk"
-      }
+      },
+      "includeTools": ["context_query", "memory_search", "memory_get", "memory_list", "trace_get"],
+      "timeout": 30000
     }
   }
 }
@@ -37,7 +42,10 @@ Register the MCP server:
 
 If `LORE_API_KEY` is configured on the API, add the same key under `env`.
 
-Prefer a narrow client-side tool allowlist when Qwen Code exposes one:
+Qwen Code also supports registering servers with the CLI. Use the JSON file
+when doing copy-paste validation because it is easier to inspect and review.
+
+Prefer a narrow client-side tool allowlist:
 
 ```json
 ["context_query", "memory_search", "memory_get", "memory_list", "trace_get"]
@@ -64,6 +72,8 @@ Troubleshooting:
 - If port `3000` is unavailable, set `LORE_API_URL` to the live API port.
 - If project-scoped keys fail, include the expected `project_id` in tool calls.
 - If agentmemory is offline, start with Lore's local memory/search tools and defer sync.
+- If Qwen Code shows the server as disconnected, verify the absolute command
+  path, `cwd`, environment variables, and timeout in `.qwen/settings.json`.
 
 ## Notes
 

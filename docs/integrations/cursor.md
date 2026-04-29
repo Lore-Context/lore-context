@@ -1,6 +1,9 @@
 # Cursor
 
-Status: REST API and local stdio MCP launcher are available. Use the JSON template below for Cursor MCP configuration.
+Status: REST API and local stdio MCP launcher are available. Use the JSON
+template below for Cursor MCP configuration. Actual-client validation remains
+open until Cursor can discover and list/use Lore tools from the documented
+configuration.
 
 ## Recommended Path
 
@@ -17,7 +20,7 @@ pnpm build
 PORT=3000 LORE_STORE_PATH=./data/lore-store.json pnpm start:api
 ```
 
-Add Lore to Cursor's MCP JSON configuration:
+Add Lore to Cursor's project MCP JSON configuration at `.cursor/mcp.json`:
 
 ```json
 {
@@ -62,6 +65,9 @@ Troubleshooting:
 - If port `3000` is already occupied, update both `LORE_API_URL` and the API start command.
 - If project-scoped keys fail, include a matching `project_id` in `memory_write` and `context_query`.
 - If agentmemory is offline, keep using `context_query`, `memory_search`, and `trace_get`; raw agentmemory sync can wait.
+- If the desktop app works but the CLI cannot list MCP tools, record the exact
+  Cursor version and whether `cursor-agent` is installed before counting the
+  path as complete.
 
 ## Notes
 

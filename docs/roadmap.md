@@ -9,8 +9,8 @@ Lore Context is currently in public alpha.
 Release status:
 
 - Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
-- Public `main`: `38fe564917de5756d8a937706a9e1120e2c26356`.
-- CI: GitHub Actions run `25102174056`, success.
+- Public `main`: `3795c8af99bd2152aeee8abd868becfaeff214c8`.
+- CI: GitHub Actions run `25107479571`, success.
 - Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` live.
 - AI-readable docs: `/llms.txt` and `/llms-full.txt` live.
 - Public API health: `https://api.lorecontext.com/health` returns ok.
@@ -40,10 +40,15 @@ Shipped:
 
 Still validating:
 
-- clean-checkout time from clone to first `context.query`;
-- first Evidence Ledger view after a real agent workflow;
-- golden-path integration completion with fresh users;
+- clean-checkout time from clone to first `context.query` with real users
+  (maintainer-run machine proof is already under 10 minutes);
+- first Evidence Ledger view after a real agent workflow with real users
+  (maintainer-run machine proof is already under 15 minutes);
+- golden-path integration completion with fresh users: Claude Code actual CLI
+  path is complete; Cursor and Qwen Code still need real-client verification;
 - public-safe eval report on design-partner data;
+- human-reviewed MCP registry / marketplace submission;
+- Show HN retry after the account can post Show HNs;
 - second-day retention and willingness to pay for private deployment/support.
 
 ## Current validation focus after v0.6
@@ -55,9 +60,12 @@ Theme:
 `v0.6` has shipped the Distribution and Trust Sprint. The current work is to
 turn the release into adoption evidence:
 
-1. **Clean activation timing**: record fresh clone to first `context.query`.
-2. **First ledger proof**: record fresh clone to first Evidence Ledger view.
-3. **Golden integrations**: validate Claude Code, Cursor, and Qwen Code with fresh users.
+See [adoption-validation.md](adoption-validation.md) for the live evidence
+matrix.
+
+1. **Clean activation timing**: repeat fresh clone to first `context.query` with real users.
+2. **First ledger proof**: repeat fresh clone to first Evidence Ledger view with real users.
+3. **Golden integrations**: finish Cursor and Qwen Code actual-client validation, then repeat all three with fresh users.
 4. **Public-safe trust demo**: run eval report redaction on design-partner data.
 5. **Human-reviewed distribution**: submit MCP Registry and marketplace drafts only after review.
 6. **Design partner learning**: use scorecards to decide the v0.7 lane.
@@ -76,6 +84,7 @@ Success metrics:
 - Fresh clone to first `context.query`: `<10 minutes`.
 - Fresh clone to first Evidence Ledger view: `<15 minutes`.
 - First 5 fresh-user quickstarts: `>=80%` success without maintainer help.
+- Cursor and Qwen Code actual-client paths: one documented copy-paste success each.
 - `/llms.txt` and docs bundle live on the website.
 - MCP Registry and at least 4 marketplace/plugin listing drafts ready for human submission.
 - One public-safe trust demo report ready for launch.

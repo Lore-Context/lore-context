@@ -34,7 +34,7 @@ import/export, demo dataset, and reproducible smoke checks.
 
 | Surface | Recommended status | Notes |
 |---|---:|---|
-| MCP registry / MCP hub | Ready after schema validation | Use [mcp-registry.md](mcp-registry.md). |
+| MCP registry / MCP hub | Blocked for official registry; draft for hubs | Official MCP Registry requires a public package, public OCI image, or public remote server. Use [mcp-registry.md](mcp-registry.md). |
 | LangChain Hub | Draft | Position as external memory governance/control-plane integration, not a LangChain package. |
 | LlamaIndex ecosystem | Draft | Use API-first examples only unless a real adapter is added. |
 | Vercel / agent gallery | Draft | Website is static; do not imply Vercel-hosted SaaS. |
@@ -58,4 +58,3 @@ Do not submit a listing with placeholder visuals. Use at least one of:
 - "Managed cloud sync is public."
 - "Lore beats Mem0, Letta, or Zep" without a linked reproducible benchmark.
 - "Autonomous outreach or marketplace submission is supported."
-

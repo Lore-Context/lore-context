@@ -9,14 +9,15 @@ Last updated: 2026-04-29
 当前公开事实：
 
 - GitHub Release: `v0.6.0-alpha` pre-release，发布时间 `2026-04-29T08:50:21Z`。
-- Release tag: `v0.6.0-alpha` 指向 `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
-- Public `main` closure commit: `38fe564917de5756d8a937706a9e1120e2c26356`。
-- Public CI: GitHub Actions run `25102174056` passed on `38fe564`。
+- Release tag: `v0.6.0-alpha` 指向 release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
+- Public `main`: `3795c8af99bd2152aeee8abd868becfaeff214c8`。
+- Public CI: GitHub Actions run `25107479571` passed on `3795c8a`。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
-- AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，`robots.txt` 包含 LLMs 指针。
+- AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
 - Public API health: `https://api.lorecontext.com/health` 返回 `status: ok`。
 
-公开状态快照记录在 [release-status.md](release-status.md)。
+公开状态快照记录在 [release-status.md](release-status.md)。发布后的采用验证证据记录在
+[adoption-validation.md](adoption-validation.md)。
 
 下一阶段不应该立即转向 public SaaS、billing 或 managed cloud sync。v0.6 的价值是分发和信任闭环已经建立；接下来要验证真实采用：
 
@@ -33,13 +34,14 @@ Last updated: 2026-04-29
 | 公开版本 | `v0.6.0-alpha` pre-release |
 | 根版本 | `0.6.0-alpha.0` |
 | 公开仓库 | `Lore-Context/lore-context` |
-| 当前公开线 | `main` at `38fe564917de5756d8a937706a9e1120e2c26356` |
+| 当前公开线 | `main` at `3795c8af99bd2152aeee8abd868becfaeff214c8` |
 | 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
-| CI | run `25102174056`, success |
+| CI | run `25107479571`, success |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | Public API | `https://api.lorecontext.com/health` returns ok |
+| HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
 | 私有云端组件 | 存在并在闭源仓库维护，不属于公开 alpha 承诺 |
 | 当前公开非目标 | public hosted SaaS, billing, managed cloud sync, remote MCP HTTP default |
 
@@ -76,18 +78,22 @@ Last updated: 2026-04-29
 - autonomous marketplace / HN / Reddit / Discord submission;
 - private cloud runbooks, customer data, production memory exports, secrets, tenant administration.
 
-### 1.3 仍未完成的验证
+### 1.3 Adoption validation 当前状态
 
-这些是 v0.6 之后的 adoption-validation 项，不是 v0.6 发布 blocker：
+这些是 v0.6 之后的 adoption-validation 项，不是 v0.6 发布 blocker。当前状态：
 
-- clean checkout 真实 10-minute activation 人工计时；
-- first Evidence Ledger view 的真人完成率；
-- Claude Code / Cursor / Qwen Code 三条 golden path 的 fresh-user copy-paste 验证；
-- public-safe eval report 在真实设计伙伴数据上的脱敏验证；
-- 5-10 个 design partner 的真实工作流验证；
-- second-day retention；
-- 愿意为 private deployment / support / governance / hosted cloud 付费的设计伙伴信号；
-- 私有云端 alpha runbook、backup/restore、observability 的持续复核。
+| 验证项 | 当前状态 | 下一步 |
+|---|---|---|
+| clean checkout activation timing | 完成；fresh clone 到 first `context.query` 和 first Evidence Ledger 均为 `10.13s` | 用真实用户 session 复核可重复性 |
+| Claude Code golden path | 完成；真实 `claude mcp add/list/get` 跑通，并修复了参数顺序文档问题 | 收集用户按文档自助跑通证据 |
+| Cursor golden path | 部分完成；MCP stdio JSON 模板直连验证通过；本机有 Cursor desktop，但缺少可非交互列工具的 `cursor-agent` CLI | 用 Cursor desktop 或经批准安装 `cursor-agent` 后完成 copy-paste 验证 |
+| Qwen Code golden path | 部分完成；MCP stdio JSON 模板直连验证通过，但本机未安装真实 Qwen Code 客户端 | 安装或获得 Qwen Code 客户端后完成 copy-paste 验证 |
+| Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
+| public-safe eval report on partner data | 未完成 | 等 design partner 提供 sanitized data 或使用公开 fixture |
+| design partner workflow validation | 未完成 | 目标 3-5 个 activation scorecard |
+| second-day retention | 未完成 | design partner session 后第二天复查 |
+| willingness-to-pay signal | 未完成 | 在 partner follow-up 中记录 private deployment / support / hosted cloud 付费意愿 |
+| private cloud runbook / backup / observability | 持续复核 | 保留在闭源仓库和内部 operator notes |
 
 ## 2. 市场判断
 
@@ -127,11 +133,11 @@ Lore 不应把自己定位成“更便宜的 memory database”。v0.6 已经把
 
 | 优先级 | 工作 | 成功证据 |
 |---|---|---|
-| P0 | clean checkout activation timing | clone 到 first `context.query` < 10 min，first Evidence Ledger view < 15 min |
-| P0 | 三条 golden integration fresh-user 验证 | Claude Code / Cursor / Qwen Code 均有人按文档跑通 |
-| P0 | Show HN / launch 文案人审 | draft 已更新，alpha 状态明确，无 unsupported benchmark |
-| P0 | MCP Registry / marketplace metadata 人审 | `docs/distribution/` 可提交，仍由人执行提交 |
-| P0 | Design partner intake | 3-5 个目标用户进入 scorecard |
+| P0 | Cursor / Qwen Code 真实客户端 fresh-user 验证 | 不再只验证 stdio JSON；真实客户端按公开文档 copy-paste 跑通 |
+| P0 | Design partner intake | 3-5 个目标用户进入 activation scorecard |
+| P0 | MCP Registry / marketplace metadata 人审 | `docs/distribution/` 通过 schema / screenshot / human review 后提交 |
+| P0 | Show HN retry preparation | draft 已保存；账号限制解除后由人审重试 |
+| P0 | clean checkout activation timing follow-up | 已有机器验证；再补真实用户计时 |
 | P1 | public-safe eval report on partner data | 无 secret、raw memory、hard-deleted content |
 | P1 | private alpha runbook refresh | backup/restore、observability、customer data policy 复核完成 |
 
@@ -167,6 +173,8 @@ pnpm audit --prod
 - Website production domains verified.
 - `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified.
 - Public API health verified.
+- Clean checkout activation machine timing captured.
+- Claude Code actual-client path verified; Cursor and Qwen remain blocked on real-client availability.
 - Private cloud and AWS production evidence are tracked in internal operator notes, not public docs.
 
 ## 5. ADR: v0.6 之后的方向
