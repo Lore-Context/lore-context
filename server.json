@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.lore-context/lore-context-mcp",
+  "name": "io.github.Lore-Context/lore-context-mcp",
   "title": "Lore Context",
   "description": "Governed AI-agent memory, Evidence Ledger traces, evals, and portable context tools.",
   "websiteUrl": "https://lorecontext.com",

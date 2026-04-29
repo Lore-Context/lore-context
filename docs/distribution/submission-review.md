@@ -30,7 +30,7 @@ Current distribution path is OCI:
 
 - `server.json` describes `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`.
 - The image label `io.modelcontextprotocol.server.name` matches
-  `io.github.lore-context/lore-context-mcp`.
+  `io.github.Lore-Context/lore-context-mcp`.
 - `mcp-publisher validate` succeeds locally.
 - Local `docker push` is blocked by token scope, so publishing is performed by
   GitHub Actions with `packages: write` and MCP Registry `github-oidc`.

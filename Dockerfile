@@ -15,7 +15,7 @@ RUN pnpm build
 
 FROM node:22-bookworm-slim AS runtime
 
-LABEL io.modelcontextprotocol.server.name="io.github.lore-context/lore-context-mcp"
+LABEL io.modelcontextprotocol.server.name="io.github.Lore-Context/lore-context-mcp"
 LABEL org.opencontainers.image.source="https://github.com/Lore-Context/lore-context"
 LABEL org.opencontainers.image.description="Lore Context MCP stdio server"
 LABEL org.opencontainers.image.licenses="Apache-2.0"

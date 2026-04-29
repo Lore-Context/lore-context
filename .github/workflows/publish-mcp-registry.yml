@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE: ghcr.io/lore-context/lore-context-mcp
-      MCP_SERVER_NAME: io.github.lore-context/lore-context-mcp
+      MCP_SERVER_NAME: io.github.Lore-Context/lore-context-mcp
     steps:
       - name: Checkout
         uses: actions/checkout@v5

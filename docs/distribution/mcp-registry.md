@@ -15,7 +15,7 @@ Current submission path:
 
 - `server.json` uses the official `oci` package type.
 - OCI image: `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`.
-- MCP server name: `io.github.lore-context/lore-context-mcp`.
+- MCP server name: `io.github.Lore-Context/lore-context-mcp`.
 - `mcp-publisher validate` succeeds locally.
 - `.github/workflows/publish-mcp-registry.yml` builds, smokes, pushes the GHCR
   image, authenticates with `github-oidc`, and publishes the registry entry.
