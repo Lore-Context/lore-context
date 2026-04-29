@@ -13,6 +13,13 @@ Know what every agent remembered, used, and should forget — before memory beco
 
 [Getting Started](docs/getting-started.md) · [Website Quickstart](https://lorecontext.com/quickstart/) · [Benchmark Methodology](https://lorecontext.com/benchmark/) · [API Reference](docs/api-reference.md) · [Architecture](docs/architecture.md) · [Project Plan](docs/project-plan.md) · [Release Status](docs/release-status.md) · [Roadmap](docs/roadmap.md) · [Integrations](docs/integrations/README.md) · [Deployment](docs/deployment/README.md) · [Changelog](CHANGELOG.md)
 
+<p>
+  <a href="docs/launch/memory-benchmark-report-2026-04-29.md"><img alt="LoCoMo-200 retrieval-only" src="https://img.shields.io/badge/LoCoMo--200-retrieval--only-475569?style=flat-square"></a>
+  <a href="docs/launch/memory-benchmark-report-2026-04-29.md"><img alt="Lore hit@5 47.5 percent" src="https://img.shields.io/badge/Lore%20hit%405-47.5%25-16a34a?style=flat-square"></a>
+  <a href="docs/launch/memory-benchmark-report-2026-04-29.md"><img alt="Mem0 OSS local hit@5 31.5 percent" src="https://img.shields.io/badge/Mem0%20OSS%20hit%405-31.5%25-f59e0b?style=flat-square"></a>
+  <a href="docs/launch/memory-benchmark-report-2026-04-29.md"><img alt="Lore P95 latency 29.1 milliseconds" src="https://img.shields.io/badge/Lore%20P95-29.1ms-0ea5e9?style=flat-square"></a>
+</p>
+
 🌐 **Read this in your language**: [English](README.md) · [简体中文](docs/i18n/zh-CN/README.md) · [繁體中文](docs/i18n/zh-TW/README.md) · [日本語](docs/i18n/ja/README.md) · [한국어](docs/i18n/ko/README.md) · [Tiếng Việt](docs/i18n/vi/README.md) · [Español](docs/i18n/es/README.md) · [Português](docs/i18n/pt/README.md) · [Русский](docs/i18n/ru/README.md) · [Türkçe](docs/i18n/tr/README.md) · [Deutsch](docs/i18n/de/README.md) · [Français](docs/i18n/fr/README.md) · [Italiano](docs/i18n/it/README.md) · [Ελληνικά](docs/i18n/el/README.md) · [Polski](docs/i18n/pl/README.md) · [Українська](docs/i18n/uk/README.md) · [Bahasa Indonesia](docs/i18n/id/README.md)
 
 Localized docs may lag the current English release notes; the canonical v0.6 docs are the English README and `docs/` set.
@@ -20,6 +27,26 @@ Localized docs may lag the current English release notes; the canonical v0.6 doc
 </div>
 
 ---
+
+## LoCoMo-200 retrieval snapshot
+
+This is the same public-safe comparison surfaced on the website: a local
+LoCoMo-derived 200-question retrieval-only harness. It measures whether the
+needed context appears in the top 5 retrieved items and how fast the local API
+responds. It is **not** generated-answer accuracy, and it is **not** a universal
+benchmark-win claim against Mem0, Zep, Letta, or Memobase.
+
+| Metric | Lore Context v0.6 local API | Mem0 OSS v2.0.1 local run | Read it as |
+|---|---:|---:|---|
+| Retrieval hit@5 | **47.5%** (95/200) | 31.5% (63/200) | Higher is better |
+| P50 latency | **18.2 ms** | 342.3 ms | Lower is better |
+| P95 latency | **29.1 ms** | 709.8 ms | Lower is better |
+| P99 latency | **59.0 ms** | 2087.8 ms | Lower is better |
+| Query errors | 6 | **0** | Lore 429s are counted honestly |
+
+Read the full methodology and caveats in
+[docs/launch/memory-benchmark-report-2026-04-29.md](docs/launch/memory-benchmark-report-2026-04-29.md)
+or the public page at [lorecontext.com/benchmark](https://lorecontext.com/benchmark/).
 
 ## What is Lore Context
 
