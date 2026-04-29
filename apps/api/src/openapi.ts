@@ -65,7 +65,7 @@ export const openApiDocument = {
   openapi: "3.1.0",
   info: {
     title: "Lore Context API",
-    version: "0.5.0-alpha",
+    version: "0.6.0-alpha",
     description: "Local-first AI agent context control plane for memory, traces, eval, governance, and Evidence Ledger inspection."
   },
   servers: [

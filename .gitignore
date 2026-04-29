@@ -20,3 +20,9 @@ pnpm-debug.log*
 data/postgres/
 data/*.json
 data/*.env
+
+# Local external research snapshots; never publish with Lore releases.
+memvid-integration-assessment.md
+memvid-repo/
+playwright-mcp-analysis.md
+playwright-mcp/

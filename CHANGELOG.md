@@ -4,6 +4,66 @@ All notable changes to Lore Context are documented here. The format is based on
 [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
 
+## [v0.6.0-alpha] — 2026-04-29
+
+Distribution and Trust Sprint release. This release takes the v0.5 adoption
+substrate and makes it easier to discover, install, verify, and share without
+turning Lore into a hosted SaaS claim.
+
+### Added
+
+- **AI-readable website context** — the static website now publishes `llms.txt`
+  and `llms-full.txt`, canonical URLs, Open Graph/Twitter metadata, cache headers,
+  and public-source boundary text for AI-assisted discovery.
+- **Quickstart activation report** — `pnpm quickstart -- --activation-report`
+  can produce dry-run and real first-value evidence covering health, first memory
+  write, first context query, and the matching Evidence Ledger trace.
+- **Public-safe trust demo coverage** — `pnpm smoke:api` now verifies public-safe
+  eval report output and MIF JSON export while ensuring hard-deleted content is
+  not exported.
+- **Public-safe eval report CLI** — `scripts/export-eval-report.mjs --public-safe`
+  emits metrics and run metadata while excluding raw memory content and dataset
+  messages.
+- **Distribution pack** — `docs/distribution/` includes MCP registry, marketplace,
+  agent plugin, and MCP security drafts for human-reviewed submission.
+- **Launch and design partner pack** — `docs/launch/`, `docs/design-partners/`,
+  and the design partner issue template define the launch narrative, benchmark
+  methodology, intake rubric, and activation scorecard.
+
+### Changed
+
+- Root and package versions advanced to `0.6.0-alpha.0`.
+- OpenAPI metadata now reports `0.6.0-alpha`.
+- README, roadmap, project plan, and website copy now position v0.6 as the
+  current alpha release.
+- Website release verification now requires the new AI-readable files, metadata,
+  cache headers, and public-boundary leak checks.
+- Real quickstart activation proof uses an isolated temporary store per run and
+  validates the exact trace returned by the current `context.query`.
+
+### Fixed
+
+- Quickstart summaries and activation reports redact generated API keys in both
+  dry-run and real activation paths.
+- `--activation-report` no longer exits successfully when the proof is skipped
+  because the target local port is occupied.
+- Activation proof no longer falls back to stale Evidence Ledger rows from older
+  runs.
+- Public docs no longer expose local research snapshots or internal workflow
+  paths as public release facts.
+- Getting Started now documents `--out` for eval report file generation instead
+  of implying the CLI writes files by default.
+
+### Notes / Known limitations
+
+- `v0.6.0-alpha` still does **not** include public hosted SaaS, billing, managed
+  cloud sync, autonomous marketplace submission, or remote MCP HTTP as the default
+  path.
+- Marketplace, Show HN, Reddit, Discord, and partner outreach drafts remain
+  human-reviewed materials; the release does not auto-submit them.
+- Clean-checkout human timing and real design partner scorecard data are still
+  post-release validation work.
+
 ## [v0.5.0-alpha] — 2026-04-29
 
 Alpha Adoption Sprint release. This release turns the v0.4 production-hardened
@@ -34,7 +94,7 @@ agent actually used.
   returns shareable eval report output from stored runs.
 - **v0.5 planning and governance docs** — project plan, roadmap, architecture,
   release-governance, and deployment docs now distinguish public open-core release
-  work from private `lore-cloud` alpha work.
+  work from private cloud alpha work.
 
 ### Changed
 
@@ -65,7 +125,7 @@ agent actually used.
 - `v0.5.0-alpha` still does **not** include hosted multi-tenant cloud sync,
   billing, public SaaS signup, or remote MCP HTTP as the default path.
 - Private alpha infrastructure, tenant administration, backup/restore, and
-  observability remain private `Lore-Context/lore-cloud` work.
+  observability remain private cloud work.
 - Clean-checkout human timing for the 10-minute activation target still needs to
   be run with design partners after the public release.
 - The local checkout used for this release still demonstrates why public/private
@@ -219,6 +279,7 @@ Internal development milestones, not publicly released. Implemented:
 - Private Docker/Compose packaging.
 - Legacy + official-SDK stdio MCP transports.
 
+[v0.6.0-alpha]: https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha
 [v0.5.0-alpha]: https://github.com/Lore-Context/lore-context/releases/tag/v0.5.0-alpha
 [v0.4.0-alpha]: https://github.com/Lore-Context/lore-context/releases/tag/v0.4.0-alpha
 [v0.0.0]: https://github.com/Lore-Context/lore-context

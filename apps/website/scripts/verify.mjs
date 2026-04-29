@@ -49,12 +49,13 @@ const premiumInfrastructureLabels = [
   "Memory evidence ledger",
   "context.compose()",
   "gov · gate",
-  "System diagram · context plane v0.5",
+  "System diagram · context plane v0.6",
   "read path · policy gate · persist + audit",
   "Build manifest",
-  "Cloud sync (private)",
-  "Design partner timing",
-  "Docker Compose + Postgres",
+  "Activation report",
+  "AI-readable docs",
+  "Distribution pack",
+  "Design partner intake",
   "Private Deployment"
 ];
 const homeRuntimeLabels = [
@@ -74,7 +75,7 @@ const homeRuntimeLabels = [
   "context.query",
   "composer",
   "Postgres",
-  "Docker Compose",
+  "Activation report",
   "Eval Playground",
   "Private Deployment",
   "problem-visual",
@@ -85,7 +86,7 @@ const homeRuntimeLabels = [
 const docsPageMarkers = [
   "Run the alpha locally",
   "GitHub source",
-  "v0.5.0-alpha release",
+  "v0.6.0-alpha release",
   "Getting started",
   "API reference",
   "Deployment",
@@ -93,7 +94,7 @@ const docsPageMarkers = [
   "RELEASE GATE",
   "28 REST paths verified by pnpm openapi:check",
   "Context traces expose used and ignored memory rows",
-  "17 locales and 183 static files generated",
+  "17 locales and 185 static files generated",
   "LOCALIZED DOCS",
   "Community PRs can improve translation quality"
 ];
@@ -124,7 +125,7 @@ const motionKeys = [
   "statusGlow"
 ];
 
-const expectedFileCount = 4 + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
+const expectedFileCount = 6 + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
 if (files.size !== expectedFileCount) {
   failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
 }
@@ -202,7 +203,7 @@ for (const locale of localeCodes) {
   }
 }
 
-for (const path of ["index.html", "_headers", "robots.txt", "sitemap.xml", ...pageSlugs.map((slug) => `${slug}.html`)]) {
+for (const path of ["index.html", "_headers", "robots.txt", "sitemap.xml", "llms.txt", "llms-full.txt", ...pageSlugs.map((slug) => `${slug}.html`)]) {
   if (!files.has(path)) failures.push(`Missing release file: ${path}`);
 }
 
@@ -212,8 +213,47 @@ requireTexts("_headers", headers, [
   "X-Content-Type-Options: nosniff",
   "Referrer-Policy: strict-origin-when-cross-origin",
   "Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()",
-  "frame-ancestors 'none'"
+  "frame-ancestors 'none'",
+  "/llms.txt",
+  "/llms-full.txt"
 ]);
+
+const robotsTxt = files.get("robots.txt") ?? "";
+requireTexts("robots.txt", robotsTxt, [
+  "User-agent: *",
+  "Sitemap: https://lorecontext.com/sitemap.xml",
+  "LLMs: https://lorecontext.com/llms.txt"
+]);
+
+const llmsTxt = files.get("llms.txt") ?? "";
+requireTexts("llms.txt", llmsTxt, [
+  "# Lore Context",
+  "Evidence Ledger",
+  "Governance",
+  "Eval runner",
+  "MIF export/import",
+  "MCP stdio",
+  "pnpm quickstart -- --dry-run --activation-report",
+  "https://github.com/Lore-Context/lore-context/blob/main/docs/getting-started.md",
+  "public repository material only"
+]);
+const llmsFullTxt = files.get("llms-full.txt") ?? "";
+requireTexts("llms-full.txt", llmsFullTxt, [
+  "# Lore Context Public Context Pack",
+  "not another memory database",
+  "Evidence Ledger",
+  "MIF-style export/import",
+  "Claims LLMs should avoid",
+  "Do not claim Lore is generally available production SaaS",
+  "human review is required",
+  "redland2024@gmail.com"
+]);
+
+for (const [path, text] of [["llms.txt", llmsTxt], ["llms-full.txt", llmsFullTxt]]) {
+  if (/[.]omc|[.]omx|lore-cloud|memvid-repo|playwright-mcp|customer data\b|secret key|LORE_API_KEY=.*lore_/i.test(text)) {
+    failures.push(`${path} leaks private planning, research, or credential-shaped material.`);
+  }
+}
 
 for (const locale of localeCodes) {
   if (!files.get("sitemap.xml")?.includes(`https://lorecontext.com/${locale}/`)) {
@@ -229,6 +269,19 @@ for (const [path, html] of files) {
 
 for (const [path, html] of files) {
   if (!path.endsWith(".html")) continue;
+
+  requireTexts(path, html, [
+    '<meta name="description"',
+    'rel="canonical"',
+    'property="og:type" content="website"',
+    'property="og:site_name" content="Lore Context"',
+    'property="og:title"',
+    'property="og:description"',
+    'property="og:url"',
+    'name="twitter:card" content="summary"',
+    'name="twitter:title"',
+    'name="twitter:description"'
+  ]);
 
   if (!html.includes("redland2024@gmail.com")) {
     failures.push(`${path} must keep the canonical REDLAND contact email.`);

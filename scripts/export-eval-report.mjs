@@ -7,10 +7,11 @@ const format = readArg("--format") ?? "markdown";
 const outPath = readArg("--out");
 const requestedRunId = readArg("--run-id");
 const projectId = readArg("--project-id") ?? process.env.LORE_DEMO_PROJECT_ID;
+const publicSafe = process.argv.includes("--public-safe");
 
 const evalRun = requestedRunId ? await getJson(`/v1/eval/runs/${encodeURIComponent(requestedRunId)}`) : await latestRun();
 const run = evalRun.evalRun ?? evalRun;
-const report = format === "json" ? `${JSON.stringify(run, null, 2)}\n` : renderMarkdown(run);
+const report = format === "json" ? `${JSON.stringify(renderJson(run), null, 2)}\n` : renderMarkdown(run);
 
 if (outPath) {
   const target = resolve(outPath);
@@ -45,6 +46,15 @@ async function getJson(path) {
   return body;
 }
 
+function renderJson(run) {
+  if (!publicSafe) return run;
+  return {
+    publicSafe: true,
+    redactionPolicy: "metrics and run metadata only; raw memory content and dataset messages excluded",
+    evalRun: run
+  };
+}
+
 function renderMarkdown(run) {
   const metrics = run.metrics ?? {};
   return [
@@ -54,6 +64,12 @@ function renderMarkdown(run) {
     `- Provider: \`${run.provider}\``,
     `- Project: \`${run.projectId ?? "unscoped"}\``,
     `- Created: \`${run.createdAt}\``,
+    ...(publicSafe
+      ? [
+          "- Public-safe: `true`",
+          "- Redaction policy: metrics and run metadata only; raw memory content and dataset messages excluded."
+        ]
+      : []),
     "",
     "| Metric | Value |",
     "| --- | ---: |",

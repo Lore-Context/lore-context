@@ -19,7 +19,7 @@ describe("getHealthResponse", () => {
 });
 
 describe("openapi", () => {
-  it("documents every v0.5 adoption endpoint", () => {
+  it("documents every v0.6 adoption endpoint", () => {
     const paths = Object.keys(openApiDocument.paths);
     expect(openApiDocument.openapi).toBe("3.1.0");
     expect(openApiDocument.components.securitySchemes).toMatchObject({

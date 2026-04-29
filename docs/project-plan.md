@@ -4,94 +4,132 @@ Last updated: 2026-04-29
 
 ## 0. 负责人结论
 
-Lore Context 已完成 `v0.5.0-alpha` 公开 Alpha Adoption Sprint：官网上线，公开仓库发布，闭源仓库建立，核心 API / MCP / Dashboard / Postgres / Governance / Eval / MIF / Docker Compose 能跑通，并新增 OpenAPI、quickstart、三条黄金集成路径和 Evidence Ledger。
+Lore Context 已完成 `v0.6.0-alpha` 发布包。当前公开仓库、官网、OpenAPI、quickstart activation report、MCP server、Dashboard、Evidence Ledger、Eval、MIF、Governance、Postgres/pgvector、Docker Compose 私有部署路径、AI-readable docs、distribution pack 和 design partner intake 都已经进入可试用状态。
 
-下一阶段从“能发布”转为“验证真实采用”：
+下一阶段不应该急着做公开 SaaS、billing 或更复杂的 memory backend。2026 年的市场信号很清楚：基础 agent memory 正在被平台和 memory vendor 商品化。Lore 要赢，需要把 `v0.6.0-alpha` 发布后的验证重点放在 **Distribution and Trust Sprint** 的真实采用证据上：
 
-**v0.5 Design Partner Activation**
+**让开发者在 10 分钟内看到可审计的 agent memory 证据，并让 AI 工具、MCP registry、搜索入口和技术社区都能正确发现 Lore。**
 
-目标不是继续堆 memory 功能，而是让 5-10 个真实 agent 重度用户在 10 分钟内跑通 Lore，并愿意把一个真实 agent 工作流接进来。
+一句话定位保持不变：
 
-一句话战略：
-
-**基础 memory 正在被平台和 memory vendor 商品化。Lore 要赢，必须赢在团队级可信上下文控制平面：可证明、可评估、可迁移、可审计、可治理。**
+**Lore 不是另一个记忆数据库，而是让团队能审计、治理、评估、迁移 agent memory 的可信上下文控制平面。**
 
 ## 1. 当前项目状态
 
-### 1.1 已发布状态
+### 1.1 已发布事实
 
 | 项目面 | 当前状态 |
 |---|---|
-| 官网 | `https://www.lorecontext.com/` 已上线 |
+| 公开版本 | `v0.6.0-alpha` pre-release |
+| 根版本 | `0.6.0-alpha.0` |
 | 公开仓库 | `Lore-Context/lore-context`，public |
-| 闭源仓库 | `Lore-Context/lore-cloud`，private |
-| 公开版本 | `v0.5.0-alpha` pre-release |
-| GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.5.0-alpha` |
-| CI | 公开仓库最近一次 `main` push CI 成功 |
-| 核心能力 | REST API、MCP stdio、Next Dashboard、Postgres+pgvector、governance、eval、MIF、rate limit、structured logging、Docker Compose |
-| 当前公开非目标 | hosted multi-tenant cloud sync、remote billing、public SaaS |
+| 当前公开线 | `origin/main` |
+| 公开 tag | `v0.6.0-alpha` |
+| GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
+| 官网 | `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已上线 |
+| 私有云端组件 | 存在，但不属于公开仓库发布面 |
+| 当前核心能力 | REST API、MCP stdio、Next Dashboard、OpenAPI、quickstart activation report、Evidence Ledger、Eval、Governance、MIF、Postgres/pgvector、Docker Compose、17 locale docs、AI-readable docs、public-safe eval report、distribution pack |
+| 当前公开非目标 | public hosted SaaS、billing、managed cloud sync、remote MCP HTTP default |
 
-### 1.2 发布治理风险
+### 1.2 已完成能力
 
-当前本地 checkout 同时挂了公开远端 `origin` 和闭源远端 `closed`，且本地 `main` 相对 `origin/main` 处于双向分叉状态。后续必须把公开线和闭源线制度化，否则存在三个风险：
+- REST API with API-key auth, role separation, rate limiting, structured logging, graceful shutdown.
+- OpenAPI 3.1 at `GET /openapi.json` and `pnpm openapi:check`.
+- `pnpm quickstart` for environment checks, random key preview, first-query curl, and Claude Code / Cursor / Qwen Code MCP snippets.
+- MCP stdio server using both legacy and official SDK transports.
+- Dashboard behind HTTP Basic Auth.
+- Evidence Ledger API and Dashboard summary for retrieved / used / ignored / missing / stale / conflicting / risky memory evidence.
+- JSON-file and Postgres+pgvector persistence.
+- Governance state machine, risk scanning, poisoning heuristics, immutable audit log.
+- Eval runner and JSON/Markdown report export.
+- MIF v0.2 import/export with `supersedes` and `contradicts`.
+- Docker Compose private deployment path.
+- Public website and static docs across 17 locales.
 
-1. 内部部署、客户配置、商业计划误推到公开仓库。
-2. 公开仓库和闭源仓库历史继续分叉，难以追踪哪条线是 release source of truth。
-3. `v0.5` 开发过程中，open-core 与 hosted/private alpha 的边界变模糊。
+### 1.3 未完成验证
 
-`v0.5` 的第一项工作必须是发布治理，不是功能开发。
+These are now adoption-validation items, not v0.5 release blockers:
 
-### 1.3 v0.5 发布状态
+- clean checkout 的真实 10-minute activation 人工计时；
+- first Evidence Ledger view 的真人完成率；
+- Claude Code / Cursor / Qwen Code 三条 golden path 的 fresh-user copy-paste 验证；
+- public-safe eval report 在真实设计伙伴数据上的脱敏验证；
+- 5-10 个 design partner 的真实工作流验证；
+- public/private 本地 checkout 的长期制度化拆分；
+- 私有云端 alpha runbook、backup/restore、observability 的当前状态复核。
 
-截至 2026-04-29，`v0.5.0-alpha` 已公开发布：
+### 1.4 发布边界注意事项
 
-- public `main` commit: `4b03125`。
-- GitHub Release: `https://github.com/Lore-Context/lore-context/releases/tag/v0.5.0-alpha`。
-- GitHub Actions `build-test` run `25067254659` 已通过。
-- Cloudflare Pages 项目 `lore-context` 已部署，正式域名 `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已返回 v0.5 官网文档。
+公开 release 只包含 Lore 源码、公开 docs、demo dataset、website、integration
+templates 和 release notes。外部调研快照、内部计划、私有 runbook、客户数据、
+生产 memory export、hosted/cloud 配置和 secret-bearing material 不进入公开仓库发布面。
 
-- 已新增 OpenAPI 3.1 文档源和 `GET /openapi.json`。
-- 已新增 `pnpm openapi:check`，用于验证 v0.5 必备路径和 auth scheme。
-- 已新增 Evidence Ledger API：
-  - `GET /v1/evidence/ledger/:trace_id`
-  - `GET /v1/evidence/ledgers?project_id=&limit=`
-- Dashboard Recent Traces 已显示 Evidence Ledger 摘要。
-- 已新增 `pnpm quickstart -- --dry-run`，用于本地环境检查、随机 key 生成预览、first query curl 和三套 MCP config 输出。
-- Claude Code / Cursor / Qwen Code 文档已补充 v0.5 smoke 与 troubleshooting。
-- 已补充 `CHANGELOG.md`、README、Roadmap、Architecture、Deployment、API reference 和官网文档的 v0.5 发布状态。
+### 1.5 v0.6 当前执行状态
+
+`v0.6` 已完成实现和本地 release gate 修复，进入公开发布与发布后采用验证：
+
+| 工作包 | 当前状态 | 主要落点 |
+|---|---|---|
+| AI-readable discovery | 已实现并通过 website test | `apps/website/src/site.mjs`, `/llms.txt`, `/llms-full.txt`, canonical/OG/Twitter metadata |
+| Activation evidence | 已实现并通过 dry-run + real first-value timing path；端口占用时 fail closed | `scripts/lore-quickstart.mjs`, `pnpm quickstart -- --dry-run --activation-report`, `LORE_API_URL=http://127.0.0.1:3099 pnpm quickstart -- --activation-report --skip-build --skip-seed` |
+| Trust demo coverage | 已扩展 smoke | `scripts/smoke-api.mjs` now verifies public-safe eval report and MIF JSON export |
+| Public-safe eval report CLI | 已实现 | `scripts/export-eval-report.mjs --public-safe` |
+| Distribution docs | 已补齐 draft source and per-surface/plugin/security drafts | `docs/distribution/` |
+| Launch content pack | 已补齐 draft source | `docs/launch/` |
+| Design partner intake | 已补齐 draft source | `docs/design-partners/`, `.github/ISSUE_TEMPLATE/design-partner.yml` |
+
+当前已验证命令：
+
+```bash
+pnpm --filter @lore/website test
+pnpm quickstart -- --dry-run --activation-report
+pnpm build
+pnpm smoke:api
+pnpm smoke:mcp
+pnpm smoke:dashboard
+pnpm openapi:check
+pnpm test
+pnpm audit --prod
+```
 
 发布后仍未完成：
 
-- clean checkout 的真实 10-minute activation 人工计时；
-- public/private 本地 checkout 拆分；
-- private `lore-cloud` runbook；
-- public-safe eval report 的进一步脱敏测试；
-- 5-10 个 design partner 的真实工作流验证。
+- clean checkout 10-minute activation 真人计时；
+- marketplace/HN/Reddit/Discord/email 的人工发布；
+- design partner 真实会话和 scorecard 数据。
 
-## 2. 外部市场更新
+## 2. 市场更新
 
-### 2.1 平台方正在内建基础 memory
+### 2.1 基础 memory 正在平台化
 
-- GitHub Copilot Memory 已经是 public preview，面向 Copilot Pro / Pro+ / Business / Enterprise，并允许 repository owner 查看和删除 memory；GitHub 文档也明确 memory 会 28 天自动删除以避免 stale information。
-- Cloudflare Agent Memory 已进入 private beta，提供 profile 级 ingest / remember / recall / list / forget，并强调 memory profile 可被 agent、团队和工具共享。
+- GitHub Copilot Memory 已是 public preview，并支持 repository owner 查看/删除 memory；GitHub 文档说明 memory 会 28 天自动删除以降低 stale information 风险。
+- Cloudflare Agent Memory 已进入 private beta，用 profile 暴露 ingest / remember / recall / list / forget，并强调 shared memory across agents, people, and tools。
+- Cloudflare 同时在 remote MCP server、OAuth、skills/plugin 安装路径上做平台级分发。
 
-结论：平台会吃掉“基础记忆”和“代码仓库局部 memory”需求。Lore 不应该宣传成 Copilot Memory 替代品。
+结论：平台会吃掉“基础记忆”和“本平台内 agent memory”需求。Lore 不应该宣传成 GitHub/Cloudflare memory 替代品，而应该成为跨平台 memory trust plane。
 
-### 2.2 独立 memory vendor 已经把基础能力价格压低
+### 2.2 独立 memory vendor 已经很强
 
-- Supermemory 免费层已包含 1M tokens/月、10K search queries/月、unlimited storage/users，Pro 为 19 美元/月，并包含 Claude Code、Cursor、OpenCode、OpenClaw、Codex 插件。
-- Mem0 将 open source 定位为 self-hosted / full control，把 managed platform 的价值放在 5 分钟上线、managed infra、analytics、enterprise controls、dashboard。
-- Zep / Graphiti MCP 已将 local temporal knowledge graph memory 打包成跨 MCP client 的本地体验。
+当前竞品格局：
 
-结论：Lore 不要和这些产品比“谁存得更多、搜得更准”。我们要把竞争维度移到 evidence、governance、eval、portability。
+| 玩家 | 当前信号 | 对 Lore 的含义 |
+|---|---|---|
+| Mem0 | GitHub 高星，OSS 强调 self-hosted、full control、server+dashboard、audit log、Postgres/pgvector | 不要正面打“memory database”；用 evidence/governance/eval/portability 拉开维度 |
+| Letta | MemFS 把 agent memory 做成 git-backed context repository，由 agent 自主管理 markdown memory | Lore 应该强调外部控制平面和团队审计，而不是 agent 自我记忆框架 |
+| Zep / Graphiti | local temporal knowledge graph MCP，跨 MCP client，本地隐私 | Lore 应该能解释和评估 graph memory，而不是复制 graph engine |
+| Supermemory | 免费层和 $19/月 Pro 已包含插件生态，支持 Claude Code / Cursor / OpenCode / OpenClaw / Codex | Lore 不能靠低价 memory SaaS 取胜；要靠可信控制面和 private deployment |
+| Cognee | 高星、活跃、主打开源 memory/RAG 结构化 | Lore 需要更清楚表达自己不是另一个 RAG/memory framework |
 
-### 2.3 `v0.5` 产品判断
+### 2.3 分发入口正在迁移
 
-`v0.5` 发布后必须回答一个 adoption 问题：
+2026 年的 developer discovery 已经不只是 Google 和 GitHub README：
 
-> 一个重度 agent 用户，能否在 10 分钟内把 Claude Code / Cursor / Qwen Code 接进 Lore，并看到一次 context query 的完整 evidence ledger？
+- AI-readable docs：`llms.txt` / `llms-full.txt` / markdown docs index 正在成为 AI agent 读取产品文档的低成本入口。
+- MCP Registry：官方 registry preview 已经把公开 MCP servers 的发现、分发和子 registry 作为标准路径。
+- Agent skills/plugins：Cloudflare 已经同时覆盖 Claude Code、Cursor、OpenCode、Codex 等 agent skill/plugin 安装路径。
+- Marketplace：Vercel、Cloudflare、MCP 生态、IDE/agent plugin marketplace 都在把 AI infra 变成可安装组件。
 
-如果不能，继续做云同步、billing、复杂 multi-tenant 都太早。
+结论：`v0.6` 的高 ROI 不是先做更多后台功能，而是让 Lore 被 AI 工具和开发者入口正确发现、安装、验证、引用。
 
 ## 3. 产品定位
 
@@ -103,466 +141,376 @@ Lore Context 是 AI-agent memory 之上的可信上下文控制平面：
 - 记录 memory 是否被检索、是否被注入、是否被忽略；
 - 识别 stale、conflict、sensitive、poisoning 风险；
 - 在用户自己的数据集上评估 recall / precision / stale-hit / latency；
-- 提供 MIF-like import/export，降低 memory backend 切换成本；
+- 提供 MIF import/export，降低 memory backend 切换成本；
 - 为团队和私有部署提供 audit、review、forget、role boundary。
 
 ### 3.2 Lore 不是什么
 
-`v0.5` 继续不做：
+当前阶段继续不做：
 
 - 通用 memory database；
-- Supermemory / Mem0 / agentmemory clone；
+- Mem0 / Supermemory / Zep / Letta clone；
 - 全量 RAG / 知识库平台；
-- 公开 hosted SaaS；
-- 付费 billing；
+- public hosted SaaS；
+- Stripe / billing；
 - 多区域云同步；
-- 复杂 enterprise SSO。
+- enterprise SSO；
+- 自动群发 outreach。
 
 ### 3.3 首批用户
 
-`v0.5` 只服务三类用户：
-
-1. 同时使用 Claude Code、Cursor、Qwen Code 的 agent 重度用户。
-2. 在团队中担心 agent memory 过期、污染、泄露或不可迁移的技术负责人。
+1. 同时使用 Claude Code、Cursor、Qwen Code、OpenCode、Codex 或 Hermes 的 agent 重度用户。
+2. 担心 agent memory 过期、污染、泄露、不可迁移的技术负责人。
 3. 愿意参与 private alpha 的 3-5 个设计伙伴。
+4. 需要把 AI memory 引入合规/安全流程的 infra/security lead。
 
-## 4. v0.5 范围
+## 4. v0.6 推荐方向
 
-### 4.1 v0.5 目标
+### 4.1 Release theme
 
-`v0.5.0-alpha` 的发布目标与当前实现状态：
+`v0.6.0-alpha` 推荐主题：
 
-1. **10-minute activation**：从 clone 到第一次 `context.query` 成功，目标小于 10 分钟。代码路径已准备，仍需真人计时。
-2. **3 条 golden paths**：Claude Code、Cursor、Qwen Code 均已有 copy-paste 配置、验证命令、故障排查。
-3. **Evidence Ledger**：Dashboard 中能解释一次 context query 使用了什么、忽略了什么、为什么有风险、如何纠正或删除。
-4. **OpenAPI + config generation**：REST API 可由机器读取，集成配置可自动生成并验证。
-5. **Private Alpha 准备**：公开仓库只记录方向；tenant/auth/deploy/backup/observability 的具体 runbook 仍属于闭源 `lore-cloud`。
+**Distribution and Trust Sprint**
 
-### 4.2 v0.5 非目标
+目标：
 
-- 不做 public SaaS signup。
-- 不做 Stripe / billing。
-- 不做 remote MCP HTTP 作为默认路径。
-- 不新增大规模依赖。
-- 不把闭源 IaC、客户配置、内部 runbook 放入公开仓库。
-- 不对 Dify / FastGPT / OpenWebUI / Hermes / Cherry Studio 做深度端到端体验；它们继续保持文档级支持。
+1. 把 v0.5 的“能跑通”变成 v0.6 的“容易被发现、容易安装、容易验证、容易分享”。
+2. 让 Evidence Ledger、Eval report、Governance audit、MIF portability 形成一个完整 trust demo。
+3. 准备 Show HN / marketplace / MCP registry / technical benchmark 的公开 launch package，但不伪造 benchmark，也不夸大 alpha 状态。
 
-## 5. v0.5 架构设计
+### 4.2 v0.6 implementation architecture
 
-### 5.1 总体架构
+`v0.6` 的架构不是新增一个大系统，而是在 v0.5 substrate 上增加一层可发现、可验证、可交付的 adoption loop：
 
 ```text
-Developer / Operator
+AI tools / developers / MCP registry
   |
-  | 10-minute quickstart
+  | discover
   v
-docs/getting-started.md + scripts/lore-quickstart.mjs
+apps/website generated docs
+  |-- /llms.txt
+  |-- /llms-full.txt
+  |-- SEO / Open Graph / sitemap / robots
   |
-  +--> generate .env.local, API keys, MCP config snippets
-  +--> seed demo dataset
-  +--> run local API + dashboard smoke
-  |
+  | install and verify
   v
-Claude Code / Cursor / Qwen Code
+scripts/lore-quickstart.mjs
+  |-- environment checks
+  |-- no-global-mutation config snippets
+  |-- local activation timing report
+  |-- first memory write / context query / ledger fetch
   |
-  | MCP stdio / REST
+  | prove trust
   v
-apps/mcp-server  ----->  apps/api
-                          |
-                          +--> context.query
-                          +--> evidence ledger read model
-                          +--> memory write/update/forget
-                          +--> eval run + report export
-                          +--> governance review queue
-                          |
-                          v
-              JSON-file or Postgres+pgvector store
-                          |
-                          v
-               apps/dashboard Evidence Ledger UI
+trust demo pack
+  |-- examples/demo-dataset
+  |-- Evidence Ledger trace
+  |-- public-safe Eval report
+  |-- Governance audit event
+  |-- MIF export
+  |
+  | distribute and launch
+  v
+docs/distribution + docs/launch + docs/design-partners
+  |-- MCP Registry metadata draft
+  |-- marketplace/plugin drafts
+  |-- Show HN draft
+  |-- benchmark methodology
+  |-- design partner activation scorecard
 ```
 
-### 5.2 OpenAPI 技术路径
+实现原则：
 
-`v0.5` 不引入 heavyweight API framework。推荐实现：
+- public docs bundle 只能从公开 docs allowlist 生成，不能扫内部计划目录、私有 runbook 或未跟踪调研目录。
+- quickstart 可以写本地项目文件，但默认不写用户全局 Claude/Cursor/Qwen/OpenCode/Codex 配置。
+- trust demo 必须由脚本可重复跑出，不能只写营销文案。
+- marketplace 和 outreach 只准备 metadata，不自动提交或群发。
+- 所有 benchmark claim 必须有脚本输出或公开来源支撑。
 
-- 新增 `apps/api/src/openapi.ts`，用 TypeScript 常量维护 OpenAPI 3.1 document。
-- 新增 `GET /openapi.json`。
-- 新增 `scripts/verify-openapi.mjs`，验证：
-  - 所有公开 REST route 均被文档覆盖；
-  - request/response examples 可以 JSON.parse；
-  - security scheme 包含 bearer auth；
-  - v0.5 golden path endpoints 包含 `context.query`、memory write/search/list/get/forget、trace detail、eval run、evidence ledger。
-- 不在 v0.5 阶段引入 Swagger UI runtime。官网/docs 可链接 `openapi.json`。
+### 4.3 AI-executable work packages
 
-验收标准：
+执行时建议按以下文件边界拆分，避免多个 agent 抢同一片代码：
 
-- `curl http://127.0.0.1:3000/openapi.json` 返回合法 OpenAPI JSON。
-- `pnpm test` 覆盖 `/openapi.json`。
-- `pnpm run doctor` 或新增 `pnpm openapi:check` 能在 CI 验证 route coverage。
+| Package | Goal | Primary files | Exit evidence |
+|---|---|---|---|
+| A. Website discovery | 生成 `llms.txt` / docs bundle / metadata verify | `apps/website/src/site.mjs`, `apps/website/scripts/*`, `docs/getting-started.md`, `docs/integrations/README.md` | `pnpm --filter @lore/website test` |
+| B. Activation report | quickstart 输出本地 timing report，保持 no-global-mutation | `scripts/lore-quickstart.mjs`, `scripts/generate-integration-config.mjs`, golden integration docs | `pnpm quickstart -- --dry-run` |
+| C. Trust demo | 一条 demo 串起 query、ledger、eval、governance、MIF | `examples/demo-dataset/`, `scripts/seed-demo.mjs`, `scripts/smoke-api.mjs`, `scripts/export-eval-report.mjs`, `packages/eval` | `pnpm smoke:api`, `pnpm eval:report -- --project-id demo-private --public-safe --out output/eval-reports/demo.md` |
+| D. Dashboard evidence | 确认 dashboard 展示 trust demo 的 ledger/eval 摘要 | `apps/dashboard/app/page.tsx`, `scripts/smoke-dashboard.mjs` | `pnpm smoke:dashboard` |
+| E. Distribution docs | MCP registry 和 marketplace metadata 草稿 | `docs/distribution/*`, `README.md`, `apps/mcp-server/package.json` | markdown review + no auto-submit wording |
+| F. Launch and partner docs | Show HN、deep dives、benchmark methodology、design partner scorecard | `docs/launch/*`, `docs/design-partners/*`, `.github/ISSUE_TEMPLATE/design-partner.yml` | docs exist, alpha status visible, no unsupported claims |
 
-### 5.3 Quickstart 技术路径
+Internal execution handoff files live outside the public documentation surface.
+Agents should stop at implementation completion and verification evidence. Human
+operators still decide whether to submit marketplace listings, post HN/Reddit,
+contact design partners, or tag/release.
 
-新增 `scripts/lore-quickstart.mjs`，目标是把新用户的本地步骤缩短为：
+### 4.4 v0.6 P0 工作流
 
-```bash
-pnpm install
-pnpm quickstart
-```
+#### P0-1: AI-readable docs and discovery
 
-脚本职责：
+文件/模块：
 
-1. 检查 Node >= 22、pnpm 版本、端口占用。
-2. 生成 `.env.local` 或 `data/dev.env`，使用 `crypto.randomBytes` 生成 reader/writer/admin keys。
-3. 运行 `pnpm build`。
-4. 启动 API 临时 smoke 或提示用户运行长期服务。
-5. seed `demo-private` 数据。
-6. 输出 Claude Code / Cursor / Qwen Code 三套可复制 MCP config。
+- `apps/website/src/site.mjs`
+- `apps/website/scripts/verify.mjs`
+- `apps/website/dist/robots.txt`
+- `apps/website/dist/sitemap.xml`
+- new `apps/website/dist/llms.txt` and optional `llms-full.txt`
+- `docs/getting-started.md`
+- `docs/integrations/README.md`
 
-限制：
+交付：
 
-- 不自动写入用户全局 IDE 配置。
-- 不启动生产模式。
-- 不生成任何固定 demo key。
+- 官网生成 `llms.txt`，只列最关键的 docs、quickstart、OpenAPI、integrations、security/governance。
+- 生成 `llms-full.txt` 或 docs bundle，供 AI coding tools 直接 ingest。
+- 每个 docs 页面补齐 title / description / Open Graph / canonical / hreflang 验证。
+- `robots.txt` 明确公开 docs、sitemap、llms 文件。
 
-验收标准：
+验收：
 
-- 在 clean checkout 中，`pnpm quickstart` 结束后能打印 `context.query` curl 和 3 个 MCP config。
-- 所有生成 key 都不是 placeholder。
-- quickstart 失败时输出明确 remediation。
+- `pnpm --filter @lore/website test` 验证 `llms.txt`、sitemap、17 locales、metadata。
+- `curl https://lorecontext.com/llms.txt` 能让 AI agent 在 1-2 屏内找到 quickstart、OpenAPI、MCP setup、Evidence Ledger。
 
-### 5.4 Evidence Ledger 技术路径
+#### P0-2: One-command activation package
 
-当前 `ContextTrace` 已记录：
+文件/模块：
 
-- `retrievedMemoryIds`
-- `composedMemoryIds`
-- `ignoredMemoryIds`
-- `warnings`
-- `latencyMs`
-- `tokenBudget`
-- `tokensUsed`
-- feedback
+- `scripts/lore-quickstart.mjs`
+- `scripts/generate-integration-config.mjs`
+- `package.json`
+- `docs/getting-started.md`
+- `docs/integrations/claude-code.md`
+- `docs/integrations/cursor.md`
+- `docs/integrations/qwen-code.md`
 
-`v0.5` 不需要先改数据库大结构，可以新增 trace-centric read model：
+交付：
 
-```ts
-interface EvidenceLedger {
-  traceId: string;
-  query: string;
-  projectId?: string;
-  route: ContextRoute;
-  summary: {
-    retrieved: number;
-    composed: number;
-    ignored: number;
-    warnings: number;
-    riskTags: string[];
-    staleCount: number;
-    conflictCount: number;
-  };
-  rows: EvidenceLedgerRow[];
-  actions: EvidenceLedgerAction[];
-}
+- 将 quickstart 文档压缩成 one-command first path：`pnpm quickstart -- --write-env` 仍保留；同时评估 `npx -y @lore-context/quickstart` 或 `pnpm dlx` 包装器。
+- 记录 clean-checkout timing：clone、install、quickstart、API healthy、first memory write、first context query、first ledger view。
+- 输出一个本地 `data/activation-report.json`，只含时间戳和本地步骤，不自动上传。
 
-interface EvidenceLedgerRow {
-  memoryId: string;
-  contentPreview: string;
-  disposition: "used" | "ignored" | "blocked";
-  status: MemoryStatus;
-  confidence: number;
-  sourceRefs: SourceRef[];
-  riskTags: string[];
-  warnings: string[];
-  lastUsedAt?: string | null;
-  supersededBy?: string | null;
-}
-```
+验收：
 
-新增 API：
+- fresh clone 到 first `context.query` < 10 分钟。
+- first Evidence Ledger view < 15 分钟。
+- quickstart 不写用户全局 Claude/Cursor/Qwen config。
 
-- `GET /v1/evidence/ledger/:trace_id`
-- `GET /v1/evidence/ledgers?project_id=&limit=`
+#### P0-3: Trust demo pack
 
-Dashboard 新增 Evidence Ledger 页面/面板：
+文件/模块：
 
-- 每条 context query 一张 ledger；
-- 显示 used / ignored / warnings / feedback；
-- 支持对 memory 执行：view、mark wrong、mark outdated、forget、supersede；
-- 对 sensitive/redacted/candidate 只显示安全摘要。
+- `examples/demo-dataset/`
+- `scripts/export-eval-report.mjs`
+- `packages/eval`
+- `apps/dashboard/app/page.tsx`
+- `docs/api-reference.md`
 
-验收标准：
+交付：
 
-- 跑 `pnpm smoke:api` 后能通过 trace id 获取 ledger。
-- Dashboard smoke 能看到 ledger rows。
-- Ledger 不泄露 hard-deleted memory 原文。
+- 一个可重复 demo：memory write -> context query -> Evidence Ledger -> eval report -> governance review -> MIF export。
+- public-safe eval report 默认 redacted；明确 dataset id、provider id、run id、timestamp、query policy。
+- Dashboard 能用一个 trace 展示 used / ignored / risky / stale / conflict。
 
-### 5.5 三条 golden integration paths
+验收：
 
-只打穿：
-
-1. Claude Code
-2. Cursor
-3. Qwen Code
-
-每条路径必须包含：
-
-- copy-paste MCP config；
-- minimal API startup command；
-- `memory_write` smoke；
-- `context_query` smoke；
-- how to disable mutating tools；
-- troubleshooting：
-  - stdout 被 package-manager banner 污染；
-  - API key 401/403；
-  - port 3000 already in use；
-  - agentmemory offline degraded；
-  - scoped project id missing。
-
-验收标准：
-
-- `pnpm config:integrations` 输出三套 configs。
-- 文档中每套 config 都包含 `LORE_API_URL`、`LORE_API_KEY`、`LORE_MCP_TRANSPORT=sdk`。
-- `pnpm smoke:mcp` 继续验证 legacy + official SDK stdio。
-
-### 5.6 Eval report 技术路径
-
-把现有 `pnpm eval:report` 产品化：
-
-- 输出 Markdown + JSON；
-- report header 包含 dataset id、provider id、run id、timestamp、query policy、project id；
-- 支持 `--public-safe`，默认隐藏 raw memory content，只输出 metrics + redacted examples；
-- Dashboard 增加 latest eval card 和 download link。
-
-验收标准：
-
-- `pnpm eval:report -- --project-id demo-private --public-safe` 输出可分享 Markdown。
+- `pnpm smoke:api && pnpm smoke:dashboard && pnpm eval:report -- --project-id demo-private --public-safe --out output/eval-reports/demo.md` 产出可公开展示的证据链。
 - 报告不包含 API key、raw secret、hard-deleted content。
 
-### 5.7 闭源 `lore-cloud` 技术路径
+#### P0-4: MCP registry and marketplace metadata
 
-`v0.5` 期间闭源仓库只做 private alpha readiness：
+文件/模块：
 
-- tenant model：organization / project / user / API key scope；
-- auth boundary：dashboard auth、API key lifecycle、admin invite policy；
-- deployment runbook：Cloudflare Access + AWS single-host Compose；
-- backup/restore：Postgres dump、restore drill、retention policy；
-- observability：health checks、structured logs、basic metrics、alert checklist；
-- customer data policy：where memory/eval/traces live, deletion path, support access.
+- new `docs/distribution/`
+- new `docs/distribution/mcp-registry.md`
+- new `docs/distribution/marketplace-metadata.md`
+- `apps/mcp-server/package.json`
+- `README.md`
 
-明确不做：
+交付：
 
-- Stripe；
-- self-serve signup；
-- public hosted dashboard；
-- enterprise SSO；
-- multi-region active-active。
-
-验收标准：
-
-- 一个设计伙伴能拿到 private hosted URL；
-- API 和 dashboard 都在 Cloudflare Access / API key 后面；
-- restore drill 能从 backup 恢复 demo-private project；
-- runbook 能让第二个 operator 复现部署。
-
-## 6. 30 天执行计划
-
-### Week 1: 发布治理与 Alpha 可用性
-
-P0:
-
-- 固定 public/private repo 工作流。
-- 创建两个本地 checkout 或 worktree：
-  - `lore-context-public` 只推 `origin`；
-  - `lore-cloud-private` 只推 `closed`。
-- 公开仓库开启 branch protection、required CI、secret scanning。
-- 新增 OpenAPI document + `/openapi.json`。
-- 新增 `pnpm quickstart`。
-- 更新 Claude Code / Cursor / Qwen Code 三条集成文档。
+- 官方 MCP Registry submission metadata draft。
+- Claude Code / Cursor / OpenCode / Codex skill/plugin metadata draft。
+- Vercel / Cloudflare / LangChain / marketplace listing copy drafts where applicable。
+- Security note for MCP stdio and any future remote MCP path.
 
 验收：
 
-- clean checkout 中 10 分钟内完成 first `context.query`。
-- `pnpm build && pnpm test && pnpm smoke:api && pnpm smoke:mcp` 通过。
-- public repo 不包含 internal launch plans、customer configs、cloud secrets。
+- 每个 listing 有 name、short description、long description、install command、logo/icon requirement、security posture、demo link、support link。
+- 人工发布前必须 review；不允许 agent 自动提交 marketplace/outreach。
 
-### Week 2: 用户验证
+#### P0-5: Launch content pack
 
-P0:
+文件/模块：
 
-- 找 5-10 个 AI agent 重度用户。
-- 每个用户只验证一个真实 workflow。
-- 记录 activation funnel：
-  - clone start time；
-  - install complete；
-  - API healthy；
-  - first memory write；
-  - first context query；
-  - first ledger view；
-  - second-day return。
-- 收集付费意愿：
-  - hosted sync；
-  - private deployment；
-  - support；
-  - audit/export reports。
+- new `docs/launch/`
+- new `docs/launch/show-hn-draft.md`
+- new `docs/launch/benchmark-methodology.md`
+- new `docs/launch/evidence-ledger-deep-dive.md`
+- new `docs/launch/governance-deep-dive.md`
+
+交付：
+
+- Show HN 草稿：第一人称、透明 alpha、突出 evidence ledger。
+- Benchmark methodology：先公开方法，不先夸结果；对比维度包括 activation、auditability、stale handling、portability，而不只是 Recall@K。
+- 2 篇技术长文草稿：Evidence Ledger、Governance state machine。
 
 验收：
 
-- 至少 5 个用户完成 first context query。
-- 至少 3 个用户完成一次 integration path。
-- 至少 2 个用户愿意继续使用一周。
+- 所有 benchmark claim 都能由脚本输出或公开 source 支撑。
+- 不贬低 Mem0 / Letta / Zep / Supermemory。
+- 不隐藏 alpha 状态。
 
-### Week 3: v0.5 产品化
+#### P0-6: Design partner intake and feedback loop
 
-P0:
+文件/模块：
 
-- Evidence Ledger API + Dashboard。
-- Eval report public-safe export。
-- Memory stale/conflict review queue 更清晰。
-- 文档补足 troubleshooting。
+- new `docs/design-partners/`
+- new `docs/design-partners/intake.md`
+- new `docs/design-partners/activation-scorecard.md`
+- new `.github/ISSUE_TEMPLATE/design-partner.yml`
 
-验收：
+交付：
 
-- Dashboard 能解释一条 trace 的 used / ignored / risky memory。
-- Eval report 可分享且不泄露敏感内容。
-- `v0.5.0-alpha` release notes 清楚说明 adoption improvements。
-
-### Week 4: 商业 Alpha
-
-P0:
-
-- 闭源 `lore-cloud` 完成 private hosted alpha runbook。
-- 只邀请 3-5 个设计伙伴。
-- 不公开定价，不接 Stripe。
-- 准备 1-2 个 case study outline，不暴露客户数据。
+- 5-10 个 agent-heavy 用户的筛选标准。
+- activation scorecard：clone time、install time、first query、first ledger view、integration path、eval report、second-day return、willingness to pay。
+- GitHub issue/discussion 模板，方便收集结构化反馈。
 
 验收：
 
-- private hosted alpha 能跑 demo-private workflow。
-- backup/restore drill 通过。
-- 设计伙伴能在 hosted 环境中完成 first context query。
+- scorecard 可直接用于人工访谈或设计伙伴 onboarding。
+- 不收集 secret、customer data、raw memory content。
 
-## 7. 文件级实施计划
+### 4.5 v0.6 P1 工作流
 
-### Public repo: `lore-context`
+- Design partner intake：GitHub Discussion 模板、feedback form、activation scorecard。
+- Security hardening for MCP distribution：threat model、read-only mode、tool permission docs。
+- OpenAPI client examples：TypeScript curl-equivalent snippets and minimal examples。
+- Website hero/demo polish：60s demo asset or GIF, no fake customer logos.
+- 私有云端 alpha runbook refresh：tenant model、backup/restore、observability、customer-data policy。
 
-| 工作 | 文件/模块 |
-|---|---|
-| 项目计划 | `docs/project-plan.md` |
-| 路线图 | `docs/roadmap.md` |
-| 发布治理 | `docs/release-governance.md` |
-| 架构更新 | `docs/architecture.md` |
-| README 导航 | `README.md` |
-| OpenAPI | `apps/api/src/openapi.ts`, `apps/api/src/index.ts`, `apps/api/tests/index.test.ts` |
-| Quickstart | `scripts/lore-quickstart.mjs`, `package.json` |
-| Config generation | `scripts/generate-integration-config.mjs`, `docs/integrations/*.md` |
-| Evidence Ledger | `packages/shared/src/index.ts`, `apps/api/src/index.ts`, `apps/dashboard/app/page.tsx` |
-| Eval report | `scripts/export-eval-report.mjs`, `packages/eval`, `apps/dashboard/app/page.tsx` |
+### 4.6 v0.6 非目标
 
-### Private repo: `lore-cloud`
+- 不做 public SaaS signup。
+- 不接 Stripe。
+- 不把 remote MCP HTTP 设为默认路径。
+- 不承诺 cloud sync 已上线。
+- 不伪造 benchmark 结果。
+- 不让 agent 自动群发邮件、Reddit、HN、Discord 或 marketplace submission。
 
-| 工作 | 文件/模块 |
-|---|---|
-| Private alpha runbook | `runbooks/private-alpha.md` |
-| Tenant model | `docs/tenant-model.md` |
-| Deployment architecture | `infra/README.md` or `docs/aws-cloudflare.md` |
-| Backup/restore | `runbooks/backup-restore.md` |
-| Observability | `runbooks/observability.md` |
-| Customer data policy | `docs/customer-data-policy.md` |
-
-## 8. v0.5 验收标准
-
-`v0.5.0-alpha` 可以发布的条件：
-
-1. Public repo:
-   - `pnpm build` pass；
-   - `pnpm test` pass；
-   - `pnpm smoke:api` pass；
-   - `pnpm smoke:mcp` pass；
-   - `pnpm smoke:dashboard` pass；
-   - `pnpm quickstart` pass in clean checkout；
-   - `/openapi.json` pass schema/documentation coverage check。
-2. Integrations:
-   - Claude Code copy-paste config verified；
-   - Cursor copy-paste config verified；
-   - Qwen Code copy-paste config verified。
-3. Evidence:
-   - At least one smoke trace has ledger view；
-   - Ledger shows retrieved / used / ignored / warning rows；
-   - Trace feedback writes audit log。
-4. Docs:
-   - README links to plan, roadmap, OpenAPI, quickstart, three golden paths；
-   - troubleshooting covers top 5 setup failures；
-   - `docs/project-plan.md` reflects actual shipped state.
-5. Private alpha:
-   - `lore-cloud` has private alpha runbook；
-   - backup/restore drill documented；
-   - no billing code required.
-
-## 9. Risks and mitigations
-
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Public/private repo mix-up | Leaks internal plans or secrets | Separate checkout/worktree, branch protection, secret scan, no dual-remote day-to-day pushing |
-| v0.5 scope creep | Misses adoption target | Freeze cloud sync/billing/extra integrations until after `v0.5.0-alpha` |
-| Evidence Ledger leaks sensitive content | Trust failure | Redacted row rendering, hard-delete scrub, tests with secret fixtures |
-| OpenAPI drifts from routes | Bad developer experience | Route coverage test in CI |
-| Quickstart writes global config unexpectedly | User trust issue | Print config snippets; do not mutate global Claude/Cursor/Qwen files |
-| Translation quality hurts credibility | Website trust issue | Label alpha translations, improve only high-traffic locales first |
-| Competitors add governance/eval quickly | Differentiation narrows | Move fast on evidence ledger + user-owned eval reports |
-
-## 10. Metrics
+## 5. v0.6 验收指标
 
 Activation:
 
-- Time from clone to first `context.query`: target `<10 minutes`.
-- Time from clone to first Evidence Ledger view: target `<15 minutes`.
-- Quickstart success rate with 5 users: target `>=80%`.
+- Fresh clone to first `context.query`: `<10 minutes`.
+- Fresh clone to first Evidence Ledger view: `<15 minutes`.
+- First 5 fresh-user quickstarts: `>=80%` success without maintainer help.
 
-Engagement:
+Discovery:
 
-- Users who run an eval after first query: target `>=40%`.
-- Users who return next day: target `>=30%`.
-- Users who connect an IDE agent instead of only curl: target `>=50%`.
+- `/llms.txt` and `/llms-full.txt` pass website verify and are live.
+- MCP Registry metadata is ready for human submission.
+- 4 marketplace/plugin metadata drafts are ready.
 
-Commercial signal:
+Trust:
 
-- Design partners willing to try hosted/private alpha: target `3`.
-- Design partners willing to discuss paid private deployment/support: target `2`.
+- One reproducible trust demo produces Evidence Ledger + eval report + governance audit + MIF export.
+- Public-safe eval report contains zero secrets/raw hard-deleted content.
+- Benchmark methodology is public-safe and reproducible before any comparison claim.
 
-Quality:
+Launch:
 
-- `pnpm build/test/smoke:*` pass before release.
-- Zero known P0 security issues.
-- No placeholder secrets or internal launch plans in public repo.
+- Show HN draft ready.
+- Evidence Ledger deep dive ready.
+- Governance deep dive ready.
+- No hidden alpha-state or fake customer/social proof.
 
-## 11. ADR: v0.5 direction
+## 6. 14-day execution plan
+
+### Days 1-3: Discovery and activation foundation
+
+- Add `llms.txt` / docs bundle generation.
+- Add website metadata verification.
+- Improve quickstart output into a measured activation report.
+- Run one clean-checkout timing pass.
+
+### Days 4-6: Trust demo
+
+- Build reproducible demo dataset flow.
+- Ensure Evidence Ledger + eval report + governance audit can be shown from one trace.
+- Harden public-safe redaction checks.
+
+### Days 7-9: Distribution metadata
+
+- Prepare MCP Registry metadata.
+- Prepare skill/plugin/marketplace metadata drafts.
+- Document MCP security posture and read-only mode.
+
+### Days 10-12: Launch content
+
+- Draft Show HN post.
+- Draft Evidence Ledger technical article.
+- Draft Governance technical article.
+- Draft benchmark methodology without unsupported claims.
+
+### Days 13-14: Release candidate
+
+- Run full release gate.
+- Update README / roadmap / changelog for v0.6.
+- Verify website desktop/mobile/static checks.
+- Prepare `v0.6.0-alpha` release notes and human launch checklist.
+
+## 7. Release gates
+
+Before tagging `v0.6.0-alpha`:
+
+```bash
+pnpm build
+pnpm test
+pnpm smoke:api
+pnpm smoke:mcp
+pnpm smoke:dashboard
+pnpm openapi:check
+pnpm quickstart -- --dry-run
+pnpm --filter @lore/website test
+pnpm audit --prod
+```
+
+Manual gates:
+
+- Fresh clone timing recorded.
+- One Evidence Ledger trace inspected in dashboard.
+- One public-safe eval report inspected.
+- `llms.txt` and docs metadata checked on live preview.
+- Public repo scan confirms no private cloud/customer material.
+
+## 8. ADR: v0.6 direction
 
 Decision:
 
-- Ship `v0.5 Alpha Adoption Sprint` focused on developer activation, three golden integrations, Evidence Ledger, OpenAPI, quickstart, and private alpha readiness.
+- Make `v0.6.0-alpha` a Distribution and Trust Sprint instead of a hosted cloud or billing sprint.
 
 Drivers:
 
-- Platform and vendor memory are commoditizing basic storage/retrieval.
-- Lore's moat is proof, governance, eval, portability, and team trust.
-- The product must prove real workflow adoption before cloud sync or billing.
+- Platform memory is arriving quickly.
+- Vendor memory is already cheap and plugin-rich.
+- Lore's defensible difference is evidence, governance, eval, portability, and private deployment.
+- v0.5 shipped the substrate; v0.6 must prove discoverability and adoption.
 
 Alternatives considered:
 
-1. Build hosted multi-tenant sync in v0.5.
-   - Rejected: too early before activation and trust evidence.
-2. Add many integrations at shallow depth.
-   - Rejected: increases docs surface but does not prove adoption.
-3. Compete on memory retrieval benchmarks.
-   - Rejected: benchmark claims are crowded and easy to overfit; user-owned eval is more credible.
+1. Build hosted sync first.
+   - Rejected: without activation evidence, cloud sync adds operational load before product pull is proven.
+2. Compete on raw memory benchmarks first.
+   - Rejected: crowded, easy to overfit, and not Lore's strongest differentiation.
+3. Add many shallow integrations.
+   - Rejected: broad docs surface without deeper proof does not create trust.
 
 Consequences:
 
-- v0.5 may look less feature-heavy than competitors, but it should be easier to try and more trustable.
-- Cloud monetization is deferred until private alpha evidence exists.
-- Evidence Ledger becomes the core product surface for future hosted plans.
+- v0.6 will look more like launch infrastructure than backend expansion.
+- This is acceptable because v0.5 already shipped the technical substrate.
+- Hosted/private alpha work remains outside this public repository and should stay design-partner driven.
 
 Follow-ups:
 
-- After v0.5, decide whether `v0.6` prioritizes hosted sync, remote MCP HTTP, or enterprise private deployment based on design partner evidence.
+- After v0.6 launch, decide whether `v0.7` is private hosted alpha, remote MCP HTTP, or enterprise deployment hardening based on actual adoption metrics.

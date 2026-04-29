@@ -1,9 +1,10 @@
 # Architecture
 
 Lore Context is a local-first control plane around memory, search, traces, evaluation,
-migration, and governance. v0.5.0-alpha is a TypeScript monorepo deployable as a single
-process or a small Docker Compose stack, with adoption tooling for OpenAPI, quickstart,
-Evidence Ledger, and golden-path MCP clients.
+migration, and governance. v0.6.0-alpha is a TypeScript monorepo deployable as a single
+process or a small Docker Compose stack, with adoption tooling for OpenAPI,
+quickstart activation reports, Evidence Ledger, AI-readable docs, and golden-path
+MCP clients.
 
 ## Component Map
 
@@ -20,13 +21,13 @@ Evidence Ledger, and golden-path MCP clients.
 | Eval | `packages/eval` | `EvalRunner` + metric primitives (Recall@K, Precision@K, MRR, staleHit, p95) |
 | Governance | `packages/governance` | Six-state state machine, risk-tag scanning, poisoning heuristics, audit log |
 
-## v0.5 Architecture Direction
+## v0.6 Architecture Direction
 
-`v0.5.0-alpha` is the Alpha Adoption Sprint. The architecture goal is to make the
-existing control plane easier to activate and easier to explain, not to introduce
-a new hosted sync layer.
+`v0.6.0-alpha` is the Distribution and Trust Sprint. The architecture goal is to
+make the existing control plane easier to discover, activate, verify, and share,
+not to introduce a new hosted sync layer.
 
-Shipped v0.5 additions:
+Shipped v0.5/v0.6 additions:
 
 | Addition | Path | Purpose |
 |---|---|---|
@@ -36,8 +37,11 @@ Shipped v0.5 additions:
 | Evidence Ledger UI | `apps/dashboard` | Make a context query auditable from the operator dashboard |
 | Golden-path integrations | `docs/integrations/claude-code.md`, `cursor.md`, `qwen-code.md` | Keep three setup paths copy-pasteable and smoke-testable |
 | Public-safe eval reports | `scripts/export-eval-report.mjs`, `packages/eval` | Export shareable reports without leaking raw sensitive memory content |
+| AI-readable docs | `apps/website/src/site.mjs`, `/llms.txt`, `/llms-full.txt` | Let AI tools ingest the public product surface without private planning material |
+| Activation proof | `scripts/lore-quickstart.mjs` | Produce redacted first-value evidence with exact Evidence Ledger trace matching |
+| Distribution pack | `docs/distribution/`, `docs/launch/`, `docs/design-partners/` | Prepare human-reviewed launch and marketplace work without autonomous posting |
 
-The central v0.5 read model is trace-centric:
+The central read model is trace-centric:
 
 ```text
 ContextTrace
@@ -70,7 +74,7 @@ The API is dependency-light and supports three storage tiers:
    Schema lives at `apps/api/src/db/schema.sql` and ships B-tree indexes on
    `(project_id)`, `(status)`, `(created_at)` plus GIN indexes on the jsonb
    `content` and `metadata` columns. `LORE_POSTGRES_AUTO_SCHEMA` defaults to `false`
-   in v0.5.0-alpha — apply schema explicitly via `pnpm db:schema`.
+   in v0.6.0-alpha — apply schema explicitly via `pnpm db:schema`.
 
 Context composition only injects `active` memories. `candidate`, `flagged`,
 `redacted`, `superseded`, and `deleted` records remain inspectable through inventory
@@ -211,10 +215,10 @@ flowchart LR
   Logger -.-> Router
 ```
 
-## Non-Goals For v0.5.0-alpha
+## Non-Goals For v0.6.0-alpha
 
 - No direct public exposure of raw `agentmemory` endpoints.
-- No managed cloud sync (planned for v0.6).
+- No managed cloud sync in the public alpha.
 - No remote multi-tenant billing.
 - No automated continuous-translation tooling for documentation (community PRs
   via `docs/i18n/`).

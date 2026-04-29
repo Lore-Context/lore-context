@@ -1,0 +1,59 @@
+name: Design partner inquiry
+description: Request a Lore Context design partner conversation.
+title: "Design partner: <company-or-team>"
+labels: ["design-partner", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in Lore Context. Please do not include secrets,
+        production customer data, private traces, or proprietary datasets in this issue.
+  - type: input
+    id: contact
+    attributes:
+      label: Contact
+      description: Public email, GitHub handle, or preferred contact path.
+      placeholder: "name@example.com"
+    validations:
+      required: true
+  - type: textarea
+    id: agents
+    attributes:
+      label: Agent workflow
+      description: Which agents, IDEs, or copilots are you using today?
+      placeholder: "Claude Code, Cursor, Qwen Code, internal support agent..."
+    validations:
+      required: true
+  - type: textarea
+    id: memory
+    attributes:
+      label: Memory problem
+      description: What memory or context problem are you trying to solve?
+    validations:
+      required: true
+  - type: checkboxes
+    id: needs
+    attributes:
+      label: What matters most?
+      options:
+        - label: Evidence Ledger / explain why memory was used
+        - label: Governance review before writeback
+        - label: Eval on our own dataset
+        - label: MCP integration
+        - label: MIF export/import portability
+        - label: Private deployment
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Keep this high-level. Do not paste secrets or private data.
+      placeholder: "Local-only, private VPC, no external model calls, compliance review required..."
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Boundary confirmation
+      options:
+        - label: I understand Lore Context is alpha software and public hosted SaaS is not being promised here.
+          required: true
+        - label: I have not included secrets, production traces, or customer data in this issue.
+          required: true

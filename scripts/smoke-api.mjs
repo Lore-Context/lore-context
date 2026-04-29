@@ -75,12 +75,20 @@ try {
   assert(traceFeedback.trace?.feedback === "useful", "trace feedback was not saved");
 
   const evalRun = await postJson(`${baseUrl}/v1/eval/run`, {
+    project_id: "smoke",
     dataset: {
       sessions: [{ sessionId: "smoke_s1", messages: [{ role: "user", content: "Smoke eval uses Lore context." }] }],
       questions: [{ question: "What uses Lore context?", goldSessionIds: ["smoke_s1"] }]
     }
   });
   assert(evalRun.metrics?.recallAt5 === 1, "eval run did not calculate recall");
+
+  const evalReport = await fetch(`${baseUrl}/v1/eval/report?project_id=smoke&format=markdown`);
+  const evalReportText = await evalReport.text();
+  assert(evalReport.ok, `/v1/eval/report returned ${evalReport.status}: ${evalReportText}`);
+  assert(evalReportText.includes("# Lore Eval Report"), "eval report did not render markdown");
+  assert(evalReportText.includes("- Public-safe: `true`"), "eval report did not mark public-safe output");
+  assert(!evalReportText.includes("Smoke eval uses Lore context."), "eval report leaked raw dataset content");
 
   const evalRuns = await getJson(`${baseUrl}/v1/eval/runs?limit=1`);
   assert(evalRuns.evalRuns?.[0]?.id === evalRun.evalRunId, "eval run listing did not include latest run");
@@ -119,6 +127,14 @@ try {
   assert(hardDeleted.deleted === 1 && hardDeleted.hardDelete === true, "hard delete did not report explicit removal");
   const removedDetail = await fetch(`${baseUrl}/v1/memory/${encodeURIComponent(disposable.memory.id)}`);
   assert(removedDetail.status === 404, "hard-deleted memory remained readable");
+
+  const exported = await fetch(`${baseUrl}/v1/memory/export?project_id=smoke&format=json`);
+  const exportText = await exported.text();
+  assert(exported.ok, `/v1/memory/export returned ${exported.status}: ${exportText}`);
+  const exportedJson = JSON.parse(exportText);
+  assert(exportedJson.format === "lore-memory-export", "MIF JSON export did not return the Lore export format");
+  assert(exportedJson.memories?.some((item) => item.id === superseded.memory.id), "MIF JSON export did not include active smoke memory");
+  assert(!exportText.includes("physically removed"), "MIF JSON export leaked hard-deleted memory content");
 
   const dashboard = await fetch(`${baseUrl}/dashboard`);
   const dashboardHtml = await dashboard.text();

@@ -113,10 +113,27 @@ Publication record:
 - Website: Cloudflare Pages project `lore-context`; `https://lorecontext.com/`
   and `https://www.lorecontext.com/` verified with v0.5 docs content.
 
-The next governance task is still to clean up local workflow before v0.6 work:
+## v0.6 governance task
+
+`v0.6.0-alpha` adds AI-readable docs and distribution materials, so the governance
+priority shifts from only separating remotes to also preventing public launch
+artifacts from leaking internal planning, customer data, local research snapshots,
+or credential-shaped values.
+
+Release-gate requirements:
+
+- `llms.txt` and `llms-full.txt` must be generated only from public repository
+  material.
+- Quickstart activation reports must redact generated API keys in both dry-run
+  and real proof modes.
+- Public-safe eval reports must exclude raw memory content and dataset messages.
+- External research snapshots and private runbooks must remain ignored or outside
+  the public checkout.
+
+The remaining governance task after v0.6 is to clean up local workflow:
 
 1. Create or verify separate public/private checkouts.
 2. Confirm `git remote -v` in each checkout has only the intended push remote.
 3. Enable GitHub branch protection and required CI for public `main`.
 4. Enable secret scanning / push protection where available.
-5. Document any private-only deployment changes in `lore-cloud`, not `lore-context`.
+5. Document private-only deployment changes outside `lore-context`.

@@ -115,16 +115,16 @@ The containerized launcher is useful for reproducible workstation setup, but it 
 - Leave `LORE_AGENTMEMORY_REQUIRED=0` unless the private deployment really depends on a live agentmemory runtime.
 - Keep `LORE_POSTGRES_AUTO_SCHEMA=true` only for controlled internal environments. Once schema bootstrapping is part of your release process, you can pin it to `false`.
 
-## v0.5 Private Alpha Direction
+## v0.6 Private Alpha Direction
 
-The `v0.5.0-alpha` public release remains local/private-deployment focused. Hosted
+The `v0.6.0-alpha` public release remains local/private-deployment focused. Hosted
 multi-tenant cloud sync is not part of this release.
 
-Use the v0.5 public release to validate private alpha readiness before adding
+Use the v0.6 public release to validate private alpha readiness before adding
 cloud-only features:
 
 ```bash
-pnpm quickstart -- --dry-run
+pnpm quickstart -- --dry-run --activation-report
 pnpm openapi:check
 pnpm smoke:api
 pnpm smoke:mcp
@@ -135,8 +135,7 @@ After a real `context.query`, inspect `GET /v1/evidence/ledger/:trace_id` or the
 Dashboard Recent Traces evidence summary before exposing the workflow to a design
 partner.
 
-Private alpha work belongs in the closed `Lore-Context/lore-cloud` repository and
-should focus on:
+Private alpha work belongs outside the public open-core release and should focus on:
 
 - tenant model: organization, project, user, API key scope;
 - auth boundary: dashboard access, API-key lifecycle, admin invite policy;

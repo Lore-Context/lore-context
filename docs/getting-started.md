@@ -21,7 +21,7 @@ pnpm install --frozen-lockfile
 
 ## 2. Fast local quickstart
 
-`v0.5.0-alpha` adds a non-destructive quickstart helper. It checks Node/pnpm,
+`v0.6.0-alpha` includes a non-destructive quickstart helper. It checks Node/pnpm,
 generates random local API keys, writes `data/quickstart.env`, and prints the first
 `context.query` curl plus Claude Code, Cursor, and Qwen Code MCP snippets.
 
@@ -32,7 +32,27 @@ pnpm quickstart
 For CI or docs validation without writing local env files:
 
 ```bash
-pnpm quickstart -- --dry-run
+pnpm quickstart -- --dry-run --activation-report
+```
+
+`--activation-report` adds a structured report to the JSON output. In dry-run
+mode it does not write `data/quickstart.env` and the report omits generated API
+keys, so it can be used in docs checks, design partner walkthroughs, and support
+triage.
+
+For a real first-value timing report, run without `--dry-run` after `pnpm build`:
+
+```bash
+pnpm quickstart -- --activation-report
+```
+
+This writes `data/activation-report.json`, starts a temporary local API, verifies
+health, writes the first demo memory, runs the first `context.query`, and records
+the first Evidence Ledger result. If port `3000` is already in use, the proof
+fails instead of reporting a false pass. Choose another local URL:
+
+```bash
+LORE_API_URL=http://127.0.0.1:3099 pnpm quickstart -- --activation-report
 ```
 
 After `pnpm quickstart`, start the API from the generated env:
@@ -203,10 +223,18 @@ Run `pnpm smoke:postgres` to verify a write-restart-read round trip survives.
 
 ```bash
 LORE_API_KEY="$LORE_API_KEY" pnpm seed:demo
-LORE_API_KEY="$LORE_API_KEY" pnpm eval:report -- --project-id demo-private
+LORE_API_KEY="$LORE_API_KEY" pnpm eval:report -- \
+  --project-id demo-private \
+  --public-safe \
+  --out output/eval-reports/demo.md
+LORE_API_KEY="$LORE_API_KEY" pnpm eval:report -- \
+  --project-id demo-private \
+  --public-safe \
+  --format json \
+  --out output/eval-reports/demo.json
 ```
 
-The eval report lands in `output/eval-reports/` as Markdown and JSON.
+Use `--out` for files. Without `--out`, the eval report is printed to stdout.
 
 ## Next Steps
 
