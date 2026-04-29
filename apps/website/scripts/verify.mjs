@@ -223,12 +223,13 @@ for (const path of [
 }
 
 requireTexts("blog/v0-6-distribution-and-trust-sprint/index.html", files.get("blog/v0-6-distribution-and-trust-sprint/index.html") ?? "", [
-  "@lore-context/server@0.6.0-alpha.1",
+  "@lore-context/server",
+  "0.6.0-alpha.1",
   "public GHCR OCI image"
 ]);
 
 requireTexts("en/status.html", files.get("en/status.html") ?? "", [
-  "@lore-context/server@0.6.0-alpha.1 on npm plus GHCR OCI image",
+  "@lore-context/server version 0.6.0-alpha.1 on npm plus GHCR OCI image",
   "Official MCP Registry active with npm and OCI install paths"
 ]);
 
