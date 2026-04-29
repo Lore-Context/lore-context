@@ -25,11 +25,9 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY --from=builder /app /app
+COPY --chown=node:node --from=builder /app /app
 
 EXPOSE 3001
-
-RUN chown -R node:node /app
 
 USER node
 
