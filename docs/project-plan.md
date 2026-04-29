@@ -16,7 +16,7 @@ Last updated: 2026-04-29
 - MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T13:16:42Z`；GHCR 镜像 `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` 已公开。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
-- HN launch website surfaces: 官网源码已补齐 `/quickstart/`、`/blog/v0-6-distribution-and-trust-sprint/`、`/benchmark/`，并移除了未被公开报告支撑的 benchmark-win 数字。
+- HN launch website surfaces: `/quickstart/`、`/blog/v0-6-distribution-and-trust-sprint/`、`/benchmark/` 已部署到生产官网并通过 `lorecontext.com` / `www.lorecontext.com` 验证；源码移除了未被公开报告支撑的 benchmark-win 数字。
 - Public API health: `https://api.lorecontext.com/health` 返回 `status: ok`。
 
 公开状态快照记录在 [release-status.md](release-status.md)。发布后的采用验证证据记录在
@@ -37,14 +37,15 @@ Last updated: 2026-04-29
 | 公开版本 | `v0.6.0-alpha` pre-release |
 | 根版本 | `0.6.0-alpha.0` |
 | 公开仓库 | `Lore-Context/lore-context` |
-| 当前公开线 | `main`，release tag 之后包含 release-closure、integration validation、MCP distribution、Cursor adoption validation 和 marketplace asset commits |
+| 当前公开线 | `main`，release tag 之后包含 release-closure、integration validation、MCP distribution、Cursor adoption validation、marketplace asset 和 HN launch-readiness commits |
 | 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | MCP distribution baseline | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
 | Adoption closure CI | run `25112973276`, success on `1a64980682216d715d0da40a37ee03b0a752f9e9` |
+| Launch-readiness CI | run `25115346417`, success on `f7fe14234ca89c02397da230de3e27f90576c469` |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
-| HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` in current website release train |
+| HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` live on production domains |
 | Public API | `https://api.lorecontext.com/health` returns ok |
 | MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; publish workflow run `25111065964`, success |
 | HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
@@ -98,7 +99,7 @@ Last updated: 2026-04-29
 | Qwen Code golden path | 完成；`@qwen-code/qwen-code` `0.15.5` 已安装，`qwen mcp list` 连接项目 `.qwen/settings.json`，非交互 Qwen Code 成功调用 `mcp__lore__context_query` | 后续用真实用户重复验证 |
 | Official MCP Registry | 完成；`server.json` 通过校验，GHCR OCI 镜像公开，workflow `25111065964` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
-| HN launch website readiness | 源码已补齐 quickstart/blog/benchmark 页面，且文案不再声明未证实 benchmark win | 部署后复核生产域名、sitemap 和移动端 smoke |
+| HN launch website readiness | 已完成；quickstart/blog/benchmark 页面在线上，且文案不再声明未证实 benchmark win | 后续每次官网部署后重复生产域名、sitemap 和移动端 smoke 复核 |
 | public-safe eval report on partner data | 未完成 | 等 design partner 提供 sanitized data 或使用公开 fixture |
 | design partner workflow validation | 未完成 | 目标 3-5 个 activation scorecard |
 | second-day retention | 未完成 | design partner session 后第二天复查 |
@@ -146,7 +147,7 @@ Lore 不应把自己定位成“更便宜的 memory database”。v0.6 已经把
 | P0 | Design partner intake | 3-5 个目标用户进入 activation scorecard |
 | P0 | Marketplace / MCP hub metadata 人审 | Official MCP Registry 已完成；demo screenshot 素材已生成；其他 marketplace/hub 需人工最终提交 |
 | P0 | Show HN retry preparation | draft 已保存；账号限制解除后由人审重试 |
-| P0 | HN launch website redeploy verification | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, sitemap 和首页首屏线上一致 |
+| P0 | HN launch website redeploy verification | 本轮已完成；后续每次官网部署后复验 `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, sitemap 和首页首屏 |
 | P0 | clean checkout activation timing follow-up | 已有机器验证；再补真实用户计时 |
 | P1 | public-safe eval report on partner data | 无 secret、raw memory、hard-deleted content |
 | P1 | private alpha runbook refresh | backup/restore、observability、customer data policy 复核完成 |

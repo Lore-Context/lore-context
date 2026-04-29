@@ -12,7 +12,7 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Release type | Public alpha pre-release |
 | GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
-| Public `main` | release tag plus post-release closure, integration validation, MCP Registry, Cursor adoption validation, and marketplace asset commits |
+| Public `main` | release tag plus post-release closure, integration validation, MCP Registry, adoption validation, marketplace assets, and HN launch-readiness commits |
 | MCP distribution baseline | `1914718c3136fab2f7eed167445e97a910b62bb0`; GitHub Actions run `25110357633`, success |
 | Adoption closure source | `1a64980682216d715d0da40a37ee03b0a752f9e9`; GitHub Actions run `25112973276`, success |
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |
@@ -20,7 +20,8 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
 | MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active |
 | MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`, public |
-| Launch website surfaces | Homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, and `/benchmark/` in the website release train |
+| Launch website surfaces | Live: homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap verified after Cloudflare Pages deploy `https://be2e5034.lore-context.pages.dev` |
+| Launch-readiness source | `f7fe14234ca89c02397da230de3e27f90576c469`; GitHub Actions run `25115346417`, success |
 
 The release tag points at the original `v0.6.0-alpha` release commit. Public
 `main` includes later release-closure, integration-validation, distribution,
@@ -80,9 +81,10 @@ matrix and open validation tasks.
   `docs/distribution/assets/`.
 - Show HN launch: draft is ready, but first submission was deferred by HN's
   new-account Show HN restriction; no thread URL exists yet.
-- HN launch readiness pages: verify production `https://lorecontext.com/quickstart/`,
-  `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap after
-  every website redeploy.
+- HN launch readiness pages: production `https://lorecontext.com/quickstart/`,
+  `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap were
+  verified after the current Cloudflare Pages deploy; repeat this check after
+  every future website redeploy.
 - Public-safe eval report tested against design-partner data.
 - 3-5 design partners with activation scorecards.
 - v0.7 decision based on adoption evidence: private hosted alpha, remote MCP HTTP, enterprise/private-deployment hardening, or benchmark/report lane.

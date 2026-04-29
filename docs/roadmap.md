@@ -9,16 +9,18 @@ Lore Context is currently in public alpha.
 Release status:
 
 - Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
-- Public `main`: release tag plus post-release closure, integration validation, and distribution commits.
-- Latest verified distribution source: `1914718c3136fab2f7eed167445e97a910b62bb0`.
-- MCP distribution CI: GitHub Actions run `25110357633`, success on `1914718c`.
+- Public `main`: release tag plus post-release closure, integration validation,
+  distribution, adoption-validation, and HN launch-readiness commits.
+- Latest verified launch-readiness source:
+  `f7fe14234ca89c02397da230de3e27f90576c469`.
+- Launch-readiness CI: GitHub Actions run `25115346417`, success on `f7fe142`.
 - Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` live.
 - AI-readable docs: `/llms.txt` and `/llms-full.txt` live.
 - Public API health: `https://api.lorecontext.com/health` returns ok.
 - MCP Registry: `io.github.Lore-Context/lore-context-mcp` active; GHCR image
   `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` public.
 - HN launch pages: `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`,
-  and `/benchmark/` are in the website release train.
+  and `/benchmark/` are live on production domains.
 
 See [release-status.md](release-status.md)
 for the public-safe release snapshot.
@@ -56,7 +58,7 @@ Still validating:
 - public-safe eval report on design-partner data;
 - marketplace / hub submissions beyond the Official MCP Registry;
 - Show HN retry after the account can post Show HNs;
-- production verification for the current HN launch pages after each website deploy;
+- repeat production verification for the current HN launch pages after each website deploy;
 - second-day retention and willingness to pay for private deployment/support.
 
 ## Current validation focus after v0.6
