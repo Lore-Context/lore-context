@@ -60,9 +60,10 @@ matrix and open validation tasks.
   users.
 - Claude Code fresh-user golden-path verification: actual CLI add/list/get path
   completed after a documentation fix.
-- Cursor fresh-user golden-path verification: `cursor-agent` can discover the
-  project config and list 11 Lore tools; prompt-level tool use still requires
-  Cursor login or `CURSOR_API_KEY`.
+- Cursor fresh-user golden-path verification: actual Cursor Agent prompt-level
+  `context_query` and `trace_get` completed after CLI login. Headless validation
+  used `--model auto` and `--force` against demo data because the free plan only
+  allows Auto and MCP calls require explicit approval.
 - Qwen Code fresh-user golden-path verification: `qwen mcp list` connects to
   Lore, and a Qwen Code non-interactive run successfully invoked
   `mcp__lore__context_query` against a temporary Lore API.
@@ -70,7 +71,8 @@ matrix and open validation tasks.
   and Official Registry publish succeeded through the `Publish MCP Registry`
   workflow run `25111065964`; Registry API reports `active` and `isLatest: true`.
 - Marketplace / hub listings beyond the Official MCP Registry still need
-  human-reviewed screenshots/GIFs and registry-specific schema checks.
+  human-reviewed schema checks; public-safe demo screenshots are available under
+  `docs/distribution/assets/`.
 - Show HN launch: draft is ready, but first submission was deferred by HN's
   new-account Show HN restriction; no thread URL exists yet.
 - Public-safe eval report tested against design-partner data.

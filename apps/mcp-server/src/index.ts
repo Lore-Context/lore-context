@@ -607,7 +607,8 @@ class UpstreamApiError extends Error {
 
 function renderToolText(name: LoreMcpToolName, payload: unknown): string {
   if (name === "context_query" && isObject(payload) && typeof payload.contextBlock === "string") {
-    return payload.contextBlock;
+    const traceId = typeof payload.traceId === "string" ? payload.traceId : "";
+    return traceId ? `Trace ID: ${traceId}\n\n${payload.contextBlock}` : payload.contextBlock;
   }
   return JSON.stringify(payload, null, 2);
 }

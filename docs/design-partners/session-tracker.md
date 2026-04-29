@@ -28,6 +28,15 @@ An activation-positive session requires:
 | 4 | optional | TBD | TBD | - | - | - | - | - |
 | 5 | optional | TBD | TBD | - | - | - | - | - |
 
+## Internal Dogfood Evidence
+
+Dogfood sessions do not count as design partner sessions, but they can de-risk
+the script before a partner call.
+
+| Date | Workflow | Agent/client | Evidence | Follow-up |
+|---|---|---|---|---|
+| 2026-04-29 | Cursor prompt-level MCP validation | Cursor Agent CLI `2026.04.28-e984b46` | `context_query` returned trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145` with `MATCHED=true`; `trace_get` returned 2 retrieved / 2 used rows | Repeat with a fresh user and record whether interactive MCP approval is clear |
+
 ## Notes Template
 
 ```text
@@ -50,4 +59,3 @@ Willingness-to-pay signal:
 Second-day retention check:
 Follow-up:
 ```
-

@@ -10,9 +10,9 @@ submit to third-party sites from automation without final human approval.
 | Surface | Current status | Submit now? | Blocker / next action |
 |---|---|---:|---|
 | Official MCP Registry | published | complete | `server.json` validates; GHCR image is public; workflow run `25111065964` published the active listing for `io.github.Lore-Context/lore-context-mcp`. |
-| MCP hubs / community directories | draft-ready | human review first | Use public GitHub repo and website only; make alpha status visible. |
+| MCP hubs / community directories | draft-ready with demo screenshots | human review first | Use public GitHub repo, website, Official MCP Registry entry, and `docs/distribution/assets/`; make alpha status visible. |
 | GitHub topics / repository metadata | ready | human review first | Align with `agent-memory`, `mcp`, `governance`, `eval`, `observability`, `local-first`. |
-| Cursor ecosystem copy | draft-ready | human review first | Cursor MCP discovery and tool listing are verified; prompt-level use still needs Cursor auth. |
+| Cursor ecosystem copy | draft-ready | human review first | Cursor MCP discovery, prompt-level `context_query`, and `trace_get` are verified. Headless validation used `--model auto` and `--force` against demo data. |
 | Qwen Code ecosystem copy | draft-ready | human review first | Qwen Code connected to Lore and invoked `mcp__lore__context_query`. |
 | Vercel / Cloudflare / agent galleries | draft | no | Static website exists, but there is no public hosted SaaS or remote MCP HTTP endpoint. |
 | Replit / StackBlitz / Gitpod | later | no | Needs a maintained one-click startup path. |
@@ -51,6 +51,5 @@ Current distribution path is OCI and published:
 
 ## Assets Still Needed
 
-- Dashboard screenshot showing Evidence Ledger and review queue with demo data.
 - Terminal GIF or short recording of `pnpm quickstart -- --dry-run --activation-report`.
 - Optional architecture screenshot from the public website.

@@ -16,11 +16,11 @@ partner names unless the partner has explicitly approved being named.
 | Public API health | Live | `https://api.lorecontext.com/health` returns `status: ok` |
 | Clean checkout activation | Maintainer-run proof complete | fresh clone to first `context.query`: `10.13s`; first Evidence Ledger view: `10.13s` |
 | Claude Code golden path | Actual client path complete | `claude mcp add/list/get` succeeded after the docs command order was fixed |
-| Cursor golden path | Actual MCP client management path complete; agent prompt blocked on auth | `cursor-agent` installed via Cursor CLI, project `.cursor/mcp.json` discovered, `cursor-agent mcp enable/list/list-tools lore` listed 11 Lore tools. Full prompt-level use still needs Cursor login or `CURSOR_API_KEY`. |
+| Cursor golden path | Actual client path complete | `cursor-agent` `2026.04.28-e984b46` logged in, project `.cursor/mcp.json` discovered, `mcp enable/list/list-tools lore` listed 11 tools, and headless prompt-level `context_query` + `trace_get` succeeded against demo data. Evidence: trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145`, `MATCHED=true`, 2 retrieved / 2 used rows. |
 | Qwen Code golden path | Actual client path complete | `@qwen-code/qwen-code` `0.15.5` installed; `qwen mcp list` connected to project `.qwen/settings.json`; Qwen Code non-interactive run used `mcp__lore__context_query` successfully against a temporary Lore API. |
 | Show HN | Deferred | HN redirected the submitted draft to a new-account Show HN restriction page; no thread URL exists |
 | MCP Registry | Published | GHCR package `lore-context-mcp` is public; anonymous Docker manifest lookup succeeds for `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`; GitHub Actions run `25111065964` published `io.github.Lore-Context/lore-context-mcp`; Registry API returns `active`, `isLatest: true`, and publishedAt `2026-04-29T13:16:42Z`. |
-| Marketplace metadata | Draft, needs review assets | copy is prepared, but listings should not be submitted until screenshots/GIFs and registry-specific schemas are reviewed |
+| Marketplace metadata | Draft with demo screenshots ready | copy is prepared and public-safe screenshots exist under `docs/distribution/assets/`; listings still need human final review and registry-specific schema checks before submission |
 
 ## Client Validation Rules
 
@@ -35,13 +35,13 @@ published instructions from a fresh user perspective.
 
 ## Open P0 Tasks
 
-1. Finish Cursor prompt-level validation after Cursor login or `CURSOR_API_KEY`
-   is available. MCP discovery and tool listing are already complete.
-2. Run 3-5 design partner activation sessions using
+1. Run 3-5 design partner activation sessions using
    `docs/design-partners/intake.md` and
    `docs/design-partners/activation-scorecard.md`.
-3. Produce at least one public-safe screenshot or terminal GIF before submitting
-   marketplace listings.
+2. Submit marketplace / MCP hub listings beyond the Official MCP Registry after
+   human review of copy, screenshots, and registry-specific schemas.
+3. Repeat Claude Code, Cursor, and Qwen Code golden paths with fresh users and
+   record second-day retention.
 
 ## Evidence Storage
 

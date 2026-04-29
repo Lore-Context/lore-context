@@ -48,8 +48,8 @@ Still validating:
 - first Evidence Ledger view after a real agent workflow with real users
   (maintainer-run machine proof is already under 15 minutes);
 - golden-path integration completion with fresh users: Claude Code actual CLI
-  path is complete; Cursor MCP discovery/tool listing is complete but prompt
-  use needs Cursor auth; Qwen Code actual-client tool use is complete;
+  path is complete; Cursor actual-client prompt-level tool use is complete;
+  Qwen Code actual-client tool use is complete;
 - public-safe eval report on design-partner data;
 - marketplace / hub submissions beyond the Official MCP Registry;
 - Show HN retry after the account can post Show HNs;
@@ -69,7 +69,7 @@ matrix.
 
 1. **Clean activation timing**: repeat fresh clone to first `context.query` with real users.
 2. **First ledger proof**: repeat fresh clone to first Evidence Ledger view with real users.
-3. **Golden integrations**: finish Cursor prompt-level validation after auth, then repeat Claude Code, Cursor, and Qwen Code with fresh users.
+3. **Golden integrations**: repeat Claude Code, Cursor, and Qwen Code with fresh users.
 4. **Public-safe trust demo**: run eval report redaction on design-partner data.
 5. **Human-reviewed distribution**: use the completed Official MCP Registry listing as the baseline, then submit marketplace/hub drafts after screenshot/GIF and schema review.
 6. **Design partner learning**: use scorecards to decide the v0.7 lane.
@@ -88,8 +88,7 @@ Success metrics:
 - Fresh clone to first `context.query`: `<10 minutes`.
 - Fresh clone to first Evidence Ledger view: `<15 minutes`.
 - First 5 fresh-user quickstarts: `>=80%` success without maintainer help.
-- Cursor prompt-level tool use after auth, plus fresh-user repeats for Claude
-  Code, Cursor, and Qwen Code.
+- Fresh-user repeats for Claude Code, Cursor, and Qwen Code.
 - `/llms.txt` and docs bundle live on the website.
 - Official MCP Registry active, plus at least 4 marketplace/plugin listing
   drafts ready for human submission.

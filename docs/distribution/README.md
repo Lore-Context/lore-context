@@ -24,3 +24,4 @@ Every outbound surface must keep the alpha status visible:
 - [agent-plugin-drafts.md](agent-plugin-drafts.md) - Claude Code, Cursor, OpenCode, and Codex plugin/skill copy drafts.
 - [mcp-security.md](mcp-security.md) - MCP stdio security posture and remote-transport boundary.
 - [submission-review.md](submission-review.md) - readiness and human-review checklist.
+- [assets](assets/) - public-safe demo screenshots for marketplace review.

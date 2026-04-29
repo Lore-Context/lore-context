@@ -71,6 +71,10 @@ turning Lore into a hosted SaaS claim.
   through GitHub Actions run `25111065964`; the GHCR image
   `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` is public and the
   Registry listing `io.github.Lore-Context/lore-context-mcp` is active.
+- Post-release adoption closure: Cursor Agent prompt-level MCP validation now
+  succeeds against demo data, and `context_query` MCP text includes `Trace ID`
+  so clients that do not expose `structuredContent` can still open the Evidence
+  Ledger path.
 - Clean-checkout human timing and real design partner scorecard data are still
   post-release validation work.
 

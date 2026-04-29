@@ -88,7 +88,7 @@ Last updated: 2026-04-29
 |---|---|---|
 | clean checkout activation timing | 完成；fresh clone 到 first `context.query` 和 first Evidence Ledger 均为 `10.13s` | 用真实用户 session 复核可重复性 |
 | Claude Code golden path | 完成；真实 `claude mcp add/list/get` 跑通，并修复了参数顺序文档问题 | 收集用户按文档自助跑通证据 |
-| Cursor golden path | MCP client 管理路径完成；`cursor-agent` 已安装，项目 `.cursor/mcp.json` 被发现，`mcp enable/list/list-tools lore` 列出 11 个 Lore tools；prompt 级调用仍缺 Cursor auth | 提供 Cursor login 或 `CURSOR_API_KEY` 后补一次 prompt-level context_query |
+| Cursor golden path | 完成；`cursor-agent` 登录后，真实 prompt-level `context_query` 返回 trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145` 且匹配 seeded memory；`trace_get` 返回 2 retrieved / 2 used | 后续用真实用户重复验证 |
 | Qwen Code golden path | 完成；`@qwen-code/qwen-code` `0.15.5` 已安装，`qwen mcp list` 连接项目 `.qwen/settings.json`，非交互 Qwen Code 成功调用 `mcp__lore__context_query` | 后续用真实用户重复验证 |
 | Official MCP Registry | 完成；`server.json` 通过校验，GHCR OCI 镜像公开，workflow `25111065964` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
@@ -136,9 +136,8 @@ Lore 不应把自己定位成“更便宜的 memory database”。v0.6 已经把
 
 | 优先级 | 工作 | 成功证据 |
 |---|---|---|
-| P0 | Cursor prompt-level 验证 | Cursor MCP discovery/tool listing 已完成；补 Cursor auth 后跑 prompt-level context_query |
 | P0 | Design partner intake | 3-5 个目标用户进入 activation scorecard |
-| P0 | Marketplace / MCP hub metadata 人审 | Official MCP Registry 已完成；其他 marketplace/hub 需补截图/GIF和人工最终提交 |
+| P0 | Marketplace / MCP hub metadata 人审 | Official MCP Registry 已完成；demo screenshot 素材已生成；其他 marketplace/hub 需人工最终提交 |
 | P0 | Show HN retry preparation | draft 已保存；账号限制解除后由人审重试 |
 | P0 | clean checkout activation timing follow-up | 已有机器验证；再补真实用户计时 |
 | P1 | public-safe eval report on partner data | 无 secret、raw memory、hard-deleted content |
@@ -178,7 +177,7 @@ pnpm audit --prod
 - Public API health verified.
 - Clean checkout activation machine timing captured.
 - Claude Code actual-client path verified.
-- Cursor MCP discovery/tool listing verified; prompt-level use needs Cursor auth.
+- Cursor actual-client prompt-level context query and trace retrieval verified.
 - Qwen Code actual-client context query verified.
 - MCP Registry publish verified: GHCR package is public, anonymous Docker
   manifest lookup succeeds, and GitHub Actions run `25111065964` published

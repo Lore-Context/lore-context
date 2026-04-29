@@ -34,7 +34,7 @@ import/export, demo dataset, and reproducible smoke checks.
 
 | Surface | Recommended status | Notes |
 |---|---:|---|
-| MCP registry / MCP hub | Official Registry published; hubs draft-ready | Official MCP Registry is active and points to the public OCI image. Use [mcp-registry.md](mcp-registry.md) for hub submissions. |
+| MCP registry / MCP hub | Official Registry published; hubs draft-ready | Official MCP Registry is active and points to the public OCI image. Use [mcp-registry.md](mcp-registry.md) and [assets](assets/) for hub submissions. |
 | LangChain Hub | Draft | Position as external memory governance/control-plane integration, not a LangChain package. |
 | LlamaIndex ecosystem | Draft | Use API-first examples only unless a real adapter is added. |
 | Vercel / agent gallery | Draft | Website is static; do not imply Vercel-hosted SaaS. |
@@ -51,6 +51,12 @@ Do not submit a listing with placeholder visuals. Use at least one of:
 - terminal GIF showing quickstart, seed, and context query;
 - static architecture diagram from the public docs;
 - Evidence Ledger screenshot with demo trace only.
+
+Available public-safe demo assets:
+
+- `docs/distribution/assets/lore-dashboard-evidence-ledger-demo.png`
+- `docs/distribution/assets/lore-evidence-ledger-card-demo.png`
+- `docs/distribution/assets/lore-evidence-ledger-traces-demo.png`
 
 ## Do Not Say
 

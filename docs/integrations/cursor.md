@@ -2,8 +2,11 @@
 
 Status: REST API and local stdio MCP launcher are available. Cursor Agent MCP
 discovery is verified: `cursor-agent mcp enable/list/list-tools lore` discovers
-the project config and lists 11 Lore tools. Prompt-level tool use still requires
-Cursor login or `CURSOR_API_KEY`.
+the project config and lists 11 Lore tools. Prompt-level tool use is verified:
+on 2026-04-29, `cursor-agent --print --model auto --force --approve-mcps`
+called Lore `context_query`, returned trace
+`ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145`, matched seeded demo memory, and
+then called `trace_get` with 2 retrieved / 2 used rows.
 
 ## Recommended Path
 
@@ -66,14 +69,22 @@ Troubleshooting:
 - If Cursor shows JSON-RPC parse errors, run `node apps/mcp-server/dist/index.js` directly so stdout is JSON-RPC only.
 - If Lore returns `401` or `403`, add `LORE_API_KEY` under the MCP server `env`.
 - If port `3000` is already occupied, update both `LORE_API_URL` and the API start command.
+- If `http://127.0.0.1:3000/health` does not return `{"service":"lore-api"}`,
+  Cursor is pointing at the wrong local service. Use another port for Lore and
+  update `.cursor/mcp.json` before validating.
 - If project-scoped keys fail, include a matching `project_id` in `memory_write` and `context_query`.
 - If agentmemory is offline, keep using `context_query`, `memory_search`, and `trace_get`; raw agentmemory sync can wait.
 - If the desktop app works but the CLI cannot list MCP tools, record the exact
   Cursor version and whether `cursor-agent` is installed before counting the
   path as complete.
 - If `cursor-agent` can list tools but prompt use fails with authentication,
-  run `agent login` or set `CURSOR_API_KEY`; MCP discovery is already proven in
-  that state.
+  run `cursor-agent login` or set `CURSOR_API_KEY`; MCP discovery is already
+  proven in that state.
+- Cursor Agent Free plans require `--model auto`; named models fail with
+  `Named models unavailable`.
+- Headless prompt runs may reject MCP calls until a user approval mode is chosen.
+  Use interactive approval, or use `--force` for an intentional local validation
+  run against demo data.
 
 ## Notes
 

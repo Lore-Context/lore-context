@@ -207,7 +207,7 @@ describe("handleJsonRpcMessage", () => {
     ]);
     expect(response).toMatchObject({
       result: {
-        content: [{ type: "text", text: "Lore context block" }],
+        content: [{ type: "text", text: "Trace ID: ctx_1\n\nLore context block" }],
         structuredContent: { traceId: "ctx_1" }
       }
     });
