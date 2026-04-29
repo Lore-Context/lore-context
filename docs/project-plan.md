@@ -10,8 +10,9 @@ Last updated: 2026-04-29
 
 - GitHub Release: `v0.6.0-alpha` pre-release，发布时间 `2026-04-29T08:50:21Z`。
 - Release tag: `v0.6.0-alpha` 指向 release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
-- Public `main`: `3795c8af99bd2152aeee8abd868becfaeff214c8`。
-- Public CI: GitHub Actions run `25107479571` passed on `3795c8a`。
+- Public `main`: release tag 之后已有文档、分发和 MCP Registry 闭环提交；最新已验证分发源为 `1914718c3136fab2f7eed167445e97a910b62bb0`。
+- Public CI: GitHub Actions run `25110357633` passed on `1914718c`。
+- MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T13:16:42Z`；GHCR 镜像 `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` 已公开。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
 - Public API health: `https://api.lorecontext.com/health` 返回 `status: ok`。
@@ -34,13 +35,14 @@ Last updated: 2026-04-29
 | 公开版本 | `v0.6.0-alpha` pre-release |
 | 根版本 | `0.6.0-alpha.0` |
 | 公开仓库 | `Lore-Context/lore-context` |
-| 当前公开线 | `main` at `3795c8af99bd2152aeee8abd868becfaeff214c8` |
+| 当前公开线 | `main`，release tag 之后包含 release-closure、integration validation、MCP distribution commits |
 | 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
 | GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
-| CI | run `25107479571`, success |
+| CI | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | Public API | `https://api.lorecontext.com/health` returns ok |
+| MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; publish workflow run `25111065964`, success |
 | HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
 | 私有云端组件 | 存在并在闭源仓库维护，不属于公开 alpha 承诺 |
 | 当前公开非目标 | public hosted SaaS, billing, managed cloud sync, remote MCP HTTP default |
@@ -88,6 +90,7 @@ Last updated: 2026-04-29
 | Claude Code golden path | 完成；真实 `claude mcp add/list/get` 跑通，并修复了参数顺序文档问题 | 收集用户按文档自助跑通证据 |
 | Cursor golden path | MCP client 管理路径完成；`cursor-agent` 已安装，项目 `.cursor/mcp.json` 被发现，`mcp enable/list/list-tools lore` 列出 11 个 Lore tools；prompt 级调用仍缺 Cursor auth | 提供 Cursor login 或 `CURSOR_API_KEY` 后补一次 prompt-level context_query |
 | Qwen Code golden path | 完成；`@qwen-code/qwen-code` `0.15.5` 已安装，`qwen mcp list` 连接项目 `.qwen/settings.json`，非交互 Qwen Code 成功调用 `mcp__lore__context_query` | 后续用真实用户重复验证 |
+| Official MCP Registry | 完成；`server.json` 通过校验，GHCR OCI 镜像公开，workflow `25111065964` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
 | public-safe eval report on partner data | 未完成 | 等 design partner 提供 sanitized data 或使用公开 fixture |
 | design partner workflow validation | 未完成 | 目标 3-5 个 activation scorecard |
@@ -135,7 +138,7 @@ Lore 不应把自己定位成“更便宜的 memory database”。v0.6 已经把
 |---|---|---|
 | P0 | Cursor prompt-level 验证 | Cursor MCP discovery/tool listing 已完成；补 Cursor auth 后跑 prompt-level context_query |
 | P0 | Design partner intake | 3-5 个目标用户进入 activation scorecard |
-| P0 | MCP Registry / marketplace metadata 人审 | `docs/distribution/` 通过 schema / screenshot / human review 后提交 |
+| P0 | Marketplace / MCP hub metadata 人审 | Official MCP Registry 已完成；其他 marketplace/hub 需补截图/GIF和人工最终提交 |
 | P0 | Show HN retry preparation | draft 已保存；账号限制解除后由人审重试 |
 | P0 | clean checkout activation timing follow-up | 已有机器验证；再补真实用户计时 |
 | P1 | public-safe eval report on partner data | 无 secret、raw memory、hard-deleted content |
@@ -177,8 +180,9 @@ pnpm audit --prod
 - Claude Code actual-client path verified.
 - Cursor MCP discovery/tool listing verified; prompt-level use needs Cursor auth.
 - Qwen Code actual-client context query verified.
-- MCP Registry `server.json` validates; GHCR/registry publish is automated in
-  `.github/workflows/publish-mcp-registry.yml`.
+- MCP Registry publish verified: GHCR package is public, anonymous Docker
+  manifest lookup succeeds, and GitHub Actions run `25111065964` published
+  `io.github.Lore-Context/lore-context-mcp` as an active Registry listing.
 - Private cloud and AWS production evidence are tracked in internal operator notes, not public docs.
 
 ## 5. ADR: v0.6 之后的方向

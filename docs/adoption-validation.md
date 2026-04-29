@@ -10,7 +10,7 @@ partner names unless the partner has explicitly approved being named.
 
 | Area | Status | Evidence |
 |---|---|---|
-| Public `main` | `3795c8af99bd2152aeee8abd868becfaeff214c8` | GitHub Actions run `25107479571`, success |
+| Public `main` | Post-release closure and distribution commits are on `main`; latest verified distribution source `1914718c3136fab2f7eed167445e97a910b62bb0` | CI run `25110357633`, success |
 | Production website | Live | `https://lorecontext.com/` and `https://www.lorecontext.com/` show `v0.6.0-alpha` |
 | AI-readable docs | Live and redeployed | `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified against current website build output |
 | Public API health | Live | `https://api.lorecontext.com/health` returns `status: ok` |
@@ -19,7 +19,7 @@ partner names unless the partner has explicitly approved being named.
 | Cursor golden path | Actual MCP client management path complete; agent prompt blocked on auth | `cursor-agent` installed via Cursor CLI, project `.cursor/mcp.json` discovered, `cursor-agent mcp enable/list/list-tools lore` listed 11 Lore tools. Full prompt-level use still needs Cursor login or `CURSOR_API_KEY`. |
 | Qwen Code golden path | Actual client path complete | `@qwen-code/qwen-code` `0.15.5` installed; `qwen mcp list` connected to project `.qwen/settings.json`; Qwen Code non-interactive run used `mcp__lore__context_query` successfully against a temporary Lore API. |
 | Show HN | Deferred | HN redirected the submitted draft to a new-account Show HN restriction page; no thread URL exists |
-| MCP Registry | Metadata valid; OCI publish workflow prepared | `server.json` validates with `mcp-publisher validate`; local OCI image `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` builds and lists Lore tools. Local GHCR push is blocked by token scope, so `.github/workflows/publish-mcp-registry.yml` publishes via GitHub Actions `packages: write` and MCP Registry OIDC. Server namespace must remain `io.github.Lore-Context/*` to match registry auth. |
+| MCP Registry | Published | GHCR package `lore-context-mcp` is public; anonymous Docker manifest lookup succeeds for `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`; GitHub Actions run `25111065964` published `io.github.Lore-Context/lore-context-mcp`; Registry API returns `active`, `isLatest: true`, and publishedAt `2026-04-29T13:16:42Z`. |
 | Marketplace metadata | Draft, needs review assets | copy is prepared, but listings should not be submitted until screenshots/GIFs and registry-specific schemas are reviewed |
 
 ## Client Validation Rules
@@ -37,12 +37,10 @@ published instructions from a fresh user perspective.
 
 1. Finish Cursor prompt-level validation after Cursor login or `CURSOR_API_KEY`
    is available. MCP discovery and tool listing are already complete.
-2. Run the MCP Registry/GHCR workflow and verify the public package URL plus
-   official registry listing.
-3. Run 3-5 design partner activation sessions using
+2. Run 3-5 design partner activation sessions using
    `docs/design-partners/intake.md` and
    `docs/design-partners/activation-scorecard.md`.
-4. Produce at least one public-safe screenshot or terminal GIF before submitting
+3. Produce at least one public-safe screenshot or terminal GIF before submitting
    marketplace listings.
 
 ## Evidence Storage

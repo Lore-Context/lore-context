@@ -9,11 +9,14 @@ Lore Context is currently in public alpha.
 Release status:
 
 - Public release tag: `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
-- Public `main`: `3795c8af99bd2152aeee8abd868becfaeff214c8`.
-- CI: GitHub Actions run `25107479571`, success.
+- Public `main`: release tag plus post-release closure, integration validation, and distribution commits.
+- Latest verified distribution source: `1914718c3136fab2f7eed167445e97a910b62bb0`.
+- CI: GitHub Actions run `25110357633`, success on `1914718c`.
 - Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` live.
 - AI-readable docs: `/llms.txt` and `/llms-full.txt` live.
 - Public API health: `https://api.lorecontext.com/health` returns ok.
+- MCP Registry: `io.github.Lore-Context/lore-context-mcp` active; GHCR image
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` public.
 
 See [release-status.md](release-status.md)
 for the public-safe release snapshot.
@@ -45,9 +48,10 @@ Still validating:
 - first Evidence Ledger view after a real agent workflow with real users
   (maintainer-run machine proof is already under 15 minutes);
 - golden-path integration completion with fresh users: Claude Code actual CLI
-  path is complete; Cursor and Qwen Code still need real-client verification;
+  path is complete; Cursor MCP discovery/tool listing is complete but prompt
+  use needs Cursor auth; Qwen Code actual-client tool use is complete;
 - public-safe eval report on design-partner data;
-- human-reviewed MCP registry / marketplace submission;
+- marketplace / hub submissions beyond the Official MCP Registry;
 - Show HN retry after the account can post Show HNs;
 - second-day retention and willingness to pay for private deployment/support.
 
@@ -65,9 +69,9 @@ matrix.
 
 1. **Clean activation timing**: repeat fresh clone to first `context.query` with real users.
 2. **First ledger proof**: repeat fresh clone to first Evidence Ledger view with real users.
-3. **Golden integrations**: finish Cursor and Qwen Code actual-client validation, then repeat all three with fresh users.
+3. **Golden integrations**: finish Cursor prompt-level validation after auth, then repeat Claude Code, Cursor, and Qwen Code with fresh users.
 4. **Public-safe trust demo**: run eval report redaction on design-partner data.
-5. **Human-reviewed distribution**: submit MCP Registry and marketplace drafts only after review.
+5. **Human-reviewed distribution**: use the completed Official MCP Registry listing as the baseline, then submit marketplace/hub drafts after screenshot/GIF and schema review.
 6. **Design partner learning**: use scorecards to decide the v0.7 lane.
 
 Explicit non-goals:
@@ -84,9 +88,11 @@ Success metrics:
 - Fresh clone to first `context.query`: `<10 minutes`.
 - Fresh clone to first Evidence Ledger view: `<15 minutes`.
 - First 5 fresh-user quickstarts: `>=80%` success without maintainer help.
-- Cursor and Qwen Code actual-client paths: one documented copy-paste success each.
+- Cursor prompt-level tool use after auth, plus fresh-user repeats for Claude
+  Code, Cursor, and Qwen Code.
 - `/llms.txt` and docs bundle live on the website.
-- MCP Registry and at least 4 marketplace/plugin listing drafts ready for human submission.
+- Official MCP Registry active, plus at least 4 marketplace/plugin listing
+  drafts ready for human submission.
 - One public-safe trust demo report ready for launch.
 
 ## Candidate `v0.7` lanes

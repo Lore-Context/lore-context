@@ -73,10 +73,10 @@ curl -H "Authorization: Bearer $LORE_API_KEY" -H "Content-Type: application/json
 For full setup (Postgres, Docker Compose, Dashboard, MCP integration), see [docs/getting-started.md](docs/getting-started.md).
 
 For AI-readable discovery, the website publishes `/llms.txt` and `/llms-full.txt`
-from public documentation only. Distribution drafts live under
-[docs/distribution](docs/distribution/), launch drafts under
-[docs/launch](docs/launch/), and design partner intake under
-[docs/design-partners](docs/design-partners/).
+from public documentation only. The Official MCP Registry entry is published,
+and additional distribution drafts live under [docs/distribution](docs/distribution/).
+Launch drafts live under [docs/launch](docs/launch/), and design partner intake
+under [docs/design-partners](docs/design-partners/).
 
 ## Architecture
 
@@ -129,7 +129,7 @@ For detail, see [docs/architecture.md](docs/architecture.md).
 | Structured JSON logging with sensitive-field redaction | ✅ Production | `apps/api/src/logger.ts` |
 | Docker Compose private deployment | ✅ Production | `docker-compose.yml` |
 | Demo dataset + smoke tests + Playwright UI test | ✅ Production | `examples/`, `scripts/` |
-| Distribution docs, launch drafts, design partner intake | ✅ Alpha | `docs/distribution/`, `docs/launch/`, `docs/design-partners/` |
+| Official MCP Registry + distribution docs, launch drafts, design partner intake | ✅ Alpha | `server.json`, `docs/distribution/`, `docs/launch/`, `docs/design-partners/` |
 | Hosted multi-tenant cloud sync | ⏳ Roadmap | — |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full v0.6.0-alpha release notes.
@@ -138,9 +138,9 @@ See [CHANGELOG.md](CHANGELOG.md) for the full v0.6.0-alpha release notes.
 
 `v0.6.0-alpha` is published as a public alpha pre-release. The release tag points
 to `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`; public `main` includes the
-deployment-hardening closure commit `38fe564917de5756d8a937706a9e1120e2c26356`
-with passing CI. The production website, AI-readable docs, and public API health
-endpoint are live.
+release-closure, integration-validation, and distribution commits with passing
+CI. The production website, AI-readable docs, public API health endpoint, GHCR
+MCP image, and Official MCP Registry listing are live.
 
 See [docs/release-status.md](docs/release-status.md) for the current public-safe
 status snapshot.
@@ -158,7 +158,7 @@ Shipped v0.6 work:
 - `pnpm quickstart -- --activation-report` with redacted dry-run and real first-value proof;
 - stricter activation proof that fails instead of skipping when the target port is occupied;
 - public-safe eval reporting and smoke coverage for eval export plus MIF JSON export;
-- distribution metadata drafts for MCP registry, marketplace listings, and agent plugins;
+- Official MCP Registry publication plus distribution metadata drafts for marketplace listings and agent plugins;
 - launch content drafts and design partner intake/scorecard workflow.
 
 It deliberately does not claim public SaaS, billing, managed sync, remote MCP HTTP,

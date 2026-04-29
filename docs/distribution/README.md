@@ -1,10 +1,11 @@
 # Distribution Pack
 
 This folder contains human-reviewed distribution materials for the v0.6
-Distribution and Trust Sprint. These files are drafts and metadata sources. They
-do not mean Lore has already been submitted to any marketplace or community.
-Review [submission-review.md](submission-review.md) before submitting anything to
-third-party registries, hubs, galleries, or marketplaces.
+Distribution and Trust Sprint. The Official MCP Registry listing is now
+published; the remaining files are drafts and metadata sources for additional
+hubs, galleries, marketplaces, and community surfaces. Review
+[submission-review.md](submission-review.md) before submitting anything beyond
+the Official MCP Registry.
 
 ## Rule
 

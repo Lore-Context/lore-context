@@ -12,14 +12,18 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Release type | Public alpha pre-release |
 | GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
 | Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
-| Public `main` | `3795c8af99bd2152aeee8abd868becfaeff214c8` |
-| CI | GitHub Actions run `25107479571`, success |
+| Public `main` | release tag plus post-release closure, integration validation, and distribution commits |
+| Latest verified distribution source | `1914718c3136fab2f7eed167445e97a910b62bb0` |
+| CI | GitHub Actions run `25110357633`, success on `1914718c` |
 | Website | `https://lorecontext.com/` and `https://www.lorecontext.com/` |
 | AI-readable docs | `https://lorecontext.com/llms.txt`, `https://lorecontext.com/llms-full.txt` |
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
+| MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active |
+| MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`, public |
 
 The release tag points at the original `v0.6.0-alpha` release commit. Public
-`main` includes later release-closure and copy-paste documentation fixes. Do not
+`main` includes later release-closure, integration-validation, and distribution
+fixes. Do not
 rewrite the public tag unless a future release decision explicitly requires it.
 
 ## What v0.6 proves
@@ -31,8 +35,9 @@ rewrite the public tag unless a future release decision explicitly requires it.
 - Distribution, launch, and design partner materials are ready for human review.
 - Project-scoped Cursor and Qwen Code MCP configs are present in `.cursor/mcp.json`
   and `.qwen/settings.json`.
-- MCP Registry metadata is valid in `server.json`; an OCI-based publish workflow
-  is prepared for GHCR and official registry submission.
+- MCP Registry metadata is valid in `server.json`; the OCI image is public on
+  GHCR, and GitHub Actions run `25111065964` published the active Official MCP
+  Registry listing.
 
 ## What v0.6 does not claim
 
@@ -61,10 +66,11 @@ matrix and open validation tasks.
 - Qwen Code fresh-user golden-path verification: `qwen mcp list` connects to
   Lore, and a Qwen Code non-interactive run successfully invoked
   `mcp__lore__context_query` against a temporary Lore API.
-- MCP Registry / marketplace submission: `server.json` validates locally;
-  GHCR image publish and official registry publish are delegated to the
-  `Publish MCP Registry` GitHub Actions workflow because the local GitHub token
-  lacks `write:packages`.
+- MCP Registry: completed. `server.json` validates locally; GHCR image publish
+  and Official Registry publish succeeded through the `Publish MCP Registry`
+  workflow run `25111065964`; Registry API reports `active` and `isLatest: true`.
+- Marketplace / hub listings beyond the Official MCP Registry still need
+  human-reviewed screenshots/GIFs and registry-specific schema checks.
 - Show HN launch: draft is ready, but first submission was deferred by HN's
   new-account Show HN restriction; no thread URL exists yet.
 - Public-safe eval report tested against design-partner data.

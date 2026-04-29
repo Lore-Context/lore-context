@@ -9,7 +9,7 @@ submit to third-party sites from automation without final human approval.
 
 | Surface | Current status | Submit now? | Blocker / next action |
 |---|---|---:|---|
-| Official MCP Registry | ready for CI publish | yes, via reviewed workflow | `server.json` validates; local OCI image builds and smokes; use `.github/workflows/publish-mcp-registry.yml` because local token lacks `write:packages`. |
+| Official MCP Registry | published | complete | `server.json` validates; GHCR image is public; workflow run `25111065964` published the active listing for `io.github.Lore-Context/lore-context-mcp`. |
 | MCP hubs / community directories | draft-ready | human review first | Use public GitHub repo and website only; make alpha status visible. |
 | GitHub topics / repository metadata | ready | human review first | Align with `agent-memory`, `mcp`, `governance`, `eval`, `observability`, `local-first`. |
 | Cursor ecosystem copy | draft-ready | human review first | Cursor MCP discovery and tool listing are verified; prompt-level use still needs Cursor auth. |
@@ -26,14 +26,16 @@ submission should wait until at least one distribution path exists:
 2. public OCI image for the MCP server; or
 3. public remote MCP endpoint with an approved threat model.
 
-Current distribution path is OCI:
+Current distribution path is OCI and published:
 
 - `server.json` describes `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`.
 - The image label `io.modelcontextprotocol.server.name` matches
   `io.github.Lore-Context/lore-context-mcp`.
 - `mcp-publisher validate` succeeds locally.
-- Local `docker push` is blocked by token scope, so publishing is performed by
-  GitHub Actions with `packages: write` and MCP Registry `github-oidc`.
+- GHCR package `lore-context-mcp` is public; anonymous Docker manifest lookup
+  succeeds.
+- Official Registry publish is performed by GitHub Actions with
+  `packages: write` and MCP Registry `github-oidc`; run `25111065964` succeeded.
 
 ## Human Review Checklist
 
@@ -45,7 +47,7 @@ Current distribution path is OCI:
   dataset appears in the listing.
 - Screenshots or GIFs use demo data only.
 - Registry-specific schema validates before submission.
-- A person performs the final submit action.
+- A person performs the final submit action for every new third-party surface.
 
 ## Assets Still Needed
 

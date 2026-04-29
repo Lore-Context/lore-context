@@ -56,16 +56,21 @@ turning Lore into a hosted SaaS claim.
 
 ### Notes / Known limitations
 
-- Post-release closure: public `main` includes deployment hardening at
-  `38fe564917de5756d8a937706a9e1120e2c26356`, with GitHub Actions run
-  `25102174056` passing and production website/API health verified on
-  2026-04-29. The release tag remains on the original release commit
+- Post-release closure: public `main` includes deployment hardening,
+  integration validation, and distribution commits after the release tag. The
+  latest verified distribution source is
+  `1914718c3136fab2f7eed167445e97a910b62bb0`, with GitHub Actions CI run
+  `25110357633` passing. The release tag remains on the original release commit
   `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`.
 - `v0.6.0-alpha` still does **not** include public hosted SaaS, billing, managed
   cloud sync, autonomous marketplace submission, or remote MCP HTTP as the default
   path.
 - Marketplace, Show HN, Reddit, Discord, and partner outreach drafts remain
   human-reviewed materials; the release does not auto-submit them.
+- Post-release distribution closure: Official MCP Registry publication completed
+  through GitHub Actions run `25111065964`; the GHCR image
+  `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0` is public and the
+  Registry listing `io.github.Lore-Context/lore-context-mcp` is active.
 - Clean-checkout human timing and real design partner scorecard data are still
   post-release validation work.
 
