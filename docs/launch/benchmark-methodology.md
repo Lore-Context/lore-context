@@ -1,7 +1,9 @@
 # Benchmark Methodology
 
-Status: methodology draft. No benchmark result claim is approved until this file
-is paired with reproducible data, scripts, raw output, and a reviewer pass.
+Status: public-safe methodology with one reviewed lab report:
+[`memory-benchmark-report-2026-04-29.md`](memory-benchmark-report-2026-04-29.md).
+The report supports narrow local retrieval and latency claims only. It does not
+approve universal benchmark-win claims against Mem0, Zep, Letta, or Memobase.
 
 ## Goal
 
@@ -42,6 +44,8 @@ configuration is documented and reproducible.
 - Report failures and unsupported features instead of silently omitting them.
 - Publish raw metrics, not only charts.
 - Do not use marketing language such as "wins" unless the result is statistically and operationally meaningful.
+- Keep retrieval-only hit rates separate from generated-answer / LLM-as-Judge
+  scores. They are different metrics and must not be placed in one ranking.
 
 ## Lore-Specific Evidence
 
@@ -73,3 +77,14 @@ Before publishing a benchmark post:
 - raw outputs are archived under an intentional public path;
 - limitations are listed near the top of the post;
 - competitor descriptions are factual and non-derogatory.
+
+Current approved public-safe data:
+
+- `docs/launch/memory-benchmark-report-2026-04-29.md`
+- `docs/launch/benchmark-results/lore-vs-mem0-locomo-200-summary-2026-04-29.json`
+
+Current non-approved data:
+
+- Raw LoCoMo conversations/questions from the local lorecmo workspace.
+- Any SOTA, "beats", or generated-answer accuracy claim derived from the
+  retrieval-only report.

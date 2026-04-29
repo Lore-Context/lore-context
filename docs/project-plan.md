@@ -1,6 +1,6 @@
 # Lore Context 项目计划书
 
-Last updated: 2026-04-29
+Last updated: 2026-04-30 Asia/Jakarta
 
 ## 0. 负责人结论
 
@@ -18,7 +18,8 @@ Last updated: 2026-04-29
 - npm MCP server package: `@lore-context/server@0.6.0-alpha.1` 已发布；fresh install 后 `lore-context-server` 通过 MCP SDK `tools/list` 返回 11 个工具。
 - Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `v0.6.0-alpha`。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
-- HN launch website surfaces: `/quickstart/`、`/blog/v0-6-distribution-and-trust-sprint/`、`/benchmark/` 已部署到生产官网并通过 `lorecontext.com` / `www.lorecontext.com` 验证；源码移除了未被公开报告支撑的 benchmark-win 数字。
+- HN launch website surfaces: `/quickstart/`、`/blog/v0-6-distribution-and-trust-sprint/`、`/benchmark/` 已部署到生产官网并通过 `lorecontext.com` / `www.lorecontext.com` 验证；当前源码已更新为 LoCoMo-200 retrieval-only lab report 文案，继续避免 SOTA 或 benchmark-win 叙事。
+- Public-safe benchmark report: `docs/launch/memory-benchmark-report-2026-04-29.md` 记录了本轮复跑结果。Lore v0.6 local API 在 LoCoMo-200 retrieval-only harness 上为 47.5% hit@5、29.1 ms P95；同 harness 的非优化本地 Mem0 OSS run 为 31.5% hit@5、709.8 ms P95。该报告只支持本地检索和延迟证据，不支持对 Mem0/Zep/Letta/Memobase 的通用胜利声明。
 - Public API health: `https://api.lorecontext.com/health` 返回 `status: ok`。
 - AWS-backed public API runtime: 当前线上 API 健康；运行时仍可停留在 v0.6 application closure source，因为后续 npm/Registry/文档提交不改变 API runtime。私有 AWS instance、SSM command 和账号细节只记录在闭源 operator notes。
 
@@ -107,7 +108,7 @@ Last updated: 2026-04-29
 | Official MCP Registry | 完成；`server.json` 通过校验，npm package 和 GHCR OCI 镜像均公开，workflow `25120707303` 成功发布到 Registry，Registry API 返回 `active` / `isLatest: true` | 后续只需在新版本发布时重复 workflow |
 | npm MCP server package | 完成；`@lore-context/server@0.6.0-alpha.1` 已发布到 npm，`npm view` / dist-tags / fresh install / MCP `tools/list` 均通过 | 后续把 npx 安装路径纳入 marketplace 和 fresh-user 文档 |
 | Show HN launch | deferred；HN 新账号暂时限制 Show HN，未发布帖子 | 等账号有正常社区活动后重试，不绕过限制 |
-| HN launch website readiness | 已完成；quickstart/blog/benchmark 页面在线上，且文案不再声明未证实 benchmark win | 后续每次官网部署后重复生产域名、sitemap 和移动端 smoke 复核 |
+| HN launch website readiness | 已完成；quickstart/blog/benchmark 页面在线上，benchmark 文案已升级为 LoCoMo-200 retrieval-only lab report，且不声明 SOTA / benchmark win | 后续每次官网部署后重复生产域名、sitemap 和移动端 smoke 复核 |
 | public-safe eval report on partner data | 未完成 | 等 design partner 提供 sanitized data 或使用公开 fixture |
 | design partner workflow validation | 未完成 | 目标 3-5 个 activation scorecard |
 | second-day retention | 未完成 | design partner session 后第二天复查 |

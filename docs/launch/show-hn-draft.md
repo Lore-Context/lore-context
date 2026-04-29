@@ -43,8 +43,9 @@ What is included:
 - MCP stdio tools for context query, memory write/search/export, eval, and trace inspection
 - dashboard for memory inventory, eval runs, traces, and governance review queue
 - Evidence Ledger for used/ignored memory rows
-- eval report methodology with Recall@5, Precision@5, MRR, stale-hit rate, and
-  an explicit note that p95 latency is still pending
+- a public-safe LoCoMo-200 retrieval-only lab report with explicit caveats:
+  Lore measured 47.5% hit@5 and 29.1 ms P95 local API latency, but this is not
+  generated-answer accuracy or a leaderboard claim
 - MIF-style import/export with provenance and relationship fields
 
 What is not included:

@@ -86,8 +86,8 @@ from public documentation only. The Official MCP Registry entry is published,
 and additional distribution drafts live under [docs/distribution](docs/distribution/).
 Launch drafts live under [docs/launch](docs/launch/), and design partner intake
 under [docs/design-partners](docs/design-partners/). The public benchmark page
-is a reproducible methodology and small smoke-run report, not a competitive
-benchmark-win claim.
+is a public-safe LoCoMo-200 retrieval-only lab report with explicit caveats, not
+a competitive benchmark-win claim.
 
 ## Architecture
 

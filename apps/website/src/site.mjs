@@ -1066,11 +1066,11 @@ function evalSection(t) {
     <div class="shell">
       ${sectionHead(t.sectionNums[4], t.evalTitle, t.evalCopy, t.sectionEyebrows?.[4])}
       <div class="eval-shell">
-        <div class="eval-head"><span>eval/smoke-2026-04-29</span><span>demo-private · 4 memories · 4 questions · no production claim</span><span class="live-pill">LOCAL · v0.6.0-alpha · methodology published</span></div>
-        <div class="eval-metrics">${evalMetric("Recall@5", "1.000", "4-item smoke dataset", "good", "0,24 14,20 28,18 42,12 56,8 70,6 84,4 96,4")}${evalMetric("Precision@5", "0.200", "expected with k=5", "warn", "0,22 14,20 28,21 42,19 56,18 70,20 84,19 96,18")}${evalMetric("MRR", "0.875", "one query ranked #2", "good", "0,21 14,16 28,14 42,12 56,10 70,8 84,7 96,5")}${evalMetric("Stale-hit", "0.000", "no stale demo rows", "good", "0,20 14,20 28,20 42,20 56,20 70,20 84,20 96,20")}${evalMetric("p95 latency", "pending", "not measured via MCP", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}</div>
+        <div class="eval-head"><span>eval/locomo-200-2026-04-29</span><span>LoCoMo-200 · retrieval-only hit@5 · no leaderboard claim</span><span class="live-pill">LOCAL · v0.6.0-alpha · lab report published</span></div>
+        <div class="eval-metrics">${evalMetric("Lore hit@5", "47.5%", "retrieval-only LoCoMo-200", "good", "0,24 14,22 28,20 42,17 56,15 70,13 84,10 96,8")}${evalMetric("Lore P95", "29.1ms", "local API query latency", "good", "0,21 14,18 28,16 42,13 56,12 70,10 84,9 96,8")}${evalMetric("Mem0 hit@5", "31.5%", "non-optimized OSS local run", "warn", "0,24 14,23 28,22 42,21 56,20 70,19 84,18 96,17")}${evalMetric("Mem0 P95", "709.8ms", "same retrieval-only harness", "warn", "0,12 14,14 28,15 42,16 56,18 70,21 84,23 96,25")}${evalMetric("Errors", "6 / 0", "Lore 429s / Mem0 query errors", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}</div>
         <div class="eval-detail">
-          <div class="eval-trace"><h3>What the smoke run proves</h3>${["pipeline retrieves gold memory", "Evidence Ledger trace is inspectable", "stale rows are reported as zero", "larger dataset still required", "latency must be measured via direct API"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:0%;width:${[100, 84, 78, 46, 36][index]}%"></i></b><em>${["pass", "pass", "pass", "todo", "todo"][index]}</em></div>`).join("")}</div>
-          <div class="eval-side"><h3>Publication guardrails</h3>${["4-item dataset", "no LOCOMO claim", "no p95 claim", "raw data archived", "methodology first"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[34, 100, 100, 82, 90][index]}%"></i></b><em>${["small", "true", "true", "yes", "yes"][index]}</em></div>`).join("")}<div class="eval-note"><span>Use this as methodology, not a benchmark win.</span><a class="inline-link" href="/benchmark/">Read report →</a></div></div>
+          <div class="eval-trace"><h3>What the lab run proves</h3>${["Lore local retrieval latency is agent-loop friendly", "top-5 retrieval is measurable on a mainstream memory dataset", "Evidence Ledger still wraps the context path", "Mem0 local run was not an official best-case config", "LLM-as-Judge answer accuracy remains future work"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:0%;width:${[96, 78, 72, 44, 34][index]}%"></i></b><em>${["pass", "pass", "pass", "caveat", "todo"][index]}</em></div>`).join("")}</div>
+          <div class="eval-side"><h3>Publication guardrails</h3>${["LoCoMo raw data withheld", "retrieval-only metric", "no SOTA claim", "Mem0 caveats listed", "public summary JSON"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[100, 100, 100, 88, 92][index]}%"></i></b><em>${["yes", "true", "true", "yes", "yes"][index]}</em></div>`).join("")}<div class="eval-note"><span>Use this as a lab report, not a benchmark win.</span><a class="inline-link" href="/benchmark/">Read report →</a></div></div>
         </div>
       </div>
     </div>
@@ -1367,29 +1367,30 @@ function changelogBlogPage() {
 function benchmarkPage() {
   return standalonePage({
     path: "/benchmark/",
-    title: "Benchmark methodology",
-    description: "Lore Context v0.6 benchmark methodology and a four-item smoke evaluation with explicit limitations.",
+    title: "Benchmark lab report",
+    description: "Lore Context v0.6 LoCoMo-200 retrieval-only benchmark report with explicit limitations.",
     body: `<section class="section page">
       <div class="shell article">
-        <span class="section-num">BENCHMARK / METHODOLOGY FIRST</span>
-        <h1>A four-item smoke eval, not a benchmark win.</h1>
-        <p class="lead">The v0.6 report proves the retrieval and Evidence Ledger path works on the public demo fixture. It does not compare Lore against LOCOMO, LongMemEval, Mem0, Letta, or Zep at production scale.</p>
+        <span class="section-num">BENCHMARK / PUBLIC-SAFE LAB REPORT</span>
+        <h1>LoCoMo-200 retrieval-only results, with the caveats up front.</h1>
+        <p class="lead">Lore Context v0.6 was rerun against a LoCoMo-derived 200-question sample. The result measures top-5 retrieved context and local API latency; it is not generated-answer accuracy and not a universal leaderboard claim.</p>
         <div class="info-panel">
           <div class="eval-metrics">
-            ${evalMetric("Recall@5", "1.000", "4 gold memories found", "good", "0,24 14,20 28,18 42,12 56,8 70,6 84,4 96,4")}
-            ${evalMetric("Precision@5", "0.200", "small corpus, k=5", "warn", "0,22 14,20 28,21 42,19 56,18 70,20 84,19 96,18")}
-            ${evalMetric("MRR", "0.875", "one rank-2 tie", "good", "0,21 14,16 28,14 42,12 56,10 70,8 84,7 96,5")}
-            ${evalMetric("Stale-hit", "0.000", "no stale demo rows", "good", "0,20 14,20 28,20 42,20 56,20 70,20 84,20 96,20")}
-            ${evalMetric("p95 latency", "pending", "not measured via MCP", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}
+            ${evalMetric("Lore hit@5", "47.5%", "95 / 200 retrieval hits", "good", "0,24 14,22 28,20 42,17 56,15 70,13 84,10 96,8")}
+            ${evalMetric("Lore P95", "29.1ms", "local REST query path", "good", "0,21 14,18 28,16 42,13 56,12 70,10 84,9 96,8")}
+            ${evalMetric("Mem0 OSS hit@5", "31.5%", "non-optimized local run", "warn", "0,24 14,23 28,22 42,21 56,20 70,19 84,18 96,17")}
+            ${evalMetric("Mem0 OSS P95", "709.8ms", "same retrieval proxy", "warn", "0,12 14,14 28,15 42,16 56,18 70,21 84,23 96,25")}
+            ${evalMetric("Lore errors", "6", "HTTP 429s counted as misses", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}
           </div>
           <dl>
-            <dt>Dataset</dt><dd>4 public demo memories and 4 questions from <code>examples/demo-dataset/eval/lore-demo-eval-dataset.json</code>.</dd>
-            <dt>Method</dt><dd>Write demo memories, query top 5, compute Recall@5, Precision@5, MRR, and stale-hit rate using the same formulas as <code>@lore/eval</code>.</dd>
-            <dt>Reproduce</dt><dd><code>pnpm eval:report -- --project-id demo-private --public-safe</code> for the public-safe report path; use the demo dataset for a smoke run.</dd>
-            <dt>Limitations</dt><dd>At 4 items, any system returning all items can score Recall@5 = 1.0. The result is useful as a pipeline smoke test, not a scale claim.</dd>
-            <dt>Next</dt><dd>Run a 50+ memory dataset, measure direct API latency, and only then compare against public benchmark literature.</dd>
+            <dt>Dataset</dt><dd>LoCoMo-derived 200-question sample from 10 conversations. Raw LoCoMo conversations and questions are not redistributed because the dataset is CC BY-NC 4.0.</dd>
+            <dt>Method</dt><dd>Query top 5, then mark a retrieval hit when the gold answer or enough gold-answer tokens appear in the retrieved context. This is retrieval-only hit@5, not answer accuracy.</dd>
+            <dt>Same-harness result</dt><dd>Lore returned 47.5% hit@5 at 29.1 ms P95. The local Mem0 OSS comparison returned 31.5% hit@5 at 709.8 ms P95, but its optional NLP/BM25 paths were unavailable and long-chunk ingestion emitted warnings.</dd>
+            <dt>External context</dt><dd>Public Mem0, Zep, Letta, Memobase, and LangMem numbers mostly use generated answers plus LLM-as-Judge, so they are listed in the source report as reference points rather than ranked against Lore.</dd>
+            <dt>Source report</dt><dd><a class="inline-link" href="${githubUrl}/blob/main/docs/launch/memory-benchmark-report-2026-04-29.md" rel="noreferrer">Read the public-safe report on GitHub ↗</a></dd>
+            <dt>Next</dt><dd>Publish a clean reproduction harness, fix Lore's benchmark 429s, run official Mem0/Zep/Letta paths, and add an LLM-as-Judge pass before making stronger market claims.</dd>
           </dl>
-          <p class="notice">Raw data is tracked in the launch workspace and should be moved into a public repo path only after a second reviewer reproduces the run from a clean checkout.</p>
+          <p class="notice">Safe public claim: Lore v0.6 has measured local retrieval and latency behavior on LoCoMo-200. Unsafe claim: Lore is SOTA or beats Mem0, Zep, Letta, or Memobase.</p>
         </div>
       </div>
     </section>`
