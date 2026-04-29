@@ -20,7 +20,7 @@ This page is the public-safe release status snapshot for Lore Context. It record
 | Public API health | `https://api.lorecontext.com/health` returns `status: ok` |
 | MCP Registry | `io.github.Lore-Context/lore-context-mcp`, active |
 | MCP OCI image | `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.0`, public |
-| Launch website surfaces | Live: homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap verified after Cloudflare Pages deploy `https://be2e5034.lore-context.pages.dev` |
+| Launch website surfaces | Live: homepage refresh plus `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`, and sitemap verified after the current Cloudflare Pages production deploy |
 | Launch-readiness source | `f7fe14234ca89c02397da230de3e27f90576c469`; GitHub Actions run `25115346417`, success |
 
 The release tag points at the original `v0.6.0-alpha` release commit. Public

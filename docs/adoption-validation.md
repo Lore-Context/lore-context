@@ -11,7 +11,7 @@ partner names unless the partner has explicitly approved being named.
 | Area | Status | Evidence |
 |---|---|---|
 | Public `main` | Post-release closure, distribution, adoption-validation, and HN launch-readiness commits are on `main`; latest verified launch-readiness code source `f7fe14234ca89c02397da230de3e27f90576c469` | CI run `25115346417`, success |
-| Production website | Live with HN launch pages | `https://lorecontext.com/`, `https://www.lorecontext.com/quickstart/`, `/benchmark/`, and `/blog/v0-6-distribution-and-trust-sprint/` verified after Cloudflare Pages deploy `https://be2e5034.lore-context.pages.dev` |
+| Production website | Live with HN launch pages | `https://lorecontext.com/`, `https://www.lorecontext.com/quickstart/`, `/benchmark/`, and `/blog/v0-6-distribution-and-trust-sprint/` verified after the current Cloudflare Pages production deploy |
 | AI-readable docs | Live and redeployed | `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified against current website build output |
 | Public API health | Live | `https://api.lorecontext.com/health` returns `status: ok` |
 | Clean checkout activation | Maintainer-run proof complete | fresh clone to first `context.query`: `10.13s`; first Evidence Ledger view: `10.13s` |
