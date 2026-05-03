@@ -233,6 +233,7 @@ for (const path of [
 // only validate the new English-canonical top-level pages.
 const v10HomeMarkers = [
   "<h1>All your agents. One shared memory.</h1>",
+  "v1.0.0-rc.2 Public SaaS beta readiness",
   ">Request beta access<",
   ">See how it works<",
   'data-v10-cta="beta"',
@@ -256,8 +257,11 @@ requireTexts("download.html", files.get("download.html") ?? "", v10DownloadMarke
 const v10DocsMarkers = ["v1.0 / DOCS", "Sign in with Google", "Memory Inbox", "Evidence Ledger", "lore connect", '/en/docs.html'];
 requireTexts("docs.html", files.get("docs.html") ?? "", v10DocsMarkers);
 
-const v10StatusMarkers = ["v1.0 / STATUS", "Private beta", "Browser extension", "Capture ingestion"];
+const v10StatusMarkers = ["v1.0 / STATUS", "Public SaaS beta readiness is live", "1.0.0-rc.2", "Browser extension", "Capture ingestion"];
 requireTexts("status.html", files.get("status.html") ?? "", v10StatusMarkers);
+
+const v10ChangelogMarkers = ["CHANGELOG", "v1.0.0-rc.2", "Public SaaS beta readiness", "not stable GA"];
+requireTexts("changelog.html", files.get("changelog.html") ?? "", v10ChangelogMarkers);
 
 const v10CompareMarkers = ["v1.0 / COMPARE", "Supermemory", "Mem0", "Zep", "Letta", "No SOC 2 claim"];
 requireTexts("compare.html", files.get("compare.html") ?? "", v10CompareMarkers);
@@ -297,7 +301,7 @@ const forbiddenAffirmations = [
   /\bbeats? all benchmarks\b/i
 ];
 for (const path of [
-  "index.html", "pricing.html", "privacy.html", "download.html", "docs.html", "status.html", "compare.html",
+  "index.html", "pricing.html", "privacy.html", "download.html", "docs.html", "status.html", "changelog.html", "compare.html",
   "company.html", "contact.html", "terms.html", "cookies.html", "sitemap.html"
 ]) {
   const text = files.get(path) ?? "";
@@ -350,7 +354,7 @@ requireTexts("llms.txt", llmsTxt, [
   "https://github.com/Lore-Context/lore-context/blob/main/docs/release-status.md",
   "public repository material only",
   "All your agents. One shared memory.",
-  "v1.0 Personal Cloud Beta"
+  "v1.0.0-rc.2"
 ]);
 const llmsFullTxt = files.get("llms-full.txt") ?? "";
 requireTexts("llms-full.txt", llmsFullTxt, [

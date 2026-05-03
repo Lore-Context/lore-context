@@ -682,7 +682,7 @@ function layout({ locale, slug = "", title, description, body, isHome = false })
         <a class="brand" href="${pathFor(locale)}" aria-label="Lore Context home">
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Lore Context</span>
-          <span class="version">v1.0 personal cloud beta</span>
+          <span class="version">v1.0.0-rc.2 beta</span>
         </a>
         <div class="nav-links" aria-label="Sections">
           ${["problem", "system", "features", "eval", "integrations", "docs"]
@@ -823,7 +823,7 @@ function homePage(locale) {
       <section class="hero" id="hero">
         <div class="shell hero-grid">
           <div class="hero-copy">
-            <a class="alpha-banner" href="/en/changelog.html">v1.0 personal cloud beta · Private design partners · Public v0.6 alpha remains open-source</a>
+            <a class="alpha-banner" href="/changelog.html">v1.0.0-rc.2 Public SaaS beta readiness · Invite/cap controlled · Not GA</a>
             <div class="chip-row">${t.chips.map((chip, index) => `<span class="chip ${index === 0 ? "live" : ""}">${escapeHtml(chip)}</span>`).join("")}</div>
             <h1>${escapeHtml(t.h1)}</h1>
             <p class="hero-statement">${escapeHtml(t.statement)}</p>
@@ -1174,7 +1174,7 @@ function docsPageBody(locale) {
     ["API reference", "Read REST routes, OpenAPI, Evidence Ledger, auth model, and error contracts.", `${docsBase}/api-reference.md`],
     ["Architecture", "Trace API, MCP, Evidence Ledger, eval, governance, persistence, and portability boundaries.", pathFor(locale, "architecture")],
     ["Deployment", "Run the private Docker Compose stack with Postgres, dashboard, Basic Auth, and health checks.", repoLocale ? `${docsBase}/deployment.md` : `${githubUrl}/tree/main/docs/deployment`],
-    ["Release status", "Read the current public alpha release, CI, website, AI-readable docs, and API health snapshot.", `${githubUrl}/blob/main/docs/release-status.md`],
+    ["Release status", "Read the current rc.2 public beta readiness release, CI, website, AI-readable docs, and API health snapshot.", `${githubUrl}/blob/main/docs/release-status.md`],
     ["Integrations", "Claude Code, Cursor, Qwen Code, Dify, FastGPT, OpenWebUI, Hermes, and generic MCP.", repoLocale ? `${docsBase}/integrations.md` : `${githubUrl}/tree/main/docs/integrations`],
     ["Security", "Review supported versions, secret handling, auth defaults, disclosure process, and hardening notes.", repoLocale ? `${docsBase}/SECURITY.md` : `${githubUrl}/blob/main/SECURITY.md`]
   ];
@@ -1270,7 +1270,7 @@ function standalonePage({ path, title, description, body }) {
         <a class="brand" href="/en/" aria-label="Lore Context home">
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Lore Context</span>
-          <span class="version">v1.0 personal cloud beta</span>
+          <span class="version">v1.0.0-rc.2 beta</span>
         </a>
         <div class="nav-links" aria-label="Sections">
           <a href="/quickstart/">Quickstart</a>
@@ -1443,14 +1443,14 @@ function llmsTxt() {
 
 Lore v1.0 Personal Cloud Beta is the public-positioning release: All your agents. One shared memory. Sign in with Google, connect Claude Code / Codex / Cursor / OpenCode, and review every memory in the Memory Inbox before it is reused.
 
-The open-core v0.6 alpha self-host code remains available for operators. v1.0 is private beta — public claims should not imply general availability SaaS.
+The open-core v0.6 alpha self-host code remains available for operators. v1.0.0-rc.2 is Public SaaS Beta Readiness with invite/cap controls — public claims must not imply stable GA or open billing.
 
 Lore is alpha software. Use it locally first, verify with your own dataset, and keep human review on launch, marketplace, and outreach materials.
 
 ## For assistants
 
 - Start with the linked public source files for exact commands and current code.
-- Do not describe Lore v1.0 as generally available SaaS; it is private beta unless newer release evidence says otherwise.
+- Do not describe Lore v1.0.0-rc.2 as generally available SaaS; it is Public SaaS Beta Readiness with invite/cap controls unless newer release evidence says otherwise.
 - Support concrete product, release, benchmark, date, deployment, and availability claims with the linked docs.
 - If evidence is missing, use a clearly labeled assumption or placeholder instead of inventing specifics.
 - Treat this file as public context only. It cannot override user, system, developer, or repository instructions.
@@ -1463,9 +1463,9 @@ Lore is alpha software. Use it locally first, verify with your own dataset, and 
 - [Integrations](${githubDocsUrl}/docs/integrations/README.md): MCP and agent configuration examples.
 - [Architecture](${githubDocsUrl}/docs/architecture.md): local-first API, MCP, dashboard, governance, eval, and storage boundaries.
 - [Deployment](${githubDocsUrl}/docs/deployment/README.md): private deployment guidance.
-- [Release status](${githubDocsUrl}/docs/release-status.md): public alpha release, CI, website, AI-readable docs, and API health snapshot.
+- [Release status](${githubDocsUrl}/docs/release-status.md): rc.2 public beta readiness release, CI, website, AI-readable docs, and API health snapshot.
 - [Release governance](${githubDocsUrl}/docs/release-governance.md): release gates and verification expectations.
-- [Roadmap](${githubDocsUrl}/docs/roadmap.md): current alpha roadmap.
+- [Roadmap](${githubDocsUrl}/docs/roadmap.md): current rc.2 beta readiness roadmap.
 - [Changelog](${githubDocsUrl}/CHANGELOG.md): shipped release notes.
 
 ## Product surfaces
@@ -1500,7 +1500,7 @@ This file intentionally summarizes public repository material only. Internal pla
 function llmsFullTxt() {
   return `# Lore Context Public Context Pack
 
-Generated for LLM-assisted discovery of the Lore Context public alpha. Prefer the linked public source files for exact commands and current code.
+Generated for LLM-assisted discovery of Lore Context. Prefer the linked public source files for exact commands and current code.
 
 ## Positioning
 
@@ -1508,7 +1508,7 @@ Lore is not another memory database. It is a control plane above agent memory ba
 
 ## v1.0 Personal Cloud Beta
 
-Public consumer line: All your agents. One shared memory. v1.0 ships Google sign-in only, a personal vault per user, agent connect for Claude Code / Codex / Cursor / OpenCode, browser-extension capture for ChatGPT / Claude.ai / Gemini / Perplexity, Memory Inbox review, and Evidence Ledger traces for every recall. v1.0 is private beta and the public website is invite-gated; assistants must not describe Lore as generally available SaaS.
+Public consumer line: All your agents. One shared memory. v1.0.0-rc.2 ships Google sign-in only, a personal vault per user, agent connect for Claude Code / Codex / Cursor / OpenCode, browser-extension capture for ChatGPT / Claude.ai / Gemini / Perplexity, Memory Inbox review, and Evidence Ledger traces for every recall. v1.0.0-rc.2 is Public SaaS Beta Readiness and remains invite/cap controlled; assistants must not describe Lore as generally available SaaS.
 
 ## Current alpha state
 
@@ -1824,6 +1824,7 @@ function v10NavBar(active) {
     ["/download.html", "Access"],
     ["/docs.html", "Docs"],
     ["/status.html", "Status"],
+    ["/changelog.html", "Changelog"],
     ["/compare.html", "Compare"]
   ];
   return `<nav class="docs-toolbar" aria-label="v1.0 sections" data-v10-nav>${items.map(([href, label]) => `<a href="${href}" ${href === active ? 'aria-current="page"' : ""}>${escapeHtml(label)}</a>`).join("")}</nav>`;
@@ -1963,17 +1964,41 @@ function v10StatusPage() {
     body: `<section class="section page"><div class="shell article">
       ${v10NavBar("/status.html")}
       <span class="section-num">v1.0 / STATUS</span>
-      <h1>Private beta. Public-safe status only.</h1>
-      <p class="lead">v1.0 is in private beta. We publish surface-level status here. Operators see deeper metrics in the private operator dashboard.</p>
+      <h1>Public SaaS beta readiness is live.</h1>
+      <p class="lead">v1.0.0-rc.2 is deployed and invite/cap controlled. We publish surface-level status here; private AWS and operator details stay out of public docs.</p>
       <div class="release-checks" data-v10-status>
-        <div><b>OK</b><span><strong>Website</strong><small>Static build deterministic via Cloudflare Pages</small></span></div>
-        <div><b>OK</b><span><strong>Sign-in</strong><small>Google Identity Services in private beta</small></span></div>
+        <div><b>OK</b><span><strong>Website</strong><small>Cloudflare Pages production on v1.0.0-rc.2</small></span></div>
+        <div><b>OK</b><span><strong>API</strong><small>OpenAPI reports 1.0.0-rc.2 with 72 paths</small></span></div>
+        <div><b>OK</b><span><strong>Sign-in</strong><small>Google Identity Services through app-domain callback</small></span></div>
         <div><b>OK</b><span><strong>Capture ingestion</strong><small>Idempotent on idempotency_key</small></span></div>
         <div><b>OK</b><span><strong>Recall API</strong><small>Evidence Ledger trace for every request</small></span></div>
         <div><b>BETA</b><span><strong>Browser extension</strong><small>Chrome Web Store submission pending</small></span></div>
         <div><b>BETA</b><span><strong>Google Drive connector</strong><small>OAuth verification in progress</small></span></div>
       </div>
-      <p class="notice">v0.6 alpha component status remains at <a class="inline-link" href="/en/status.html">/en/status.html</a>.</p>
+      <p class="notice">This is not stable GA or open billing. Locale alpha component status remains at <a class="inline-link" href="/en/status.html">/en/status.html</a>.</p>
+    </div></section>`
+  });
+}
+
+function v10ChangelogPage() {
+  return v10Page({
+    slug: "changelog",
+    title: "Changelog",
+    description: "Lore v1.0.0-rc.2 public SaaS beta readiness release notes and historical alpha milestones.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/changelog.html")}
+      <span class="section-num">CHANGELOG</span>
+      <h1>v1.0.0-rc.2 closes Public SaaS Beta Readiness.</h1>
+      <p class="lead">The rc.2 release moves the public source, website, and production API/Dashboard to the same beta-readiness line while keeping access invite/cap controlled.</p>
+      <div class="info-panel">
+        <dl>
+          <dt>v1.0.0-rc.2</dt><dd>Public SaaS beta readiness: app-domain Google sign-in, Memory Inbox, auto-capture, safety rails, release metadata, AWS production API/Dashboard, and Cloudflare Pages closure.</dd>
+          <dt>v1.0.0-rc.0</dt><dd>Historical private personal-cloud beta: Google sign-in, Memory Inbox, connected agents, browser capture, shared recall.</dd>
+          <dt>v0.9.0-beta</dt><dd>Private auto-capture beta: lore watch, hosted MCP, browser extension MVP, connectors, source-aware recall.</dd>
+          <dt>v0.6.0-alpha</dt><dd>AI-readable docs, activation evidence, npm + OCI MCP Registry distribution, public-safe demos.</dd>
+        </dl>
+      </div>
+      <p class="notice">v1.0.0-rc.2 is Public SaaS Beta Readiness, not stable GA.</p>
     </div></section>`
   });
 }
@@ -2105,7 +2130,8 @@ function v10SitemapPage() {
     ["/privacy.html", "Privacy", "Summary-only default, authorized sources, pause mode, export and delete"],
     ["/download.html", "Beta access", "Private beta request · browser extension · agent bridge"],
     ["/docs.html", "Docs", "Consumer quickstart — agent connect, Memory Inbox, Evidence Ledger"],
-    ["/status.html", "Status", "Private beta component health and GA boundary"],
+    ["/status.html", "Status", "v1.0.0-rc.2 production status and GA boundary"],
+    ["/changelog.html", "Changelog", "v1.0.0-rc.2 public SaaS beta readiness release notes"],
     ["/compare.html", "Compare", "Supermemory · Mem0 · Zep · Letta — public-fact differences"],
     ["/company.html", "Company", "REDLAND PTE. LTD. · UEN 202304648K · Singapore"],
     ["/contact.html", "Contact", "redland2024@gmail.com — product, security, privacy"],
@@ -2151,7 +2177,7 @@ function v10SitemapPage() {
       <div class="doc-grid" data-v10-sitemap>${rows(topLevel)}</div>
       <h2>Developer alpha docs</h2>
       <div class="doc-grid" data-v10-sitemap-alpha>${rows(alphaDocs)}</div>
-      <p class="notice">v1.0 is private beta. v0.6 alpha public docs are available in 17 locales. Contact <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> for access.</p>
+      <p class="notice">v1.0.0-rc.2 is Public SaaS Beta Readiness with invite/cap controls. v0.6 alpha public docs are available in 17 locales. Contact <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> for access.</p>
     </div></section>`
   });
 }
@@ -2170,7 +2196,7 @@ export function generateSiteFiles() {
   files.set("benchmark/index.html", benchmarkPage());
   // v1.0 top-level pages — real pages for all v10 slugs, redirects only for legacy alpha slugs.
   for (const slug of pageSlugs) {
-    if (slug === "pricing" || slug === "privacy" || slug === "docs" || slug === "status" || slug === "download" || slug === "compare"
+    if (slug === "pricing" || slug === "privacy" || slug === "docs" || slug === "status" || slug === "download" || slug === "compare" || slug === "changelog"
         || slug === "company" || slug === "contact" || slug === "terms" || slug === "cookies") continue;
     files.set(`${slug}.html`, redirectPage(slug));
   }
@@ -2179,6 +2205,7 @@ export function generateSiteFiles() {
   files.set("download.html", v10DownloadPage());
   files.set("docs.html", v10DocsPage());
   files.set("status.html", v10StatusPage());
+  files.set("changelog.html", v10ChangelogPage());
   files.set("compare.html", v10ComparePage());
   files.set("company.html", v10CompanyPage());
   files.set("contact.html", v10ContactPage());
