@@ -2,9 +2,9 @@
 
 Last updated: 2026-05-03
 
-This page records the public-safe open-source release snapshot plus the private
-cloud runtime status maintained in `lore-cloud`. Public release claims and
-private hosted deployment facts are intentionally separated.
+This page records the public-safe open-source release snapshot plus the hosted
+cloud runtime status. Public release claims and private operator details are
+intentionally separated.
 
 ## Release tier overview
 
@@ -13,11 +13,11 @@ described interchangeably in public copy:
 
 | Tier | Channel | Current line | Surface |
 |---|---|---|---|
-| Public OSS alpha | `Lore-Context/lore-context` (open core) | `v0.6.0-alpha` | local API, MCP stdio, dashboard, eval, MIF, governance, public docs |
-| Private cloud RC | `Lore-Context/lore-cloud` (closed) | `v1.0.0-rc.0` | hosted API, dashboard, capture, hosted MCP, Memory Inbox |
-| Public SaaS Beta Readiness | `v1.0.0-rc.2` planning | gated invite/cap, not GA | ordinary-user dashboard, automatic capture, recall, evidence |
+| Public OSS alpha | `Lore-Context/lore-context` (open core) | `v0.6.0-alpha` historical | local API, MCP stdio, dashboard, eval, MIF, governance, public docs |
+| Private cloud RC | `Lore-Context/lore-cloud` (closed) | `v1.0.0-rc.0` historical | hosted API, dashboard, capture, hosted MCP, Memory Inbox |
+| Public SaaS Beta Readiness | `Lore-Context/lore-context` (public pre-release) | `v1.0.0-rc.2` current | ordinary-user dashboard, automatic capture, recall, evidence, production smoke |
 
-`v1.0.0-rc.2` is being planned as Public SaaS Beta Readiness, not stable GA.
+`v1.0.0-rc.2` is closed as Public SaaS Beta Readiness, not stable GA.
 See [`.omx/plans/lore-v1-rc2-public-saas-beta-readiness-plan.md`](../.omx/plans/lore-v1-rc2-public-saas-beta-readiness-plan.md)
 for the full lane-by-lane scope.
 
@@ -25,21 +25,21 @@ for the full lane-by-lane scope.
 
 | Surface | Status |
 |---|---|
-| Private cloud release | `v1.0.0-rc.0` |
-| Root/API/Dashboard package line | `1.0.0-rc.0` |
-| Private repository | `Lore-Context/lore-cloud` |
+| Cloud release | `v1.0.0-rc.2` |
+| Root/API/Dashboard package line | `1.0.0-rc.2` |
+| Public repository | `Lore-Context/lore-context` |
 | Production runtime | AWS Singapore EC2 + Docker Compose + local Postgres/pgvector + Cloudflare Tunnel/Access |
 | AWS instance | `ap-southeast-1` (instance ID kept in private operator notes) |
 | Production branch on host | artifact-backed `production-v1.0` release directory |
-| Production source | Runtime runs the artifact-backed `production-v1.0` release line with the 2026-05-02 OAuth callback and Set-Cookie hotfixes applied on host; closed-source `main` now includes the same source fixes so the next deploy will not overwrite them. Specific release SHA and host paths stay in closed operator notes |
-| API health | `https://api.lorecontext.com/health` returns `ok`; `/openapi.json` is public for API discovery; state-changing/private beta surfaces require bearer, session, or Cloudflare Access protection as applicable |
-| Dashboard | Current production `https://app.lorecontext.com/` remains protected by Cloudflare Access; local public-SaaS mode now supports Google session cookies, CSRF-protected token issuance, and a signed-in user dashboard |
-| v1.0 API proof | OpenAPI reports `1.0.0-rc.0` and includes Google sign-in start plus `GET`/`POST` callback, current-user/vault, capture/session, connector, source, usage, operator, hosted MCP, Memory Inbox, and recall beta paths |
+| Production source | Runtime runs the `v1.0.0-rc.2` release line; specific release SHA and host paths stay in closed operator notes |
+| API health | `https://api.lorecontext.com/health` returns `ok`; `/openapi.json` is public for API discovery; state-changing beta surfaces require bearer, session, or Cloudflare Access protection as applicable |
+| Dashboard | Current production `https://app.lorecontext.com/` returns `200`; public-SaaS mode supports Google session cookies, CSRF-protected token issuance, and a signed-in user dashboard |
+| v1.0 API proof | OpenAPI reports `1.0.0-rc.2` with 72 paths and includes Google sign-in start plus `GET`/`POST` callback, current-user/vault, capture/session, connector, source, usage, operator, hosted MCP, Memory Inbox, and recall beta paths |
 
-Private cloud v1.0 is a personal-cloud beta release candidate for design
-partners, not a public SaaS GA claim. Billing is invite-gated. Team/shared
-vaults, full ADP/BYOK, BYOC, SOC 2/HIPAA claims, Chrome Web Store distribution,
-and broad public signup remain follow-up work.
+`v1.0.0-rc.2` is Public SaaS Beta Readiness for capped beta access, not a public
+SaaS GA claim. Billing is invite-gated. Team/shared vaults, full ADP/BYOK, BYOC,
+SOC 2/HIPAA claims, Chrome Web Store distribution, and broad public signup
+remain follow-up work.
 
 ### Public SaaS conversion work
 
@@ -62,44 +62,42 @@ Verified on 2026-05-03 from a public client:
   `https://app.lorecontext.com/` return `200`;
 - `https://api.lorecontext.com/health` returns `200` for service `lore-api`;
 - `https://api.lorecontext.com/openapi.json` returns OpenAPI `3.1.0` with API
-  version `1.0.0-rc.0`;
+  version `1.0.0-rc.2` with 72 paths;
 - `https://app.lorecontext.com/api/lore/auth/google/start` returns `200` with a
-  real Google authorization-code URL;
+  real Google authorization-code URL and app-domain callback
+  `https://app.lorecontext.com/api/lore/auth/google/callback`;
 - unauthenticated `https://api.lorecontext.com/v1/cloud/whoami` returns
   `401 cloud.token_required`, which is the correct protected-data response.
 
-Reaching the public dashboard is no longer the gating step. The remaining work
-to call the cloud customer-ready is the rc.2 Public SaaS Beta Readiness scope:
-ordinary-user activation, real Memory Inbox controls, two-client auto-capture,
-production safety rails, capped beta access, observability, backups, support,
-and reconciled public docs. Until those gates pass, public access stays
-invite/cap controlled and the product is described as Public SaaS Beta
-Readiness, not stable GA.
+Reaching the public dashboard is no longer the gating step. The rc.2 Public SaaS
+Beta Readiness scope has passed its local, CI, AWS, and Cloudflare closure
+checks. Public access stays invite/cap controlled and the product is described as
+Public SaaS Beta Readiness, not stable GA.
 
 ### v1.0 closure evidence
 
 | Check | Evidence |
 |---|---|
-| Private release tag | `v1.0.0-rc.0` in `Lore-Context/lore-cloud` |
-| Stable private RC tag baseline | Private `v1.0.0-rc.0` tag baseline; private `main` can advance with source/docs fixes while `v1.0.0-rc.0` remains stable |
-| Private CI | Local closure gates passed: `pnpm openapi:check`, `pnpm --filter @lore/website test`, `pnpm build`, `pnpm test`, `pnpm smoke:api`, `pnpm smoke:mcp`, `pnpm smoke:dashboard`, `pnpm audit --prod`, `git diff --check` |
-| Cloudflare Pages | Production deployment `https://e08c5588.lore-context.pages.dev`; custom domains `https://lorecontext.com/` and `https://www.lorecontext.com/` show the `Request beta access` CTA and no longer expose the old `Continue with Google` / local-model copy on the v1.0 root page |
-| AWS deploy | SSM artifact deploy command succeeded after one earlier `/bin/sh` compatibility attempt failed before runtime changes; private SSM command IDs stay in closed operator notes |
-| AWS verify | Post-deploy SSM checks confirmed healthy containers, OAuth callback closure, Set-Cookie bridge, OpenAPI callback methods, and release state; private SSM command IDs and host paths stay in closed operator notes |
+| Public release tag | `v1.0.0-rc.2` in `Lore-Context/lore-context` |
+| Public PR and CI | PR merge to `main` passed GitHub CI before production deployment |
+| Local CI | Local closure gates passed: `pnpm openapi:check`, `pnpm --filter @lore/website test`, `pnpm build`, `pnpm test`, `pnpm smoke:api`, `pnpm smoke:mcp`, `pnpm smoke:dashboard`, `pnpm audit --prod`, `git diff --check` |
+| Cloudflare Pages | Production deployment `https://97e0dc8c.lore-context.pages.dev`; custom domains `https://lorecontext.com/` and `https://www.lorecontext.com/` show the `Request beta access` CTA; `/download`, `/llms.txt`, `/llms-full.txt`, and `/robots.txt` verify over public HTTPS |
+| AWS deploy | Rehearsal, deploy, env alignment, and post-deploy checks succeeded; private SSM command IDs stay in closed operator notes |
+| AWS verify | Post-deploy checks confirmed healthy containers, app-domain OAuth callback, OpenAPI version, and release state; private SSM command IDs and host paths stay in closed operator notes |
 | Host state | Active release line is healthy; API, Dashboard, and Postgres containers healthy. Specific release SHA and host paths stay in closed operator notes |
-| Internal API proof | `http://127.0.0.1:3000/openapi.json` reports `1.0.0-rc.0` and includes Google sign-in start, `GET`/`POST` callback, Memory Inbox, recall trace, capture, source, connector, usage, operator, and hosted MCP surfaces |
-| External protection | `https://api.lorecontext.com/health` returns `ok`; external `/openapi.json` returns `200` for API discovery; Safari Google sign-in callback persists session and `/v1/me` returns the current personal vault; `https://app.lorecontext.com/` redirects to Cloudflare Access |
-| Website source fix | `pnpm --filter @lore/website test` passed after replacing the ordinary-user entry CTA with `Request beta access` and removing local-model copy from the v1.0 root proof text; live Pages deploy `e08c5588` verified on root, `www`, and `/download` |
+| External API proof | `https://api.lorecontext.com/openapi.json` reports `1.0.0-rc.2` with 72 paths and includes Google sign-in start, `GET`/`POST` callback, Memory Inbox, recall trace, capture, source, connector, usage, operator, and hosted MCP surfaces |
+| External protection | `https://api.lorecontext.com/health` returns `ok`; unauthenticated `/v1/cloud/whoami` returns `401 cloud.token_required`; dashboard root returns `200`; callback-denied path redirects to `/?auth_error=400` |
+| Website source fix | `pnpm --filter @lore/website test` passed after release metadata alignment; live Pages deploy `97e0dc8c` verified on root, `www`, `/download`, LLM docs, and `robots.txt` |
 
 ## Current public release
 
 | Surface | Status |
 |---|---|
-| Current release | `v0.6.0-alpha` |
-| Release type | Public alpha pre-release |
-| GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
-| Release tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
-| Public `main` | release tag plus post-release closure, integration validation, MCP Registry, adoption validation, marketplace assets, HN launch-readiness, and status-doc refresh commits |
+| Current release | `v1.0.0-rc.2` |
+| Release type | Public SaaS Beta Readiness pre-release |
+| GitHub release | `https://github.com/Lore-Context/lore-context/releases/tag/v1.0.0-rc.2` |
+| Release tag | `v1.0.0-rc.2` |
+| Public `main` | rc.2 public SaaS beta readiness closure plus earlier post-release closure, integration validation, MCP Registry, adoption validation, marketplace assets, HN launch-readiness, and status-doc refresh commits |
 | npm-backed Registry closure source | `8637e37546b24caba4f170182beca613f0ba6d09`; GitHub Actions run `25120831678`, success |
 | MCP distribution baseline | `1914718c3136fab2f7eed167445e97a910b62bb0`; GitHub Actions run `25110357633`, success |
 | Adoption closure source | `1a64980682216d715d0da40a37ee03b0a752f9e9`; GitHub Actions run `25112973276`, success |
