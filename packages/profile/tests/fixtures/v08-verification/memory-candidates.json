@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cand_001",
+    "content": "User prefers 'main' branch for production-ready code.",
+    "type": "preference",
+    "scope": "user",
+    "status": "candidate",
+    "confidence": 0.88,
+    "metadata": { "source": "claude-code" }
+  },
+  {
+    "id": "cand_002",
+    "content": "Project uses pnpm for workspace management.",
+    "type": "project_rule",
+    "scope": "project",
+    "status": "candidate",
+    "confidence": 0.95,
+    "metadata": { "source": "codex" }
+  }
+]

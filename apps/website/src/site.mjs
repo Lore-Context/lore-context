@@ -1,6 +1,11 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 const rootUrl = "https://lorecontext.com";
 const githubUrl = "https://github.com/Lore-Context/lore-context";
 const githubDocsUrl = `${githubUrl}/blob/main`;
+const moduleDir = dirname(fileURLToPath(import.meta.url));
 
 export const localeOrder = [
   "en",
@@ -677,7 +682,7 @@ function layout({ locale, slug = "", title, description, body, isHome = false })
         <a class="brand" href="${pathFor(locale)}" aria-label="Lore Context home">
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Lore Context</span>
-          <span class="version">v0.6.0-alpha</span>
+          <span class="version">v1.0 personal cloud beta</span>
         </a>
         <div class="nav-links" aria-label="Sections">
           ${["problem", "system", "features", "eval", "integrations", "docs"]
@@ -818,7 +823,7 @@ function homePage(locale) {
       <section class="hero" id="hero">
         <div class="shell hero-grid">
           <div class="hero-copy">
-            <a class="alpha-banner" href="/en/changelog.html">v0.6.0-alpha · Local and private deployments · No hosted SaaS yet</a>
+            <a class="alpha-banner" href="/en/changelog.html">v1.0 personal cloud beta · Private design partners · Public v0.6 alpha remains open-source</a>
             <div class="chip-row">${t.chips.map((chip, index) => `<span class="chip ${index === 0 ? "live" : ""}">${escapeHtml(chip)}</span>`).join("")}</div>
             <h1>${escapeHtml(t.h1)}</h1>
             <p class="hero-statement">${escapeHtml(t.statement)}</p>
@@ -1040,6 +1045,7 @@ function featureVisual(index) {
 
 function alphaSection(t) {
   const rows = [
+    ["Personal cloud beta", "Google sign-in, Memory Inbox, shared recall, browser capture, connectors, and source-aware Evidence Ledger", "1.0.0-rc.0", "done"],
     ["REST API + OpenAPI", "/v1/context, /v1/memory, /v1/eval — documented at /openapi.json", "v0.6.0", "done"],
     ["MCP stdio SDK transport", "Drop-in for any MCP-compatible client", "mcp 0.6", "done"],
     ["Evidence Ledger", "Trace-centric proof of retrieved, used, ignored, and risky memory", "ledger", "done"],
@@ -1055,7 +1061,7 @@ function alphaSection(t) {
       ${sectionHead(t.sectionNums[3], t.alphaTitle, t.alphaCopy, t.sectionEyebrows?.[3])}
       <div class="alpha-grid">
         <div class="alpha-list">${rows.map(([name, desc, status, state]) => `<div class="alpha-row"><b class="${state}">${state === "done" ? "✓" : "◐"}</b><span><strong>${name}</strong><small>${desc}</small></span><em>${status}</em></div>`).join("")}</div>
-        <div class="manifest alpha-side"><div class="manifest-head"><h3>Build manifest</h3><span>v0.6.0 · 29.04.2026</span></div><dl><dt>version</dt><dd>v0.6.0-alpha</dd><dt>commit</dt><dd>release tag</dd><dt>runtime</dt><dd>node 22+ · pg 16</dd><dt>smoke</dt><dd class="ok-text">passing · local gate</dd><dt>bundle</dt><dd>static website · Docker images</dd><dt>memory floor</dt><dd>512 MB</dd><dt>telemetry</dt><dd class="ok-text">off by default</dd><dt>license</dt><dd>Apache 2.0</dd></dl><div class="run-card"><span># first run</span><code>git clone github.com/Lore-Context/lore-context<br />pnpm install &amp;&amp; pnpm quickstart -- --dry-run --activation-report<br />pnpm openapi:check <span class="ok-text"># release gate</span></code></div></div>
+        <div class="manifest alpha-side"><div class="manifest-head"><h3>Build manifest</h3><span>1.0.0-rc.0 · 01.05.2026</span></div><dl><dt>private cloud</dt><dd>v1.0 personal cloud beta</dd><dt>public release</dt><dd>v0.6.0-alpha</dd><dt>runtime</dt><dd>node 22+ · pg 16</dd><dt>smoke</dt><dd class="ok-text">passing · local gate</dd><dt>bundle</dt><dd>static website · Docker images</dd><dt>memory floor</dt><dd>512 MB</dd><dt>telemetry</dt><dd class="ok-text">off by default</dd><dt>license</dt><dd>Apache 2.0</dd></dl><div class="run-card"><span># first run</span><code>git clone github.com/Lore-Context/lore-context<br />pnpm install &amp;&amp; pnpm quickstart -- --dry-run --activation-report<br />pnpm openapi:check <span class="ok-text"># release gate</span></code></div></div>
       </div>
     </div>
   </section>`;
@@ -1066,98 +1072,19 @@ function evalSection(t) {
     <div class="shell">
       ${sectionHead(t.sectionNums[4], t.evalTitle, t.evalCopy, t.sectionEyebrows?.[4])}
       <div class="eval-shell">
-        <div class="eval-head"><span>eval/locomo-200-2026-04-29</span><span>LoCoMo-200 · retrieval-only hit@5 · no leaderboard claim</span><span class="live-pill">LOCAL · v0.6.0-alpha · lab report published</span></div>
-        ${benchmarkComparisonChart()}
+        <div class="eval-head"><span>eval/smoke-2026-05-01</span><span>demo-private · 4 memories · 4 questions · no benchmark claim</span><span class="live-pill">PUBLIC · v0.6.0-alpha · PRIVATE v1.0 beta</span></div>
+        <div class="eval-metrics">${evalMetric("Recall@5", "1.000", "4-item smoke dataset", "good", "0,24 14,20 28,18 42,12 56,8 70,6 84,4 96,4")}${evalMetric("Precision@5", "0.200", "expected with k=5", "warn", "0,22 14,20 28,21 42,19 56,18 70,20 84,19 96,18")}${evalMetric("MRR", "0.875", "one query ranked #2", "good", "0,21 14,16 28,14 42,12 56,10 70,8 84,7 96,5")}${evalMetric("Stale-hit", "0.000", "no stale demo rows", "good", "0,20 14,20 28,20 42,20 56,20 70,20 84,20 96,20")}${evalMetric("p95 latency", "pending", "not measured via MCP", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}</div>
         <div class="eval-detail">
-          <div class="eval-trace"><h3>How to read the chart</h3>${["Hit@5 compares retrieved context only, not generated answers", "P95 and P99 use the same local retrieval harness", "Shorter latency bars are better for agent loops", "Mem0 OSS was a non-optimized local run, not an official platform result", "Lore 429s are counted honestly as query errors"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:0%;width:${[92, 88, 84, 58, 42][index]}%"></i></b><em>${["metric", "same", "lower", "caveat", "risk"][index]}</em></div>`).join("")}</div>
-          <div class="eval-side"><h3>Publication guardrails</h3>${["LoCoMo raw data withheld", "retrieval-only metric", "no SOTA claim", "Mem0 caveats listed", "public summary JSON"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[100, 100, 100, 88, 92][index]}%"></i></b><em>${["yes", "true", "true", "yes", "yes"][index]}</em></div>`).join("")}<div class="eval-note"><span>Use this as a lab report, not a benchmark win.</span><a class="inline-link" href="/benchmark/">Read report →</a></div></div>
+          <div class="eval-trace"><h3>What the smoke run proves</h3>${["pipeline retrieves gold memory", "Evidence Ledger trace is inspectable", "stale rows are reported as zero", "larger dataset still required", "latency must be measured via direct API"].map((name, index) => `<div class="trace-row"><span>${name}</span><b><i style="left:0%;width:${[100, 84, 78, 46, 36][index]}%"></i></b><em>${["pass", "pass", "pass", "todo", "todo"][index]}</em></div>`).join("")}</div>
+          <div class="eval-side"><h3>Publication guardrails</h3>${["4-item dataset", "no LOCOMO claim", "no p95 claim", "raw data archived", "methodology first"].map((name, index) => `<div class="dist-row"><span>${name}</span><b><i style="width:${[34, 100, 100, 82, 90][index]}%"></i></b><em>${["small", "true", "true", "yes", "yes"][index]}</em></div>`).join("")}<div class="eval-note"><span>Use this as methodology, not a benchmark win.</span><a class="inline-link" href="/benchmark/">Read report →</a></div></div>
         </div>
       </div>
     </div>
   </section>`;
 }
 
-const benchmarkComparisons = [
-  {
-    label: "Retrieval hit@5",
-    direction: "higher is better",
-    maxLabel: "0-50%",
-    lore: { label: "Lore", value: "47.5%", width: 95 },
-    mem0: { label: "Mem0 OSS", value: "31.5%", width: 63 }
-  },
-  {
-    label: "P95 latency",
-    direction: "lower is better",
-    maxLabel: "0-710ms",
-    lore: { label: "Lore", value: "29.1ms", width: 4.1 },
-    mem0: { label: "Mem0 OSS", value: "709.8ms", width: 100 }
-  },
-  {
-    label: "P99 latency",
-    direction: "lower is better",
-    maxLabel: "0-2088ms",
-    lore: { label: "Lore", value: "59.0ms", width: 2.8 },
-    mem0: { label: "Mem0 OSS", value: "2087.8ms", width: 100 }
-  },
-  {
-    label: "Query errors",
-    direction: "lower is better",
-    maxLabel: "0-6",
-    lore: { label: "Lore", value: "6", width: 100 },
-    mem0: { label: "Mem0 OSS", value: "0", width: 0 }
-  }
-];
-
-const publishedMemoryReferences = [
-  { label: "Lore Context v0.6", value: "47.5%", width: 47.5, source: "our retrieval-only run", tone: "lore" },
-  { label: "Mem0 new algo", value: "91.6%", width: 91.6, source: "Mem0 Apr 2026" },
-  { label: "Zep 30/30", value: "80.32%", width: 80.32, source: "Zep retrieval tradeoff" },
-  { label: "Memobase v0.0.37", value: "75.78%", width: 75.78, source: "Hindsight benchmark" },
-  { label: "Letta Filesystem", value: "74.0%", width: 74.0, source: "Letta blog" },
-  { label: "Mem0 Graph", value: "68.44%", width: 68.44, source: "Mem0 paper" },
-  { label: "LangMem", value: "58.10%", width: 58.1, source: "Hindsight benchmark" }
-];
-
-function benchmarkComparisonChart() {
-  return `<div class="benchmark-chart" aria-label="LoCoMo-200 same-harness benchmark comparison chart">
-    <div class="chart-toolbar">
-      <div><strong>Same-harness comparison</strong><span>LoCoMo-200 · 200 QA pairs · retrieval-only</span></div>
-      <div class="chart-legend"><span><i class="legend-dot lore"></i>Lore Context</span><span><i class="legend-dot mem0"></i>Mem0 OSS local</span></div>
-    </div>
-    <div class="chart-grid">${benchmarkComparisons.map(comparisonRow).join("")}</div>
-    <p class="chart-note">Bars share one axis inside each metric. Hit@5: longer is better. Latency and errors: shorter is better. Mem0 is a non-optimized self-hosted OSS run, not an official Mem0 platform benchmark.</p>
-    ${publishedReferenceChart()}
-  </div>`;
-}
-
-function comparisonRow(row) {
-  return `<div class="comparison-row">
-    <div class="comparison-label"><strong>${row.label}</strong><small>${row.direction} · ${row.maxLabel}</small></div>
-    <div class="comparison-bars">
-      ${comparisonBar(row.lore, "lore")}
-      ${comparisonBar(row.mem0, "mem0")}
-    </div>
-  </div>`;
-}
-
-function comparisonBar(item, tone) {
-  const width = Math.max(0, Math.min(100, item.width));
-  const zero = width === 0 ? " zero" : "";
-  return `<div class="comparison-bar ${tone}"><span>${item.label}</span><b><i class="${zero}" style="width:${width}%"></i></b><em>${item.value}</em></div>`;
-}
-
-function publishedReferenceChart() {
-  return `<div class="reference-chart" aria-label="External published LoCoMo reference chart">
-    <div class="reference-head"><strong>External published references + Lore measured result</strong><span>Lore retrieval-only result plus public LoCoMo answer-accuracy reports · mixed metrics · not directly comparable</span></div>
-    <div class="reference-grid">${publishedMemoryReferences.map(referenceRow).join("")}</div>
-    <p class="chart-note">The Lore row is our LoCoMo-200 retrieval-only hit@5 result. The other rows are external LoCoMo answer-accuracy reports. Mixed metrics are shown for market context, not as a direct ranking.</p>
-  </div>`;
-}
-
-function referenceRow(item) {
-  const width = Math.max(0, Math.min(100, item.width));
-  const tone = item.tone === "lore" ? " lore-reference" : "";
-  return `<div class="reference-row${tone}"><span>${item.label}</span><b><i style="width:${width}%"></i></b><em>${item.value}</em><small>${item.source}</small></div>`;
+function evalMetric(label, value, delta, tone, points) {
+  return `<div class="metric ${tone}"><span>${label}</span><strong>${value}</strong><small>${delta} vs baseline</small><svg class="spark" viewBox="0 0 96 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="${points}" /></svg></div>`;
 }
 
 function integrationsSection(t) {
@@ -1227,13 +1154,13 @@ function pageBody(locale, slug) {
   if (slug === "docs") return docsPageBody(locale);
   const rows = {
     architecture: [["API", "REST /v1/context, /v1/memory, /v1/eval"], ["Transport", "MCP stdio"], ["Storage", "Postgres 16 audit log"], ["Governance", "review, redact, reject, forget"]],
-    changelog: [["v0.6.0-alpha", "AI-readable docs, activation evidence, npm + OCI MCP Registry distribution, public-safe demos"], ["v0.5.0-alpha", "OpenAPI, quickstart, Evidence Ledger, golden integrations"], ["v0.4.0-alpha", "production hardening, local alpha proof, deterministic static build"]],
+    changelog: [["v1.0.0-rc.0", "Private personal cloud beta: Google sign-in, Memory Inbox, connected agents, browser capture, shared recall"], ["v0.9.0-beta", "Private auto-capture beta: lore watch, hosted MCP, browser extension MVP, connectors, source-aware recall"], ["v0.8.0-beta", "Private personal cloud beta: persistence, capture ingestion, Memory Inbox, shared recall, dashboard beta UX"], ["v0.6.0-alpha", "AI-readable docs, activation evidence, npm + OCI MCP Registry distribution, public-safe demos"], ["v0.5.0-alpha", "OpenAPI, quickstart, Evidence Ledger, golden integrations"], ["v0.4.0-alpha", "production hardening, local alpha proof, deterministic static build"]],
     company: [["Legal entity", "REDLAND PTE. LTD."], ["UEN", "202304648K"], ["Registered office", "1 North Bridge Road, #11-02, High Street Centre, Singapore 179094"], ["Activity", "Software and application development"]],
     contact: [["Email", "redland2024@gmail.com"], ["Response scope", "Product, security, privacy, and partnership questions"], ["GitHub", githubUrl]],
     privacy: [["Data posture", "Local-first alpha; private deployment by default"], ["Website", "No advertising cookies or third-party tracking scripts"], ["Requests", "Contact redland2024@gmail.com for access, correction, or deletion requests"]],
     terms: [["Alpha notice", "Lore Context is provided for testing and evaluation"], ["No production warranty", "Validate your own use case before relying on it"], ["Governing law", "Singapore, unless a signed agreement says otherwise"]],
     cookies: [["Required cookies", "None for static browsing"], ["Local storage", "Only locale preference may be saved"], ["Advertising", "No advertising cookie layer is included"]],
-    status: [["Website", "Static and edge-cache friendly"], ["Current release", "v0.6.0-alpha · OpenAPI, quickstart, Evidence Ledger"], ["MCP distribution", "@lore-context/server version 0.6.0-alpha.1 on npm plus GHCR OCI image"], ["Registry", "Official MCP Registry active with npm and OCI install paths"], ["Local alpha", "Runs in your environment"], ["Incidents", "Use your own deployment logs and smoke checks"]]
+    status: [["Website", "Static and edge-cache friendly"], ["Private personal cloud beta", "1.0.0-rc.0 · Google sign-in, Memory Inbox, connected agents, browser capture, shared recall"], ["Public open-source release", "v0.6.0-alpha · OpenAPI, quickstart, Evidence Ledger"], ["MCP distribution", "@lore-context/server version 0.6.0-alpha.1 on npm plus GHCR OCI image"], ["Registry", "Official MCP Registry active with npm and OCI install paths"], ["Local alpha", "Runs in your environment"], ["Incidents", "Use your own deployment logs and smoke checks"]]
   }[slug];
   return `<dl>${rows.map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${renderInfoValue(value)}</dd>`).join("")}</dl><p class="notice">${escapeHtml(t.notice)}</p>`;
 }
@@ -1259,7 +1186,7 @@ function docsPageBody(locale) {
   ];
   const releaseChecks = [
     ["Build", "11 packages compile through Turbo"],
-    ["OpenAPI", "28 REST paths verified by pnpm openapi:check"],
+    ["OpenAPI", "38 REST paths verified by pnpm openapi:check"],
     ["Evidence", "Context traces expose used and ignored memory rows"],
     ["Website", "17 locales and 189 static files generated"],
     ["Dashboard", "Browser smoke covers desktop and mobile docs"],
@@ -1343,7 +1270,7 @@ function standalonePage({ path, title, description, body }) {
         <a class="brand" href="/en/" aria-label="Lore Context home">
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Lore Context</span>
-          <span class="version">v0.6.0-alpha</span>
+          <span class="version">v1.0 personal cloud beta</span>
         </a>
         <div class="nav-links" aria-label="Sections">
           <a href="/quickstart/">Quickstart</a>
@@ -1446,24 +1373,29 @@ function changelogBlogPage() {
 function benchmarkPage() {
   return standalonePage({
     path: "/benchmark/",
-    title: "Benchmark lab report",
-    description: "Lore Context v0.6 LoCoMo-200 retrieval-only benchmark report with explicit limitations.",
+    title: "Benchmark methodology",
+    description: "Lore Context v0.6 benchmark methodology and a four-item smoke evaluation with explicit limitations.",
     body: `<section class="section page">
       <div class="shell article">
-        <span class="section-num">BENCHMARK / PUBLIC-SAFE LAB REPORT</span>
-        <h1>LoCoMo-200 retrieval-only results, with the caveats up front.</h1>
-        <p class="lead">Lore Context v0.6 was rerun against a LoCoMo-derived 200-question sample. The result measures top-5 retrieved context and local API latency; it is not generated-answer accuracy and not a universal leaderboard claim.</p>
+        <span class="section-num">BENCHMARK / METHODOLOGY FIRST</span>
+        <h1>A four-item smoke eval, not a benchmark win.</h1>
+        <p class="lead">The v0.6 report proves the retrieval and Evidence Ledger path works on the public demo fixture. It does not compare Lore against LOCOMO, LongMemEval, Mem0, Letta, or Zep at production scale.</p>
         <div class="info-panel">
-          ${benchmarkComparisonChart()}
+          <div class="eval-metrics">
+            ${evalMetric("Recall@5", "1.000", "4 gold memories found", "good", "0,24 14,20 28,18 42,12 56,8 70,6 84,4 96,4")}
+            ${evalMetric("Precision@5", "0.200", "small corpus, k=5", "warn", "0,22 14,20 28,21 42,19 56,18 70,20 84,19 96,18")}
+            ${evalMetric("MRR", "0.875", "one rank-2 tie", "good", "0,21 14,16 28,14 42,12 56,10 70,8 84,7 96,5")}
+            ${evalMetric("Stale-hit", "0.000", "no stale demo rows", "good", "0,20 14,20 28,20 42,20 56,20 70,20 84,20 96,20")}
+            ${evalMetric("p95 latency", "pending", "not measured via MCP", "info", "0,18 14,18 28,18 42,18 56,18 70,18 84,18 96,18")}
+          </div>
           <dl>
-            <dt>Dataset</dt><dd>LoCoMo-derived 200-question sample from 10 conversations. Raw LoCoMo conversations and questions are not redistributed because the dataset is CC BY-NC 4.0.</dd>
-            <dt>Method</dt><dd>Query top 5, then mark a retrieval hit when the gold answer or enough gold-answer tokens appear in the retrieved context. This is retrieval-only hit@5, not answer accuracy.</dd>
-            <dt>Same-harness result</dt><dd>Lore returned 47.5% hit@5 at 29.1 ms P95. The local Mem0 OSS comparison returned 31.5% hit@5 at 709.8 ms P95, but its optional NLP/BM25 paths were unavailable and long-chunk ingestion emitted warnings.</dd>
-            <dt>External context</dt><dd>Public Mem0, Zep, Letta, Memobase, and LangMem numbers mostly use generated answers plus LLM-as-Judge, so they are listed in the source report as reference points rather than ranked against Lore.</dd>
-            <dt>Source report</dt><dd><a class="inline-link" href="${githubUrl}/blob/main/docs/launch/memory-benchmark-report-2026-04-29.md" rel="noreferrer">Read the public-safe report on GitHub ↗</a></dd>
-            <dt>Next</dt><dd>Publish a clean reproduction harness, fix Lore's benchmark 429s, run official Mem0/Zep/Letta paths, and add an LLM-as-Judge pass before making stronger market claims.</dd>
+            <dt>Dataset</dt><dd>4 public demo memories and 4 questions from <code>examples/demo-dataset/eval/lore-demo-eval-dataset.json</code>.</dd>
+            <dt>Method</dt><dd>Write demo memories, query top 5, compute Recall@5, Precision@5, MRR, and stale-hit rate using the same formulas as <code>@lore/eval</code>.</dd>
+            <dt>Reproduce</dt><dd><code>pnpm eval:report -- --project-id demo-private --public-safe</code> for the public-safe report path; use the demo dataset for a smoke run.</dd>
+            <dt>Limitations</dt><dd>At 4 items, any system returning all items can score Recall@5 = 1.0. The result is useful as a pipeline smoke test, not a scale claim.</dd>
+            <dt>Next</dt><dd>Run a 50+ memory dataset, measure direct API latency, and only then compare against public benchmark literature.</dd>
           </dl>
-          <p class="notice">Safe public claim: Lore v0.6 has measured local retrieval and latency behavior on LoCoMo-200. Unsafe claim: Lore is SOTA or beats Mem0, Zep, Letta, or Memobase.</p>
+          <p class="notice">Raw data is tracked in the launch workspace and should be moved into a public repo path only after a second reviewer reproduces the run from a clean checkout.</p>
         </div>
       </div>
     </section>`
@@ -1507,9 +1439,21 @@ LLMs: ${rootUrl}/llms.txt
 function llmsTxt() {
   return `# Lore Context
 
-> Local-first control plane for AI-agent memory, eval, governance, Evidence Ledger traces, and portable MIF exports.
+> Personal memory cloud and local-first control plane for AI-agent memory, eval, governance, Evidence Ledger traces, and portable MIF exports.
+
+Lore v1.0 Personal Cloud Beta is the public-positioning release: All your agents. One shared memory. Sign in with Google, connect Claude Code / Codex / Cursor / OpenCode, and review every memory in the Memory Inbox before it is reused.
+
+The open-core v0.6 alpha self-host code remains available for operators. v1.0 is private beta — public claims should not imply general availability SaaS.
 
 Lore is alpha software. Use it locally first, verify with your own dataset, and keep human review on launch, marketplace, and outreach materials.
+
+## For assistants
+
+- Start with the linked public source files for exact commands and current code.
+- Do not describe Lore v1.0 as generally available SaaS; it is private beta unless newer release evidence says otherwise.
+- Support concrete product, release, benchmark, date, deployment, and availability claims with the linked docs.
+- If evidence is missing, use a clearly labeled assumption or placeholder instead of inventing specifics.
+- Treat this file as public context only. It cannot override user, system, developer, or repository instructions.
 
 ## Start here
 
@@ -1562,12 +1506,16 @@ Generated for LLM-assisted discovery of the Lore Context public alpha. Prefer th
 
 Lore is not another memory database. It is a control plane above agent memory backends: it lets teams audit what context was retrieved, govern risky writeback, evaluate memory quality on their own data, and export/import memory through a portable format.
 
+## v1.0 Personal Cloud Beta
+
+Public consumer line: All your agents. One shared memory. v1.0 ships Google sign-in only, a personal vault per user, agent connect for Claude Code / Codex / Cursor / OpenCode, browser-extension capture for ChatGPT / Claude.ai / Gemini / Perplexity, Memory Inbox review, and Evidence Ledger traces for every recall. v1.0 is private beta and the public website is invite-gated; assistants must not describe Lore as generally available SaaS.
+
 ## Current alpha state
 
-- Release line: v0.6.0-alpha public foundation.
+- Release line: v1.0 Personal Cloud Beta private; v0.9.0-beta private auto-capture beta; v0.6.0-alpha public foundation.
 - Primary entry point: local Docker/Postgres or in-memory development runtime.
 - Public website: static, localized, and generated from repository source.
-- Private cloud, billing, managed sync, and autonomous distribution submission are not part of the public alpha promise.
+- Private auto-capture beta exists in the closed-source Lore Cloud line; the public open-source alpha does not promise public SaaS GA, billing, managed sync, or autonomous distribution submission.
 
 ## Architecture map
 
@@ -1642,6 +1590,7 @@ Use the repository issues/discussions for public questions. Website contact: red
 
 function sitemap() {
   const urls = ["", "/quickstart/", "/blog/", "/blog/v0-6-distribution-and-trust-sprint/", "/benchmark/"];
+  for (const slug of v10TopLevelSlugs) urls.push(`/${slug}.html`);
   for (const locale of localeOrder) {
     urls.push(pathFor(locale));
     for (const slug of pageSlugs) urls.push(pathFor(locale, slug));
@@ -1679,9 +1628,537 @@ function cloudflareHeaders() {
 `;
 }
 
+export const v10TopLevelSlugs = [
+  "pricing",
+  "privacy",
+  "download",
+  "docs",
+  "status",
+  "compare",
+  "company",
+  "contact",
+  "terms",
+  "cookies",
+  "sitemap"
+];
+
+export const v10PricingPlans = [
+  { id: "free", name: "Free", price: "$0", captureTokens: "5M", recallQueries: "50K", agents: "3", note: "Browser extension, hosted MCP, summary-only capture, hard cap" },
+  { id: "personal", name: "Personal", price: "$2.99/mo", captureTokens: "50M", recallQueries: "250K", agents: "10", note: "Google Drive connector, raw archive opt-in, longer Evidence Ledger" },
+  { id: "pro", name: "Pro", price: "$7.99/mo", captureTokens: "150M", recallQueries: "1M", agents: "25", note: "Priority sync, advanced Evidence Ledger retention, raw archive 100GB cap" },
+  { id: "team", name: "Team Starter", price: "$19/mo", captureTokens: "500M", recallQueries: "3M", agents: "5 seats", note: "Shared vault beta, audit export, admin controls" }
+];
+
+function v10Page({ slug, title, description, body }) {
+  const path = slug === "" ? "/" : `/${slug}.html`;
+  return standalonePage({ path, title, description, body });
+}
+
+function v10LanguageGrid() {
+  const list = localeOrder.map((code) => {
+    const t = locales[code];
+    return `<a href="${pathFor(code)}" lang="${t.lang}" hreflang="${t.hreflang}" data-locale-link><span>${escapeHtml(t.label)}</span> <span>${escapeHtml(t.short)}</span></a>`;
+  });
+  return `<section class="section page" id="languages"><div class="shell article"><h2>Choose your language.</h2><p class="lead">v0.6 alpha public docs are available in 17 locales. v1.0 consumer copy is English-canonical for now.</p><div class="language-grid">${list.join("")}</div></div></section>`;
+}
+
+function v10HomePage() {
+  const premiumHome = premiumV10HomePage();
+  if (premiumHome) return premiumHome;
+
+  const tiers = v10PricingPlans.map((plan) => `
+        <article class="feature-card" data-plan="${plan.id}">
+          <span class="feature-tag"><strong>${escapeHtml(plan.name)}</strong><em>${escapeHtml(plan.price)}</em></span>
+          <h3>${escapeHtml(plan.captureTokens)} capture / ${escapeHtml(plan.recallQueries)} recall</h3>
+          <p>${escapeHtml(plan.note)} · ${escapeHtml(plan.agents)} agents.</p>
+        </article>`).join("");
+  const html = v10Page({
+    slug: "",
+    title: "All your agents. One shared memory.",
+    description: "Lore is the personal memory cloud for ordinary AI users. Connect Claude, Codex, Cursor, OpenCode, ChatGPT, Claude.ai, Gemini, and Perplexity to one vault you control.",
+    body: `<section class="section hero">
+      <div class="shell hero-grid">
+        <div>
+          <span class="alpha-banner" data-v10-banner>v1.0 PERSONAL CLOUD · PRIVATE BETA</span>
+          <h1>All your agents. One shared memory.</h1>
+          <p class="hero-statement" data-v10-subcopy>AI tools forget because their memories are trapped in separate apps. Lore gives every agent one shared, controllable memory.</p>
+          <p class="hero-support">Sign in once with Google. Connect Claude Code, Codex, Cursor, or OpenCode. Lore captures summaries by default, surfaces every memory in your inbox, and lets you pause, edit, export, or delete on demand.</p>
+          <div class="hero-actions">
+            <a class="button primary large" href="/download.html" data-v10-cta="beta">Request beta access</a>
+            <a class="button secondary large" href="#how-it-works" data-v10-cta="how">See how it works</a>
+          </div>
+          <p class="notice" data-v10-trust>Summary-only by default · Raw archive opt-in · Pause, export, and delete from one screen.</p>
+        </div>
+        <div class="surface" data-v10-surface>
+          <div class="surface-head"><span class="live-dot">CONNECTED AGENTS</span><span>vault personal</span></div>
+          <div class="surface-stats">
+            <div class="surface-stat"><span>Claude Code</span><strong>active</strong><small>last sync 14s ago</small></div>
+            <div class="surface-stat"><span>Codex</span><strong>active</strong><small>last sync 22s ago</small></div>
+            <div class="surface-stat"><span>Cursor</span><strong>watching</strong><small>summary-only</small></div>
+            <div class="surface-stat"><span>OpenCode</span><strong>connected</strong><small>via lore connect</small></div>
+          </div>
+          <div class="ledger" aria-label="Memory Inbox preview">
+            <div class="ledger-head"><span>memory</span><span>type</span><span>source</span><span>status</span><span>confidence</span><span>recall</span><span>action</span></div>
+            <div class="ledger-row active"><span>Use pnpm, not npm</span><span>preference</span><span>Claude Code</span><span class="review approved">approved</span><span>0.92</span><span class="used yes">used</span><span>edit</span></div>
+            <div class="ledger-row"><span>Deploys ship Mondays</span><span>workflow</span><span>Codex</span><span class="review review">pending</span><span>0.81</span><span class="used no">awaits</span><span>review</span></div>
+            <div class="ledger-row"><span>Office hours: 09:00–17:00 SGT</span><span>identity</span><span>Claude.ai</span><span class="review approved">approved</span><span>0.97</span><span class="used yes">used</span><span>view</span></div>
+            <div class="ledger-row"><span>Older auth flow superseded</span><span>decision</span><span>Codex</span><span class="review redact">stale</span><span>0.43</span><span class="used no">filtered</span><span>resolve</span></div>
+          </div>
+          <div class="surface-foot"><span>Memory Inbox · 4 of 4</span><span>Evidence Ledger trace_id 9f3c…</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="how-it-works">
+      <div class="shell">
+        <div class="section-head"><div><span class="section-num" data-v10-step>01 / SIGN IN</span><span class="section-eye">Google sign-in only</span></div><div><h2>One Google sign-in. One shared memory.</h2><p>v1.0 removes GitHub login from onboarding. Sign in with Google, get a personal vault, and connect agents one click at a time.</p></div></div>
+        <div class="problem-grid" data-v10-grid>
+          <article class="problem-card"><span>STEP 01</span><h3>Sign in with Google</h3><p>OpenID Connect with email and profile only. No Drive scopes during sign-in.</p></article>
+          <article class="problem-card"><span>STEP 02</span><h3>Connect agents</h3><p>One install token covers Claude Code, Codex, Cursor, and OpenCode through <code>lore connect</code>. Configs are backed up before any write.</p></article>
+          <article class="problem-card"><span>STEP 03</span><h3>Memory Inbox</h3><p>Auto-captured candidates land in the inbox first. Approve, edit, reject, or merge — every action is audited.</p></article>
+          <article class="problem-card"><span>STEP 04</span><h3>Recall everywhere</h3><p>Every connected agent reads from the same vault and emits an Evidence Ledger trace for every recall.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="surfaces">
+      <div class="shell">
+        <div class="section-head"><div><span class="section-num">02 / PRODUCT SURFACE</span><span class="section-eye">Concrete signal</span></div><div><h2>Connected agents, Memory Inbox, source status, recall evidence.</h2><p>The first viewport shows the product, not generic marketing cards.</p></div></div>
+        <div class="features-grid" data-v10-features>
+          <article class="feature-card"><span class="feature-tag">CONNECTED AGENTS</span><h3>4 supported agents</h3><p>Claude Code, Codex, Cursor, OpenCode. ChatGPT, Claude.ai, Gemini, and Perplexity captured via the browser extension.</p></article>
+          <article class="feature-card"><span class="feature-tag">MEMORY INBOX</span><h3>Approve, edit, reject, merge</h3><p>Pending, approved, rejected, edited, duplicate, stale, sensitive, conflict, paused, deleted — every state is visible.</p></article>
+          <article class="feature-card"><span class="feature-tag">SOURCE STATUS</span><h3>Pause and private mode</h3><p>Pause a source from the dashboard or popup. Private mode prevents persistence on a per-tab or per-session basis.</p></article>
+          <article class="feature-card"><span class="feature-tag">RECALL EVIDENCE</span><h3>Evidence Ledger trace</h3><p>Retrieved, used, ignored, stale, conflicting, risky — every recall has a trace id linked from the agent reply.</p></article>
+          <article class="feature-card"><span class="feature-tag">PRIVACY</span><h3>Summary-only by default</h3><p>Raw transcript archive is opt-in per source and plan-gated. <code>&lt;private&gt;</code> markers and obvious secrets are redacted before upload.</p></article>
+          <article class="feature-card"><span class="feature-tag">EXPORT &amp; DELETE</span><h3>You own the memory</h3><p>MIF export, source disconnect, account-level delete with audit proof. Audit retains metadata after content is hard-deleted.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="pricing-preview">
+      <div class="shell">
+        <div class="section-head"><div><span class="section-num">03 / PRICING</span><span class="section-eye">Aggressive but capped</span></div><div><h2>Hard caps. No surprise overage.</h2><p>Free is generous enough to build a habit. Paid plans throttle gracefully — never silently bill more.</p></div></div>
+        <div class="features-grid" data-v10-pricing>${tiers}</div>
+        <p class="lead"><a class="inline-link" href="/pricing.html">See full pricing →</a> · <a class="inline-link" href="/compare.html">Compare with Supermemory, Mem0, Zep, Letta</a></p>
+      </div>
+    </section>
+    <section class="section final">
+      <div class="shell final-grid">
+        <div>
+          <span class="section-num">04 / GET STARTED</span>
+          <h2>Bring your agents. Lore brings the memory.</h2>
+          <p>Request beta access to claim a personal vault. Invited users then sign in with Google and connect a browser extension or agent bridge.</p>
+          <div class="hero-actions"><a class="button primary large" href="/download.html" data-v10-cta="beta-secondary">Request beta access</a><a class="button secondary" href="/privacy.html">Read the privacy policy</a></div>
+        </div>
+        <pre class="terminal" aria-label="lore status preview">$ lore status
+cloud URL: configured (https://api.lorecontext.com)
+device id: dev_local · vault: personal
+captured today: 12 · pending review: 3
+last upload: 14s ago · last error: none
+connected: claude-code, codex, cursor, opencode</pre>
+      </div>
+    </section>
+    ${v10LanguageGrid()}`
+  });
+  // Inject hreflang alternates into the head so browsers and the smoke test
+  // see the same locale graph as the v0.6 alpha pages. Safe substring patch:
+  // we know standalonePage emits a single canonical link.
+  return html.replace('<link rel="canonical"', `${alternateLinks("")}<link rel="canonical"`);
+}
+
+function premiumV10HomePage() {
+  const languageLinks = localeOrder
+    .map((code) => {
+      const t = locales[code];
+      return `<a class="tag" href="${pathFor(code)}" lang="${t.lang}" hreflang="${t.hreflang}" data-locale-link><span>${escapeHtml(t.label)}</span><span>${escapeHtml(t.short)}</span></a>`;
+    })
+    .join("");
+  const languageSection = `
+    <section class="section" id="languages" data-v10-languages>
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">Language and docs</p>
+            <h2>Choose your language.</h2>
+          </div>
+          <p class="lead">v1.0 consumer pages are English-canonical during private beta. The open-source alpha docs remain available in 17 locales.</p>
+        </div>
+        <div class="language-grid">${languageLinks}</div>
+      </div>
+    </section>`;
+
+  let html = readFileSync(join(moduleDir, "v10-home.html"), "utf8");
+  const description = "Lore is the personal memory cloud for ordinary AI users. Connect Claude Code, Codex, Cursor, OpenCode, ChatGPT, Claude.ai, Gemini, and Perplexity to one shared memory you control.";
+  const title = "All your agents. One shared memory. | Lore Context";
+  const metadata = `
+  <link rel="canonical" href="${rootUrl}/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lore Context" />
+  <meta property="og:title" content="${title}" />
+  <meta property="og:description" content="${description}" />
+  <meta property="og:url" content="${rootUrl}/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="${title}" />
+  <meta name="twitter:description" content="${description}" />`;
+  html = html
+    .replace("<head>", `<head>\n  ${alternateLinks("")}\n  ${metadata}`)
+    .replace('<meta name="description" content="Lore Context gives Claude Code, Codex, Cursor, OpenCode, and web AI tools one shared memory with review, scores, and evidence." />', `<meta name="description" content="${description}" />`)
+    .replace("<title>Lore Context - All your agents. One shared memory.</title>", `<title>${title}</title>`)
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request beta access</a>', 'href="/download.html" data-v10-cta="beta">Request beta access</a>')
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request beta</a>', 'href="/download.html" data-v10-cta="beta-nav">Request beta</a>')
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Join beta</a>', 'href="/download.html">Request beta</a>')
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request Lite</a>', 'href="/download.html">Request Lite</a>')
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request Pro</a>', 'href="/download.html">Request Pro</a>')
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request Team</a>', 'href="/download.html">Request Team</a>')
+    .replace('href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Talk to us</a>', 'href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Enterprise">Talk to us</a>')
+    .replace('<section class="section" id="how" data-od-id="how">', '<section class="section" id="how" data-od-id="how" data-v10-banner data-v10-section="how-it-works">')
+    .replace('<section class="section" id="agents" data-od-id="agents">', '<section class="section" id="agents" data-od-id="agents" data-v10-section="surfaces">')
+    .replace('<section class="section" id="pricing" data-od-id="pricing">', '<section class="section" id="pricing" data-od-id="pricing" data-v10-pricing data-v10-section="pricing-preview">')
+    .replace("</main>", `${languageSection}\n  </main>`);
+
+  return html;
+}
+
+function v10NavBar(active) {
+  const items = [
+    ["/", "Home"],
+    ["/pricing.html", "Pricing"],
+    ["/privacy.html", "Privacy"],
+    ["/download.html", "Access"],
+    ["/docs.html", "Docs"],
+    ["/status.html", "Status"],
+    ["/compare.html", "Compare"]
+  ];
+  return `<nav class="docs-toolbar" aria-label="v1.0 sections" data-v10-nav>${items.map(([href, label]) => `<a href="${href}" ${href === active ? 'aria-current="page"' : ""}>${escapeHtml(label)}</a>`).join("")}</nav>`;
+}
+
+function v10PricingPage() {
+  const rows = v10PricingPlans.map((plan) => `
+        <article class="doc-card" data-plan="${plan.id}">
+          <span>${escapeHtml(plan.price)}</span>
+          <strong>${escapeHtml(plan.name)}</strong>
+          <p>${escapeHtml(plan.captureTokens)} capture tokens / month · ${escapeHtml(plan.recallQueries)} recall queries / month · ${escapeHtml(plan.agents)} agents.</p>
+          <p>${escapeHtml(plan.note)}</p>
+        </article>`).join("");
+  return v10Page({
+    slug: "pricing",
+    title: "Pricing",
+    description: "Lore Personal Cloud pricing: Free, Personal $2.99/mo, Pro $7.99/mo, Team Starter $19/mo. Hard caps, no surprise overage billing.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/pricing.html")}
+      <span class="section-num">v1.0 / PRICING</span>
+      <h1>Aggressively priced. Capped on purpose.</h1>
+      <p class="lead">v1.0 launches with hard caps and no overage billing. Free is generous enough to build a habit; paid plans cost less than a coffee.</p>
+      <div class="doc-grid" data-v10-tiers>${rows}</div>
+      <div class="info-panel">
+        <h2>Hard caps, not surprise bills</h2>
+        <p>If you exceed your plan, Lore throttles capture and recall, surfaces a warning, and waits for you to upgrade or pause sources. We do not silently bill overage.</p>
+        <ul>
+          <li>Capture token meter resets monthly.</li>
+          <li>Recall query meter resets monthly.</li>
+          <li>Raw archive is disabled by default and counts against per-plan storage caps when enabled.</li>
+          <li>Operator dashboard shows cost-per-user before launch — beta users see the same usage they help meter.</li>
+        </ul>
+      </div>
+      <p class="notice">v1.0 is private beta. Pricing copy is final but billing is invite-gated. Public GA blocks until backup, restore, deletion drills pass.</p>
+    </div></section>`
+  });
+}
+
+function v10PrivacyPage() {
+  return v10Page({
+    slug: "privacy",
+    title: "Privacy",
+    description: "How Lore captures, summarizes, redacts, and deletes your memory. Summary-only default, raw archive opt-in, pause and private mode.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/privacy.html")}
+      <span class="section-num">v1.0 / PRIVACY</span>
+      <h1>Capture from sources you connect. Nothing else.</h1>
+      <p class="lead">Lore captures from sources you connect, summarizes by default, and lets you review, delete, pause, or export your memory.</p>
+      <div class="info-panel">
+        <h2>What Lore does by default</h2>
+        <ul>
+          <li><strong>Authorized sources only.</strong> Capture starts after you connect an agent or browser source. No silent collection from unrelated apps or browsing history.</li>
+          <li><strong>Summary-only default.</strong> Raw transcripts and raw documents stay local unless you opt in per source.</li>
+          <li><strong>Local redaction.</strong> Obvious secrets and <code>&lt;private&gt;</code> markers are stripped before upload; the cloud re-redacts as a second defense.</li>
+          <li><strong>Pause and private mode.</strong> Pause a source from the dashboard, browser popup, or CLI. Private mode prevents persistence for a chat, tab, or session.</li>
+          <li><strong>Delete and export.</strong> Delete a memory, source, or vault. Export everything as MIF. Audit retains metadata after content is hard-deleted.</li>
+          <li><strong>Source disconnect.</strong> Revoking a device or connector removes its content from recall and indexes via a deletion job with audit proof.</li>
+        </ul>
+      </div>
+      <div class="info-panel">
+        <h2>What Lore does not do</h2>
+        <ul>
+          <li>No raw transcript upload by default.</li>
+          <li>No hidden browsing-history collection.</li>
+          <li>No selling memory data. No model-training use of your memory.</li>
+          <li>No SOC 2 claim until the program is real. v1.0 is private beta.</li>
+        </ul>
+      </div>
+      <p class="notice">Read the <a class="inline-link" href="/en/privacy.html">long-form privacy policy</a> for the full legal text. Contact <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> for data requests.</p>
+    </div></section>`
+  });
+}
+
+function v10DownloadPage() {
+  return v10Page({
+    slug: "download",
+    title: "Request beta access",
+    description: "Request Lore private beta access. Invited users sign in with Google, then connect the browser extension or agent bridge.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/download.html")}
+      <span class="section-num">v1.0 / PRIVATE BETA</span>
+      <h1>Request access, then connect your first source.</h1>
+      <p class="lead">v1.0 is invite-gated. Invited users sign in with Google, then connect a browser extension for web AI tools or an agent bridge for desktop agents.</p>
+      <div class="doc-grid" data-v10-downloads>
+        <article class="doc-card" data-source="browser">
+          <span>BROWSER EXTENSION</span>
+          <strong>Chrome MV3</strong>
+          <p>Capture authorized conversations from ChatGPT, Claude.ai, Gemini, and Perplexity. Pause and private mode in one click.</p>
+          <p><a class="inline-link" href="/docs.html#browser">Install instructions →</a></p>
+        </article>
+        <article class="doc-card" data-source="bridge">
+          <span>LOCAL BRIDGE</span>
+          <strong>lore connect</strong>
+          <p>Pair Claude Code, Codex, Cursor, and OpenCode through one install token. macOS Keychain stores the device token; configs are backed up before any write.</p>
+          <p><a class="inline-link" href="/docs.html#bridge">CLI quickstart →</a></p>
+        </article>
+        <article class="doc-card" data-source="signin">
+          <span>SIGN IN</span>
+          <strong>Google sign-in for invited users</strong>
+          <p>Google sign-in is live for invited v1.0 accounts. Drive scopes are requested separately when you connect Drive — never during sign-in.</p>
+          <p><a class="button primary" href="mailto:redland2024@gmail.com?subject=Lore%20v1.0%20Beta%20Access">Request beta access</a></p>
+        </article>
+      </div>
+      <p class="notice">Public availability is invite-gated during private beta. Email <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> to request access.</p>
+    </div></section>`
+  });
+}
+
+function v10DocsPage() {
+  return v10Page({
+    slug: "docs",
+    title: "Docs",
+    description: "Lore v1.0 documentation: sign-in, agent connect, browser extension, source pause, Memory Inbox, recall, privacy, and self-host pointers.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/docs.html")}
+      <span class="section-num">v1.0 / DOCS</span>
+      <h1>Connect, capture, recall — in plain language.</h1>
+      <p class="lead">Public-facing v1.0 docs cover the consumer flow. Self-host and open-core material remains under the v0.6 alpha docs.</p>
+      <div class="doc-grid" data-v10-docs>
+        <article class="doc-card" id="signin"><span>SIGN IN</span><strong>Sign in with Google</strong><p>Google Identity Services for invited users. Server-side OIDC validation. Personal vault is created on first login.</p></article>
+        <article class="doc-card" id="bridge"><span>BRIDGE</span><strong>lore connect</strong><p>Generates a one-time install token; supports Claude Code, Codex, Cursor, OpenCode. macOS Keychain stores the device token.</p></article>
+        <article class="doc-card" id="browser"><span>EXTENSION</span><strong>Chrome MV3</strong><p>Per-domain authorization, pause/private mode, summary preview, no raw transcript by default.</p></article>
+        <article class="doc-card" id="inbox"><span>INBOX</span><strong>Memory Inbox</strong><p>States: pending, approved, rejected, edited, duplicate, stale, sensitive, conflict, source-paused, deleted. Every action is audited.</p></article>
+        <article class="doc-card" id="recall"><span>RECALL</span><strong>Evidence Ledger</strong><p>Every recall has a trace_id. Used, ignored, stale, conflicting, risky memories are labeled, not silently injected.</p></article>
+        <article class="doc-card" id="privacy"><span>PRIVACY</span><strong>Pause &amp; delete</strong><p>Pause a source, delete a memory, delete a vault. Audit logs keep metadata; content is hard-deleted with proof.</p></article>
+        <article class="doc-card" id="selfhost"><span>SELF-HOST</span><strong>v0.6 alpha docs</strong><p>Open-core material is preserved under <a class="inline-link" href="/en/docs.html">/en/docs.html</a> for operators who run Lore locally.</p></article>
+      </div>
+    </div></section>`
+  });
+}
+
+function v10StatusPage() {
+  return v10Page({
+    slug: "status",
+    title: "Status",
+    description: "Lore production status, beta/GA boundary, and component health summary.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/status.html")}
+      <span class="section-num">v1.0 / STATUS</span>
+      <h1>Private beta. Public-safe status only.</h1>
+      <p class="lead">v1.0 is in private beta. We publish surface-level status here. Operators see deeper metrics in the private operator dashboard.</p>
+      <div class="release-checks" data-v10-status>
+        <div><b>OK</b><span><strong>Website</strong><small>Static build deterministic via Cloudflare Pages</small></span></div>
+        <div><b>OK</b><span><strong>Sign-in</strong><small>Google Identity Services in private beta</small></span></div>
+        <div><b>OK</b><span><strong>Capture ingestion</strong><small>Idempotent on idempotency_key</small></span></div>
+        <div><b>OK</b><span><strong>Recall API</strong><small>Evidence Ledger trace for every request</small></span></div>
+        <div><b>BETA</b><span><strong>Browser extension</strong><small>Chrome Web Store submission pending</small></span></div>
+        <div><b>BETA</b><span><strong>Google Drive connector</strong><small>OAuth verification in progress</small></span></div>
+      </div>
+      <p class="notice">v0.6 alpha component status remains at <a class="inline-link" href="/en/status.html">/en/status.html</a>.</p>
+    </div></section>`
+  });
+}
+
+function v10ComparePage() {
+  return v10Page({
+    slug: "compare",
+    title: "Compare",
+    description: "How Lore v1.0 compares with Supermemory, Mem0, Zep, and Letta on positioning, pricing, capture, and Evidence Ledger.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/compare.html")}
+      <span class="section-num">v1.0 / COMPARE</span>
+      <h1>Lore vs Supermemory, Mem0, Zep, Letta.</h1>
+      <p class="lead">Public-fact comparison. We do not claim benchmark wins; we compare positioning and shipped surfaces.</p>
+      <div class="doc-grid" data-v10-compare>
+        <article class="doc-card"><span>SUPERMEMORY</span><strong>One memory. Every tool.</strong><p>Personal app, Chrome extension, MCP, connectors. Free includes 1M tokens / 10K searches; Pro $19/mo. Lore beats price and adds Evidence Ledger.</p></article>
+        <article class="doc-card"><span>MEM0</span><strong>Hosted MCP for builders</strong><p>Mem0 is developer-API-first; Lore adds Memory Inbox, Evidence Ledger, and consumer onboarding via Google sign-in.</p></article>
+        <article class="doc-card"><span>ZEP</span><strong>Temporal graph + enterprise</strong><p>Zep targets enterprise BYOK/BYOC. Lore is the consumer wedge first; enterprise paths are explicit non-goals in v1.0.</p></article>
+        <article class="doc-card"><span>LETTA</span><strong>Persistent agent state</strong><p>Letta focuses on agent runtime memory. Lore focuses on cross-agent personal memory with user-visible control.</p></article>
+      </div>
+      <p class="notice">No SOC 2 claim. No unlimited storage claim. No public-SaaS-GA claim. v1.0 is private beta.</p>
+    </div></section>`
+  });
+}
+
+function v10CompanyPage() {
+  return v10Page({
+    slug: "company",
+    title: "Company",
+    description: "REDLAND PTE. LTD. — Singapore UEN 202304648K. Registered office: 1 North Bridge Road, #11-02, High Street Centre, Singapore 179094.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/company.html")}
+      <span class="section-num">COMPANY</span>
+      <h1>REDLAND PTE. LTD.</h1>
+      <p class="lead">Lore is operated by REDLAND PTE. LTD., a Singapore-incorporated software company.</p>
+      <div class="info-panel">
+        <dl>
+          <dt>Legal entity</dt><dd>REDLAND PTE. LTD.</dd>
+          <dt>Singapore UEN</dt><dd>202304648K</dd>
+          <dt>Registered office</dt><dd>1 North Bridge Road, #11-02, High Street Centre, Singapore 179094</dd>
+          <dt>Contact</dt><dd><a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a></dd>
+          <dt>Activity</dt><dd>Software and application development</dd>
+        </dl>
+      </div>
+      <p class="notice">English legal text controls unless a signed agreement says otherwise.</p>
+    </div></section>`
+  });
+}
+
+function v10ContactPage() {
+  return v10Page({
+    slug: "contact",
+    title: "Contact",
+    description: "Email: redland2024@gmail.com — product, security, privacy, and partnership questions for Lore Context.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/contact.html")}
+      <span class="section-num">CONTACT</span>
+      <h1>Get in touch.</h1>
+      <p class="lead">One address handles all enquiries during private beta.</p>
+      <div class="info-panel">
+        <dl>
+          <dt>Email</dt><dd><a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a></dd>
+          <dt>Scope</dt><dd>Product questions, security disclosures, privacy requests, and partnership enquiries.</dd>
+          <dt>Operator</dt><dd>REDLAND PTE. LTD. · UEN 202304648K · Singapore</dd>
+        </dl>
+      </div>
+      <p class="notice">For data access, correction, or deletion please email <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> with subject Privacy Request.</p>
+    </div></section>`
+  });
+}
+
+function v10TermsPage() {
+  return v10Page({
+    slug: "terms",
+    title: "Terms of Service",
+    description: "Lore v1.0 beta terms of service. No production reliance promise. Operated by REDLAND PTE. LTD., Singapore.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/terms.html")}
+      <span class="section-num">TERMS</span>
+      <h1>Terms of Service</h1>
+      <p class="lead">Lore v1.0 is private beta software. Use it for testing and evaluation, not for production-critical workflows.</p>
+      <div class="info-panel">
+        <h2>Beta terms</h2>
+        <ul>
+          <li>Lore is provided as-is during private beta with no uptime or reliability guarantee.</li>
+          <li>Do not rely on Lore for production-critical data without independent backup and verification.</li>
+          <li>Memory data is stored on REDLAND-operated infrastructure. Export your data regularly.</li>
+          <li>REDLAND may terminate beta access with reasonable notice.</li>
+        </ul>
+        <dl>
+          <dt>Entity</dt><dd>REDLAND PTE. LTD.</dd>
+          <dt>UEN</dt><dd>202304648K</dd>
+          <dt>Governing law</dt><dd>Singapore, unless a signed agreement says otherwise.</dd>
+          <dt>Contact</dt><dd><a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a></dd>
+        </dl>
+      </div>
+      <p class="notice">English legal text controls. Full terms will be published before public GA.</p>
+    </div></section>`
+  });
+}
+
+function v10CookiesPage() {
+  return v10Page({
+    slug: "cookies",
+    title: "Cookie Notice",
+    description: "Lore does not use advertising cookies or third-party tracking by default. Only locale preference may be stored in localStorage.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/cookies.html")}
+      <span class="section-num">COOKIES</span>
+      <h1>Cookie Notice</h1>
+      <p class="lead">lorecontext.com is designed to work without advertising cookies or third-party tracking scripts.</p>
+      <div class="info-panel">
+        <dl>
+          <dt>Advertising cookies</dt><dd>None. No advertising cookie layer is present on lorecontext.com.</dd>
+          <dt>Third-party tracking</dt><dd>No third-party analytics or tracking scripts load by default.</dd>
+          <dt>Local storage</dt><dd>Locale preference may be stored in browser localStorage. No personal data is included.</dd>
+          <dt>Auth session</dt><dd>Google sign-in uses a strictly necessary session cookie to keep you signed in.</dd>
+        </dl>
+      </div>
+      <p class="notice">See the <a class="inline-link" href="/privacy.html">privacy page</a> for the full data posture. Contact <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> with questions.</p>
+    </div></section>`
+  });
+}
+
+function v10SitemapPage() {
+  const topLevel = [
+    ["/", "Home", "v1.0 consumer hero — Memory Inbox, connected agents, Google sign-in"],
+    ["/pricing.html", "Pricing", "Free · $2.99/mo · $7.99/mo · $19/mo — hard caps, no overage"],
+    ["/privacy.html", "Privacy", "Summary-only default, authorized sources, pause mode, export and delete"],
+    ["/download.html", "Beta access", "Private beta request · browser extension · agent bridge"],
+    ["/docs.html", "Docs", "Consumer quickstart — agent connect, Memory Inbox, Evidence Ledger"],
+    ["/status.html", "Status", "Private beta component health and GA boundary"],
+    ["/compare.html", "Compare", "Supermemory · Mem0 · Zep · Letta — public-fact differences"],
+    ["/company.html", "Company", "REDLAND PTE. LTD. · UEN 202304648K · Singapore"],
+    ["/contact.html", "Contact", "redland2024@gmail.com — product, security, privacy"],
+    ["/terms.html", "Terms", "Beta terms · no production reliance · Singapore operator"],
+    ["/cookies.html", "Cookies", "No advertising cookies · localStorage locale only"],
+    ["/sitemap.html", "Sitemap", "This page — human-readable audit summary"]
+  ];
+  const alphaDocs = [
+    ["/en/docs.html", "Alpha Docs (EN)", "v0.6 self-host quickstart, API reference, integrations"],
+    ["/en/architecture.html", "Architecture", "Local-first API, MCP, governance, eval, storage"],
+    ["/en/changelog.html", "Changelog", "v0.9, v0.6, v0.5, v0.4 alpha release notes"],
+    ["/quickstart/", "Quickstart", "Clone and run the local alpha in 4 commands"],
+    ["/benchmark/", "Benchmark", "Four-item smoke eval — methodology first, no benchmark win claim"],
+    ["/blog/", "Blog", "Release notes and alpha launch narratives"]
+  ];
+  const rows = (pages) =>
+    pages
+      .map(
+        ([href, title, desc]) =>
+          `<article class="doc-card"><span>${escapeHtml(title)}</span><strong><a class="inline-link" href="${href}">${escapeHtml(title)}</a></strong><p>${escapeHtml(desc)}</p></article>`
+      )
+      .join("");
+  return v10Page({
+    slug: "sitemap",
+    title: "Sitemap",
+    description: "Human-readable sitemap and implementation audit for Lore v1.0. All pages, company info, and remaining beta caveats.",
+    body: `<section class="section page"><div class="shell article">
+      ${v10NavBar("/sitemap.html")}
+      <span class="section-num">SITEMAP</span>
+      <h1>Site map and implementation audit.</h1>
+      <p class="lead">All v1.0 top-level pages and developer alpha docs. Locale variants add developer docs in 17 languages.</p>
+      <div class="info-panel">
+        <h2>Company</h2>
+        <dl>
+          <dt>Legal entity</dt><dd>REDLAND PTE. LTD.</dd>
+          <dt>Singapore UEN</dt><dd>202304648K</dd>
+          <dt>Registered office</dt><dd>1 North Bridge Road, #11-02, High Street Centre, Singapore 179094</dd>
+          <dt>Activity</dt><dd>Software and application development</dd>
+          <dt>Contact</dt><dd><a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a></dd>
+        </dl>
+      </div>
+      <h2>Top-level pages</h2>
+      <div class="doc-grid" data-v10-sitemap>${rows(topLevel)}</div>
+      <h2>Developer alpha docs</h2>
+      <div class="doc-grid" data-v10-sitemap-alpha>${rows(alphaDocs)}</div>
+      <p class="notice">v1.0 is private beta. v0.6 alpha public docs are available in 17 locales. Contact <a class="inline-link" href="mailto:redland2024@gmail.com">redland2024@gmail.com</a> for access.</p>
+    </div></section>`
+  });
+}
+
 export function generateSiteFiles() {
   const files = new Map();
-  files.set("index.html", rootIndex());
+  files.set("index.html", v10HomePage());
   files.set("_headers", cloudflareHeaders());
   files.set("robots.txt", robots());
   files.set("sitemap.xml", sitemap());
@@ -1691,7 +2168,23 @@ export function generateSiteFiles() {
   files.set("blog/index.html", blogIndexPage());
   files.set("blog/v0-6-distribution-and-trust-sprint/index.html", changelogBlogPage());
   files.set("benchmark/index.html", benchmarkPage());
-  for (const slug of pageSlugs) files.set(`${slug}.html`, redirectPage(slug));
+  // v1.0 top-level pages — real pages for all v10 slugs, redirects only for legacy alpha slugs.
+  for (const slug of pageSlugs) {
+    if (slug === "pricing" || slug === "privacy" || slug === "docs" || slug === "status" || slug === "download" || slug === "compare"
+        || slug === "company" || slug === "contact" || slug === "terms" || slug === "cookies") continue;
+    files.set(`${slug}.html`, redirectPage(slug));
+  }
+  files.set("pricing.html", v10PricingPage());
+  files.set("privacy.html", v10PrivacyPage());
+  files.set("download.html", v10DownloadPage());
+  files.set("docs.html", v10DocsPage());
+  files.set("status.html", v10StatusPage());
+  files.set("compare.html", v10ComparePage());
+  files.set("company.html", v10CompanyPage());
+  files.set("contact.html", v10ContactPage());
+  files.set("terms.html", v10TermsPage());
+  files.set("cookies.html", v10CookiesPage());
+  files.set("sitemap.html", v10SitemapPage());
   for (const locale of localeOrder) {
     files.set(`${locale}/index.html`, homePage(locale));
     for (const slug of pageSlugs) files.set(`${locale}/${slug}.html`, infoPage(locale, slug));
@@ -1702,23 +2195,22 @@ export function generateSiteFiles() {
 function styles() {
   return `
 :root{color-scheme:light;--paper:#f8f7f2;--paper-2:#fffdf8;--paper-3:#f0efea;--ink:#111418;--ink-2:#303942;--muted:#65707c;--faint:#8a949f;--line:rgba(22,27,31,.13);--line-2:rgba(22,27,31,.22);--cyan:#08aebe;--green:#0a8f66;--amber:#c77912;--red:#c94949;--shadow:0 28px 70px rgba(17,20,24,.14)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}a{color:inherit;text-decoration:none}.skip-link{position:absolute;left:16px;top:10px;z-index:100;transform:translateY(-140%);border:1px solid var(--ink);border-radius:6px;background:var(--paper-2);padding:9px 12px;font-weight:800}.skip-link:focus{transform:translateY(0)}.inline-link{text-decoration:underline;text-underline-offset:2px}.shell{width:min(1280px,calc(100% - 48px));margin:0 auto}.site-header{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(248,247,242,.9);backdrop-filter:blur(18px)}.nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;white-space:nowrap}.brand-mark{width:20px;height:20px;border-radius:4px;background:linear-gradient(135deg,var(--ink) 0 42%,transparent 42%),linear-gradient(135deg,var(--cyan) 0 58%,var(--green) 58%)}.version{font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.nav-links,.nav-actions{display:flex;align-items:center;gap:8px}.nav-links a{padding:8px;color:var(--ink-2);font-size:13px;font-weight:750}.nav-links a:hover{color:var(--ink)}.button{border:1px solid var(--line-2);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;font-size:13px;font-weight:800;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}.button:hover{transform:translateY(-1px);border-color:rgba(8,174,190,.55);box-shadow:0 10px 26px rgba(8,174,190,.13)}.button.primary{background:var(--ink);border-color:var(--ink);color:#fff}.button.secondary{background:var(--paper-2)}.button.large{min-height:44px;padding:0 18px}.lang-menu{position:relative}.lang-menu summary{list-style:none;border:1px solid transparent;border-radius:8px;min-height:40px;padding:0 10px;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:800}.lang-menu summary::-webkit-details-marker{display:none}.lang-menu[open] summary,.lang-menu summary:hover{background:var(--paper-2);border-color:var(--line)}.lang-panel{position:absolute;right:0;top:calc(100% + 8px);width:250px;max-height:390px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);box-shadow:var(--shadow);padding:6px}.lang-panel a{display:flex;justify-content:space-between;gap:14px;border-radius:6px;padding:9px 10px;font-size:13px}.lang-panel a:hover,.lang-panel a[aria-current=true]{background:var(--paper-3)}.lang-panel a span:last-child{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:clip}body{margin:0;max-width:100%;overflow-x:clip;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}a{color:inherit;text-decoration:none}.skip-link{position:absolute;left:16px;top:10px;z-index:100;transform:translateY(-140%);border:1px solid var(--ink);border-radius:6px;background:var(--paper-2);padding:9px 12px;font-weight:800}.skip-link:focus{transform:translateY(0)}.inline-link{text-decoration:underline;text-underline-offset:2px}.shell{width:min(1280px,calc(100% - 48px));margin:0 auto}.site-header{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(248,247,242,.9);backdrop-filter:blur(18px)}.nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;white-space:nowrap}.brand-mark{width:20px;height:20px;border-radius:4px;background:linear-gradient(135deg,var(--ink) 0 42%,transparent 42%),linear-gradient(135deg,var(--cyan) 0 58%,var(--green) 58%)}.version{font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.nav-links,.nav-actions{display:flex;align-items:center;gap:8px}.nav-links a{padding:8px;color:var(--ink-2);font-size:13px;font-weight:750}.nav-links a:hover{color:var(--ink)}.button{border:1px solid var(--line-2);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;font-size:13px;font-weight:800;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}.button:hover{transform:translateY(-1px);border-color:rgba(8,174,190,.55);box-shadow:0 10px 26px rgba(8,174,190,.13)}.button.primary{background:var(--ink);border-color:var(--ink);color:#fff}.button.secondary{background:var(--paper-2)}.button.large{min-height:44px;padding:0 18px}.lang-menu{position:relative}.lang-menu summary{list-style:none;border:1px solid transparent;border-radius:8px;min-height:40px;padding:0 10px;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:800}.lang-menu summary::-webkit-details-marker{display:none}.lang-menu[open] summary,.lang-menu summary:hover{background:var(--paper-2);border-color:var(--line)}.lang-panel{position:absolute;right:0;top:calc(100% + 8px);width:250px;max-height:390px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);box-shadow:var(--shadow);padding:6px}.lang-panel a{display:flex;justify-content:space-between;gap:14px;border-radius:6px;padding:9px 10px;font-size:13px}.lang-panel a:hover,.lang-panel a[aria-current=true]{background:var(--paper-3)}.lang-panel a span:last-child{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan)}
 .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:linear-gradient(rgba(37,47,56,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(37,47,56,.055) 1px,transparent 1px),var(--paper);background-size:42px 42px}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(248,247,242,.96),rgba(248,247,242,.68) 47%,transparent 86%);pointer-events:none}.hero-grid{position:relative;display:grid;grid-template-columns:minmax(420px,540px) 1fr;gap:56px;align-items:start;padding:76px 0 34px}.alpha-banner{display:inline-flex;align-items:center;border:1px solid rgba(199,121,18,.28);border-radius:6px;background:rgba(199,121,18,.1);color:#7d4c10;padding:7px 10px;font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:6px;background:rgba(255,253,248,.82);padding:5px 9px;font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);letter-spacing:.02em}.chip:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green)}.chip.live{color:var(--green)}.hero h1{margin:34px 0 0;font-size:clamp(48px,6.2vw,82px);line-height:.95;letter-spacing:0;font-weight:780}.hero-statement{max-width:540px;margin:22px 0 0;font-size:clamp(21px,2vw,26px);line-height:1.18;font-weight:720;color:#1f262d}.hero-support{max-width:540px;margin:18px 0 0;color:#46505a;font-size:15px;line-height:1.6}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.command{margin-top:14px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:rgba(255,253,248,.88);min-height:36px;padding:0 10px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#4b5661}.cursor{width:7px;height:16px;margin-left:7px;background:var(--cyan);animation:cursorBlink 1.05s steps(2,end) infinite}.metric-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}.metric{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.84);padding:12px}.metric span{display:block;color:var(--faint);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.metric strong{display:block;margin-top:5px;font:850 17px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:lowercase}.metric.good strong{color:var(--green)}.metric.warn strong{color:var(--amber)}.metric.info strong{color:#07849a}.metric i{display:block;height:4px;margin-top:12px;border-radius:4px;background:currentColor;opacity:.25;transform-origin:left;animation:barReveal 1.8s ease-out both}.use-case-strip{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 0 58px}.use-case-strip article{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.86);padding:18px;min-height:132px}.use-case-strip strong{display:block}.use-case-strip p{margin:8px 0 0;color:var(--muted);font-size:13px}
 .surface{border:1px solid var(--line);border-radius:8px;background:rgba(255,253,248,.9);box-shadow:var(--shadow);overflow:hidden;backdrop-filter:blur(16px)}.surface-head,.surface-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);background:rgba(240,239,234,.78);min-height:38px;padding:0 14px;color:var(--muted);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.surface-foot{border-top:1px solid var(--line);border-bottom:0}.window-dots{display:inline-flex;gap:5px}.window-dots i{width:8px;height:8px;border-radius:50%;background:var(--green)}.window-dots i:first-child{background:var(--red)}.window-dots i:nth-child(2){background:var(--amber)}.live-dot:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:nodePulse 1.6s ease-in-out infinite}.surface-stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.surface-stat{padding:14px;border-right:1px solid var(--line)}.surface-stat:last-child{border-right:0}.surface-stat span{display:block;color:var(--faint);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.surface-stat strong{display:block;margin-top:6px;font-size:22px}.surface-stat small{display:block;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.surface-stat svg{width:100%;height:22px;margin-top:8px}.surface-stat polyline{fill:none;stroke:var(--cyan);stroke-width:1.8;stroke-dasharray:130;stroke-dashoffset:130;animation:sparkDraw 2.4s ease-out forwards}.ledger{font:10px ui-monospace,SFMono-Regular,Menlo,monospace}.ledger-head,.ledger-row{display:grid;grid-template-columns:1.1fr .66fr .95fr .86fr .9fr .74fr .95fr;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(22,27,31,.08)}.ledger-head{color:var(--faint);font-weight:850;text-transform:uppercase;background:rgba(240,239,234,.5)}.ledger-row{position:relative;color:#4c5863}.ledger-row.active:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(8,174,190,.14),transparent);animation:ledgerScan 2.9s ease-in-out infinite}.used,.review{position:relative;z-index:1;display:inline-flex;width:max-content;border-radius:5px;padding:2px 6px;font-size:9px;font-weight:850}.used.yes,.review.approved{background:rgba(10,143,102,.12);color:var(--green)}.used.no,.review.flagged,.review.review{background:rgba(199,121,18,.14);color:var(--amber)}.review.redact{background:rgba(201,73,73,.12);color:var(--red)}.stale{display:block;height:6px;border-radius:6px;background:rgba(0,0,0,.08);overflow:hidden}.stale i{display:block;height:100%;border-radius:6px;background:var(--green);animation:barReveal 2s ease-out both}.stale i.warn{background:var(--amber)}.stale i.risk{background:var(--red)}.flow-visual{position:relative;margin:12px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.5);overflow:hidden}.flow-visual svg{width:100%;height:190px;display:block}.flow{fill:none;stroke-width:1.6;stroke-dasharray:8 7;animation:flowDash 5s linear infinite}.flow-a{stroke:url(#flow-ok)}.flow-b{stroke:var(--cyan);opacity:.45}.flow-c{stroke:url(#flow-warn)}.node{fill:var(--green);opacity:.72}.node.warn{fill:var(--amber)}.node.risk{fill:var(--red)}.node.pulse{animation:nodePulse 2.2s ease-in-out infinite;transform-origin:center}.flow-visual text{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;fill:var(--muted)}.composer-card,.gov-gate{position:absolute;z-index:2;border:1px solid var(--line-2);border-radius:8px;background:rgba(255,253,248,.92);font:10px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#3d4852}.composer-card{left:14px;top:50px;width:124px;padding:10px}.gov-gate{left:150px;top:82px;padding:4px 8px;color:var(--amber)}
-.section{border-bottom:1px solid var(--line);padding:90px 0}.section-head{display:grid;grid-template-columns:190px 1fr;gap:34px;margin-bottom:42px}.section-head>div:first-child{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.section-num{font:900 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green);letter-spacing:.04em;text-transform:uppercase}.section-eye{display:inline-flex;align-items:center;gap:8px;color:var(--green);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;text-transform:uppercase}.section-eye:before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor}.section h2{margin:0;font-size:clamp(32px,3.8vw,48px);line-height:1.02;letter-spacing:0}.section-head p,.lead{max-width:740px;margin:14px 0 0;color:#48535e;font-size:16px}.problem-grid,.features-grid,.integrations-grid{display:grid;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper-2)}.problem-grid{grid-template-columns:repeat(4,1fr)}.problem-card,.feature-card,.integration{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:24px;min-height:190px}.problem-card:nth-child(4n),.feature-card:nth-child(3n),.integration:nth-child(5n){border-right:0}.problem-card span,.feature-tag{color:var(--faint);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}.problem-card h3,.feature-card h3{margin:28px 0 0;font-size:19px}.problem-card p,.feature-card p{color:#56616c;font-size:14px}.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.pipe-step{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:20px;min-height:180px}.pipe-step:not(:last-child):after{content:"";position:absolute;right:-11px;top:50%;width:12px;border-top:1px solid var(--line-2)}.pipe-step span{font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.pipe-step strong{display:block;margin-top:26px;font-size:17px}.pipe-step p{color:#59636e;font-size:13px}.features-grid{grid-template-columns:repeat(3,1fr)}.feature-card{min-height:300px}.feature-tag{display:flex;justify-content:space-between}.mini-viz{width:100%;height:80px;margin:18px 0}.mini-viz rect{fill:var(--paper-3);stroke:var(--line-2)}.mini-viz path{fill:none;stroke:var(--cyan);stroke-width:1.4;stroke-dasharray:120;stroke-dashoffset:120;animation:sparkDraw 2.2s ease-out forwards}.alpha-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px}.alpha-list,.manifest,.eval-report,.info-panel{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);overflow:hidden}.alpha-row{display:grid;grid-template-columns:28px 1fr auto;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding:14px 18px}.alpha-row:last-child{border-bottom:0}.alpha-row b{display:grid;place-items:center;width:20px;height:20px;border-radius:5px;background:rgba(10,143,102,.12);color:var(--green)}.alpha-row b.partial{background:rgba(199,121,18,.14);color:var(--amber)}.alpha-row strong{display:block}.alpha-row small{display:block;color:var(--muted)}.alpha-row em{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);font-style:normal}.manifest{padding:22px}.manifest dl,.info-panel dl{display:grid;grid-template-columns:160px 1fr;gap:12px 18px}.manifest dt,.info-panel dt{color:var(--faint);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.manifest dd,.info-panel dd{margin:0;color:#313b45}.eval-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--paper-3);padding:14px 18px;font:800 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.live-pill{color:var(--green)}.eval-metrics{display:grid;grid-template-columns:repeat(5,1fr)}.eval-metrics .metric{border:0;border-right:1px solid var(--line);border-radius:0}.trace-list{padding:18px}.trace-list div{display:grid;grid-template-columns:130px 1fr 54px;gap:12px;align-items:center;min-height:30px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.trace-list b{height:7px;border-radius:7px;background:rgba(0,0,0,.08);overflow:hidden}.trace-list i{display:block;height:100%;background:var(--cyan);animation:barReveal 2s ease-out both}.trace-list em{font-style:normal;color:var(--muted);text-align:right}.integrations-grid{grid-template-columns:repeat(5,1fr)}.integration{min-height:130px}.integration span{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--ink);color:#fff;font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace}.integration strong{display:block;margin-top:16px}.integration small{color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.final{background:var(--ink);color:var(--paper);border-bottom:0}.final .section-num,.final .section-head p,.final .section-eye{color:rgba(248,247,242,.68)}.final-grid{display:grid;grid-template-columns:1fr .85fr;gap:42px;align-items:end}.terminal{margin:0;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:#080b0f;color:#d8f8e8;padding:18px;font:13px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}.footer{background:var(--ink);color:rgba(248,247,242,.62);padding:44px 0 30px}.footer-grid{display:grid;grid-template-columns:1.35fr .75fr .8fr .9fr;gap:28px}.footer a{display:block;margin-top:8px}.footer a:hover{color:#fff}.footer h3{margin:0 0 12px;color:#fff;font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.footer-brand{color:#fff;margin-bottom:14px}.footer p{margin:0;color:rgba(248,247,242,.55);font-size:13px}.legal-row{grid-column:1/-1;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);padding-top:24px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.page{min-height:62vh}.article{max-width:900px}.article h1{font-size:clamp(44px,5vw,72px);line-height:1;margin:18px 0 0}.info-panel{margin-top:34px;padding:26px}.notice{border-left:3px solid var(--green);background:rgba(10,143,102,.08);padding:12px 14px;color:#37424c}.language-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}.language-grid a{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:14px;font-weight:800}.language-grid span{float:right;color:var(--cyan);font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace}.docs-hub{display:grid;gap:22px}.docs-toolbar,.doc-steps,.doc-grid,.doc-locale-grid,.release-checks{display:grid;gap:10px}.docs-toolbar{grid-template-columns:repeat(3,max-content);align-items:center}.doc-quickstart,.doc-release-panel{display:grid;grid-template-columns:1fr .95fr;gap:24px;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:22px}.doc-quickstart h2,.doc-release-panel h2{margin:8px 0 0;font-size:28px;line-height:1.08}.doc-quickstart p,.doc-release-panel p,.doc-locale-block p{color:var(--muted)}.code-block{margin:0;border:1px solid rgba(17,20,24,.18);border-radius:7px;background:#080b0f;color:#d8f8e8;padding:16px;overflow:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.doc-steps{grid-template-columns:repeat(4,1fr)}.doc-step,.doc-card,.doc-locale-block,.release-checks>div{border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:16px}.doc-step span,.doc-card span{color:var(--green);font:900 11px ui-monospace,SFMono-Regular,Menlo,monospace}.doc-step strong,.doc-card strong{display:block;margin-top:10px}.doc-step code{display:block;margin-top:8px;color:var(--muted);font:12px ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.doc-grid{grid-template-columns:repeat(3,1fr)}.doc-card{min-height:180px;display:flex;flex-direction:column}.doc-card p{color:var(--muted);font-size:14px}.doc-card em{margin-top:auto;color:var(--cyan);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;font-style:normal}.release-checks{grid-template-columns:1fr 1fr}.release-checks>div{display:flex;gap:12px}.release-checks b{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:5px;background:rgba(10,143,102,.12);color:var(--green)}.release-checks strong,.release-checks small{display:block}.release-checks small{color:var(--muted)}.doc-locale-grid{grid-template-columns:repeat(4,1fr);margin-top:14px}.doc-locale-grid a{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:7px;background:var(--paper-2);padding:11px 12px}.doc-locale-grid b{color:var(--cyan);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}
+.section{border-bottom:1px solid var(--line);padding:90px 0}.section-head{display:grid;grid-template-columns:190px 1fr;gap:34px;margin-bottom:42px}.section-head>div:first-child{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.section-num{font:900 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green);letter-spacing:.04em;text-transform:uppercase}.section-eye{display:inline-flex;align-items:center;gap:8px;color:var(--green);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;text-transform:uppercase}.section-eye:before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor}.section h2{margin:0;font-size:clamp(32px,3.8vw,48px);line-height:1.02;letter-spacing:0}.section-head p,.lead{max-width:740px;margin:14px 0 0;color:#48535e;font-size:16px}.problem-grid,.features-grid,.integrations-grid{display:grid;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper-2)}.problem-grid{grid-template-columns:repeat(4,1fr)}.problem-card,.feature-card,.integration{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:24px;min-height:190px}.problem-card:nth-child(4n),.feature-card:nth-child(3n),.integration:nth-child(5n){border-right:0}.problem-card span,.feature-tag{color:var(--faint);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}.problem-card h3,.feature-card h3{margin:28px 0 0;font-size:19px}.problem-card p,.feature-card p{color:#56616c;font-size:14px}.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.pipe-step{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:20px;min-height:180px}.pipe-step:not(:last-child):after{content:"";position:absolute;right:-11px;top:50%;width:12px;border-top:1px solid var(--line-2)}.pipe-step span{font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.pipe-step strong{display:block;margin-top:26px;font-size:17px}.pipe-step p{color:#59636e;font-size:13px}.features-grid{grid-template-columns:repeat(3,1fr)}.feature-card{min-height:300px}.feature-tag{display:flex;justify-content:space-between}.mini-viz{width:100%;height:80px;margin:18px 0}.mini-viz rect{fill:var(--paper-3);stroke:var(--line-2)}.mini-viz path{fill:none;stroke:var(--cyan);stroke-width:1.4;stroke-dasharray:120;stroke-dashoffset:120;animation:sparkDraw 2.2s ease-out forwards}.alpha-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px}.alpha-list,.manifest,.eval-report,.info-panel{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);overflow:hidden}.alpha-row{display:grid;grid-template-columns:28px 1fr auto;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding:14px 18px}.alpha-row:last-child{border-bottom:0}.alpha-row b{display:grid;place-items:center;width:20px;height:20px;border-radius:5px;background:rgba(10,143,102,.12);color:var(--green)}.alpha-row b.partial{background:rgba(199,121,18,.14);color:var(--amber)}.alpha-row strong{display:block}.alpha-row small{display:block;color:var(--muted)}.alpha-row em{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);font-style:normal}.manifest{padding:22px}.manifest dl,.info-panel dl{display:grid;grid-template-columns:160px 1fr;gap:12px 18px}.manifest dt,.info-panel dt{color:var(--faint);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.manifest dd,.info-panel dd{margin:0;color:#313b45}.eval-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--paper-3);padding:14px 18px;font:800 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.live-pill{color:var(--green)}.eval-metrics{display:grid;grid-template-columns:repeat(5,1fr)}.eval-metrics .metric{border:0;border-right:1px solid var(--line);border-radius:0}.trace-list{padding:18px}.trace-list div{display:grid;grid-template-columns:130px 1fr 54px;gap:12px;align-items:center;min-height:30px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.trace-list b{height:7px;border-radius:7px;background:rgba(0,0,0,.08);overflow:hidden}.trace-list i{display:block;height:100%;background:var(--cyan);animation:barReveal 2s ease-out both}.trace-list em{font-style:normal;color:var(--muted);text-align:right}.integrations-grid{grid-template-columns:repeat(5,1fr)}.integration{min-height:130px}.integration span{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--ink);color:#fff;font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace}.integration strong{display:block;margin-top:16px}.integration small{color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.final{background:var(--ink);color:var(--paper);border-bottom:0}.final .section-num,.final .section-head p,.final .section-eye{color:rgba(248,247,242,.68)}.final-grid{display:grid;grid-template-columns:1fr .85fr;gap:42px;align-items:end}.terminal{margin:0;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:#080b0f;color:#d8f8e8;padding:18px;font:13px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}.footer{background:var(--ink);color:rgba(248,247,242,.62);padding:44px 0 30px}.footer-grid{display:grid;grid-template-columns:1.35fr .75fr .8fr .9fr;gap:28px}.footer a{display:block;margin-top:8px}.footer a:hover{color:#fff}.footer h3{margin:0 0 12px;color:#fff;font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.footer-brand{color:#fff;margin-bottom:14px}.footer p{margin:0;color:rgba(248,247,242,.55);font-size:13px}.legal-row{grid-column:1/-1;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);padding-top:24px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.page{min-height:62vh}.article{max-width:900px}.article h1{font-size:clamp(44px,5vw,72px);line-height:1;margin:18px 0 0}.info-panel{margin-top:34px;padding:26px}.notice{border-left:3px solid var(--green);background:rgba(10,143,102,.08);padding:12px 14px;color:#37424c}.language-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}.language-grid a{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:14px;font-weight:800}.language-grid span{float:right;color:var(--cyan);font:850 12px ui-monospace,SFMono-Regular,Menlo,monospace}.docs-hub{display:grid;gap:22px}.article,.docs-hub,.docs-toolbar,.doc-steps,.doc-grid,.doc-locale-grid,.release-checks,.doc-card,.doc-step,.info-panel{min-width:0}.docs-toolbar,.doc-steps,.doc-grid,.doc-locale-grid,.release-checks{display:grid;gap:10px}.docs-toolbar{grid-template-columns:repeat(3,max-content);align-items:center}.doc-quickstart,.doc-release-panel{display:grid;grid-template-columns:1fr .95fr;gap:24px;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:22px}.doc-quickstart h2,.doc-release-panel h2{margin:8px 0 0;font-size:28px;line-height:1.08}.doc-quickstart p,.doc-release-panel p,.doc-locale-block p{color:var(--muted)}.code-block{margin:0;border:1px solid rgba(17,20,24,.18);border-radius:7px;background:#080b0f;color:#d8f8e8;padding:16px;overflow:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.doc-steps{grid-template-columns:repeat(4,1fr)}.doc-step,.doc-card,.doc-locale-block,.release-checks>div{border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:16px}.doc-step span,.doc-card span{color:var(--green);font:900 11px ui-monospace,SFMono-Regular,Menlo,monospace}.doc-step strong,.doc-card strong{display:block;margin-top:10px}.doc-step code{display:block;margin-top:8px;color:var(--muted);font:12px ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.doc-grid{grid-template-columns:repeat(3,1fr)}.doc-card{min-height:180px;display:flex;flex-direction:column}.doc-card a,.doc-card p,.doc-card strong,.info-panel dd,.notice{overflow-wrap:anywhere;word-break:break-word}.doc-card p{color:var(--muted);font-size:14px}.doc-card em{margin-top:auto;color:var(--cyan);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;font-style:normal}.release-checks{grid-template-columns:1fr 1fr}.release-checks>div{display:flex;gap:12px}.release-checks b{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:5px;background:rgba(10,143,102,.12);color:var(--green)}.release-checks strong,.release-checks small{display:block}.release-checks small{color:var(--muted)}.doc-locale-grid{grid-template-columns:repeat(4,1fr);margin-top:14px}.doc-locale-grid a{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:7px;background:var(--paper-2);padding:11px 12px;min-width:0;overflow-wrap:anywhere}.doc-locale-grid b{color:var(--cyan);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}
 .footer p a.inline-link{display:inline;margin-top:0;color:rgba(248,247,242,.78)}
 .problem-visual{height:74px;margin-top:18px;border:1px solid var(--line);border-radius:6px;background:rgba(240,239,234,.46);padding:8px}.problem-visual svg{width:100%;height:100%;display:block}.problem-visual rect,.problem-visual circle{fill:var(--paper-2);stroke:var(--line-2)}.problem-visual line,.problem-visual path{stroke:var(--line-2);fill:none}.problem-visual text,.feature-viz text,.system-canvas text{font:9px ui-monospace,SFMono-Regular,Menlo,monospace;fill:var(--muted)}.active-fill{fill:var(--cyan)!important;stroke:none!important}.warn-fill{fill:var(--amber)!important;stroke:none!important}.muted-fill{fill:rgba(22,27,31,.16)!important;stroke:none!important}.active-stroke{stroke:var(--cyan)!important}.danger-stroke{stroke:var(--red)!important}.danger-path{stroke:var(--red)!important}.danger-arrow{fill:var(--red)!important;stroke:none!important}.danger-text{fill:var(--red)!important}.ok-text{color:var(--green)!important;fill:var(--green)!important}.dash{stroke-dasharray:4 4}.diamond{fill:var(--paper)!important;stroke:var(--red)!important;transform:rotate(45deg);transform-origin:114px 38px}
 .system-board{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);overflow:hidden}.board-head{min-height:42px;padding:0 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--paper-3);font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);text-transform:uppercase}.system-canvas{overflow:auto}.system-canvas svg{min-width:880px;width:100%;height:auto;display:block}.sys-label{font-weight:850;letter-spacing:.06em}.system-canvas rect{fill:var(--paper-2);stroke:var(--line-2)}.system-canvas line,.system-canvas path{stroke:var(--line-2);fill:none}.system-canvas circle{fill:var(--green);stroke:none}.system-canvas .card-title{font:700 14px Inter,ui-sans-serif,system-ui,sans-serif;fill:var(--ink)}.system-canvas .mini-label{font-weight:850;letter-spacing:.06em;fill:var(--faint)}.system-canvas .mono-small{font-size:10px;fill:var(--muted)}.sys-card>rect,.compose-card>rect{stroke:var(--ink)!important}.control-stack .good{fill:var(--green);stroke:none}.control-stack .info{fill:var(--cyan);stroke:none}.control-stack .warn{fill:var(--amber);stroke:none}.sys-edges path{stroke:var(--muted);stroke-width:1.2}.sys-edges .read{stroke:var(--cyan);stroke-width:1.7;marker-end:url(#arrow-c)}.sys-edges .persist{stroke:var(--green);stroke-width:1.7;marker-end:url(#arrow-g)}#arrow-c path{fill:var(--cyan);stroke:none}#arrow-g path{fill:var(--green);stroke:none}.system-strip{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line)}.system-strip div{padding:18px;border-right:1px solid var(--line);min-height:142px}.system-strip div:last-child{border-right:0}.system-strip span{font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.system-strip strong{display:block;margin-top:18px}.system-strip p{margin:8px 0 0;color:var(--muted);font-size:13px}
 .feature-viz{width:100%;height:104px;margin:18px 0 8px;display:block}.feature-viz rect{fill:var(--paper-3);stroke:var(--line-2)}.feature-viz line,.feature-viz path{stroke:var(--line-2);fill:none}.feature-viz .read{stroke:var(--cyan);stroke-width:1.5;animation:flowDash 5s linear infinite}.feature-viz .rank-bar{fill:var(--cyan);stroke:none;opacity:.68;transform-origin:left;animation:barReveal 1.8s ease-out both}.feature-viz circle{fill:var(--green);stroke:none;animation:nodePulse 2.4s ease-in-out infinite}.feature-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}.feature-meta span{border:1px solid var(--line);border-radius:5px;background:var(--paper-3);padding:4px 7px;color:var(--muted);font:850 10px ui-monospace,SFMono-Regular,Menlo,monospace}
 .manifest-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:14px}.manifest-head h3{margin:0}.manifest-head span{font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}.run-card{margin-top:14px;border:1px solid var(--line);border-radius:6px;background:var(--paper);padding:13px 14px;color:var(--muted);font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.run-card span{display:block;color:var(--ink-2);margin-bottom:6px}.run-card code{font:inherit;color:#33414c}
 .eval-shell{border:1px solid var(--line);border-radius:8px;background:var(--paper-2);overflow:hidden}.eval-shell .spark{width:100%;height:30px;margin-top:10px}.eval-shell .spark polyline{fill:none;stroke:var(--green);stroke-width:1.5;stroke-dasharray:130;stroke-dashoffset:130;animation:sparkDraw 2.2s ease-out forwards}.eval-shell .metric.warn .spark polyline{stroke:var(--amber)}.eval-shell .metric.info .spark polyline{stroke:var(--cyan)}.eval-shell .metric small{display:block;margin-top:4px;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.eval-detail{display:grid;grid-template-columns:1.25fr .75fr;border-top:1px solid var(--line)}.eval-trace,.eval-side{padding:20px}.eval-trace{border-right:1px solid var(--line)}.eval-trace h3,.eval-side h3{margin:0 0 14px;font-size:14px}.trace-row,.dist-row{display:grid;grid-template-columns:132px 1fr 54px;gap:12px;align-items:center;min-height:30px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.trace-row b,.dist-row b{position:relative;height:8px;border-radius:8px;background:rgba(0,0,0,.08);overflow:hidden}.trace-row i{position:absolute;top:0;height:100%;border-radius:8px;background:var(--cyan);animation:barReveal 1.8s ease-out both}.dist-row i{display:block;height:100%;border-radius:8px;background:var(--cyan);animation:barReveal 1.8s ease-out both}.trace-row em,.dist-row em{font-style:normal;text-align:right}.eval-note{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.eval-note span:last-child{color:var(--green)}
-		.final .button.primary{background:var(--paper);border-color:var(--paper);color:var(--ink)}.final .button.secondary{background:transparent;border-color:rgba(248,247,242,.28);color:var(--paper)}.final .button:hover{box-shadow:0 12px 32px rgba(255,255,255,.08)}
-.benchmark-chart{display:grid;gap:16px;padding:18px}.chart-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}.chart-toolbar strong,.chart-toolbar span{display:block}.chart-toolbar strong{font-size:15px}.chart-toolbar span{color:var(--muted);font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.chart-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.chart-legend span{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%}.legend-dot.lore{background:var(--green)}.legend-dot.mem0{background:var(--amber)}.chart-grid{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}.comparison-row{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:center;padding:16px;border-bottom:1px solid var(--line)}.comparison-row:last-child{border-bottom:0}.comparison-label strong{display:block;font-size:14px}.comparison-label small{display:block;margin-top:5px;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace}.comparison-bars{display:grid;gap:8px}.comparison-bar{display:grid;grid-template-columns:72px minmax(140px,1fr) 92px;gap:10px;align-items:center;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.comparison-bar span{color:var(--muted)}.comparison-bar b,.reference-row b{display:block;height:18px;border-radius:5px;background:rgba(0,0,0,.08);overflow:hidden}.comparison-bar i,.reference-row i{display:block;height:100%;min-width:6px;border-radius:5px;background:var(--green);animation:barReveal 1.4s ease-out both}.comparison-bar.mem0 i{background:var(--amber)}.comparison-bar i.zero{min-width:0}.comparison-bar em,.reference-row em{font-style:normal;text-align:right;color:#1d2730;font-weight:900}.chart-note{margin:0;color:var(--muted);font-size:12px}.reference-chart{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:16px}.reference-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}.reference-head strong{font-size:14px}.reference-head span{max-width:560px;color:var(--muted);font:11px ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}.reference-grid{display:grid;gap:7px}.reference-row{display:grid;grid-template-columns:150px minmax(140px,1fr) 70px 150px;gap:10px;align-items:center;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.reference-row span,.reference-row small{color:var(--muted)}.reference-row i{background:var(--cyan)}.reference-row.lore-reference span{color:var(--ink);font-weight:900}.reference-row.lore-reference i{background:var(--green)}
+	.final .button.primary{background:var(--paper);border-color:var(--paper);color:var(--ink)}.final .button.secondary{background:transparent;border-color:rgba(248,247,242,.28);color:var(--paper)}.final .button:hover{box-shadow:0 12px 32px rgba(255,255,255,.08)}
 	.surface,.system-board,.eval-shell{position:relative;transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .22s ease,box-shadow .22s ease}.is-enhanced .surface:hover,.is-enhanced .system-board:hover,.is-enhanced .eval-shell:hover{box-shadow:0 32px 78px rgba(17,20,24,.16)}.is-enhanced .surface:after,.is-enhanced .system-board:after,.is-enhanced .eval-shell:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 40%,rgba(255,255,255,.42) 49%,transparent 58%);mix-blend-mode:soft-light;transform:translateX(-130%);animation:surfaceSweep 8s ease-in-out infinite}.is-enhanced .system-board:after,.is-enhanced .eval-shell:after{animation-delay:1.4s}.is-enhanced .reveal{opacity:0;transform:translateY(18px);filter:blur(8px);transition:opacity .72s ease,transform .72s ease,filter .72s ease;transition-delay:calc(var(--reveal-index,0) * 42ms)}.is-enhanced .reveal.in-view{opacity:1;transform:translateY(0);filter:blur(0)}.is-enhanced .hero-copy>*{animation:revealRise .72s ease both}.is-enhanced .hero-copy>*:nth-child(1){animation-delay:.04s}.is-enhanced .hero-copy>*:nth-child(2){animation-delay:.12s}.is-enhanced .hero-copy>*:nth-child(3){animation-delay:.19s}.is-enhanced .hero-copy>*:nth-child(4){animation-delay:.25s}.is-enhanced .hero-copy>*:nth-child(5){animation-delay:.31s}.is-enhanced .hero-copy>*:nth-child(6){animation-delay:.37s}.is-enhanced .hero-copy>*:nth-child(7){animation-delay:.43s}.is-enhanced .hero{background-position:0 0,0 0;animation:gridDrift 18s linear infinite}.is-enhanced .chip.live:before,.is-enhanced .live-pill:before{box-shadow:0 0 0 0 rgba(10,143,102,.28);animation:signalRing 2.4s ease-out infinite}.is-enhanced .problem-card,.is-enhanced .feature-card,.is-enhanced .integration,.is-enhanced .alpha-row,.is-enhanced .system-strip div{transition:transform .2s ease,background .2s ease,border-color .2s ease}.is-enhanced .problem-card:hover,.is-enhanced .feature-card:hover,.is-enhanced .integration:hover,.is-enhanced .alpha-row:hover,.is-enhanced .system-strip div:hover{transform:translateY(-3px);background:rgba(255,255,255,.48);border-color:rgba(8,174,190,.28)}.is-enhanced .ledger-row.active{color:var(--ink);background:rgba(8,174,190,.045)}.is-enhanced .terminal{position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 30px 80px rgba(0,0,0,.2)}.is-enhanced .terminal code{display:block;animation:terminalClip 1.5s steps(4,end) both;white-space:pre}.terminal-status{display:inline-flex;margin-top:12px;border:1px solid rgba(10,143,102,.38);border-radius:6px;padding:3px 7px;color:#8ff0bf;font:850 11px ui-monospace,SFMono-Regular,Menlo,monospace}.is-enhanced .terminal-status{animation:statusGlow 2.6s ease-in-out infinite}
 	@keyframes cursorBlink{0%,45%{opacity:1}46%,100%{opacity:0}}@keyframes ledgerScan{0%{transform:translateX(-100%);opacity:0}20%,72%{opacity:1}100%{transform:translateX(100%);opacity:0}}@keyframes nodePulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.16)}}@keyframes barReveal{from{transform:scaleX(.25)}to{transform:scaleX(1)}}@keyframes sparkDraw{to{stroke-dashoffset:0}}@keyframes flowDash{to{stroke-dashoffset:-90}}@keyframes surfaceSweep{0%,18%{transform:translateX(-130%);opacity:0}34%,44%{opacity:.85}62%,100%{transform:translateX(130%);opacity:0}}@keyframes revealRise{from{opacity:0;transform:translateY(18px);filter:blur(7px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}@keyframes gridDrift{to{background-position:42px 42px,42px 42px}}@keyframes signalRing{70%{box-shadow:0 0 0 8px rgba(10,143,102,0)}100%{box-shadow:0 0 0 0 rgba(10,143,102,0)}}@keyframes terminalClip{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}@keyframes statusGlow{0%,100%{border-color:rgba(10,143,102,.24);color:#8ff0bf}50%{border-color:rgba(8,174,190,.72);color:#d8f8e8}}
 @media(max-width:1120px){.nav-links{display:none}.hero-grid{grid-template-columns:1fr}.surface{max-width:760px}.use-case-strip{grid-template-columns:1fr}.problem-grid,.features-grid{grid-template-columns:repeat(2,1fr)}.problem-card:nth-child(2n),.feature-card:nth-child(2n){border-right:0}.pipeline{grid-template-columns:1fr 1fr}.pipe-step:after{display:none}.integrations-grid{grid-template-columns:repeat(3,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.alpha-grid,.final-grid{grid-template-columns:1fr}}
 @media(max-width:1120px){.doc-grid{grid-template-columns:repeat(2,1fr)}.doc-quickstart,.doc-release-panel{grid-template-columns:1fr}.doc-locale-grid{grid-template-columns:repeat(3,1fr)}}
-		@media(max-width:720px){.shell{width:calc(100% - 28px)}.nav{min-height:58px}.version,.nav-actions .secondary{display:none}.brand{font-size:14px}.hero-grid{padding:34px 0 26px}.use-case-strip{padding-bottom:40px}.hero-copy{order:1}.surface{order:2}.hero h1{margin-top:28px;font-size:42px}.metric-strip,.surface-stats,.eval-metrics{grid-template-columns:repeat(2,1fr)}.ledger-head,.ledger-row{grid-template-columns:1.15fr .62fr .62fr .8fr}.ledger-head span:nth-child(3),.ledger-head span:nth-child(6),.ledger-head span:nth-child(7),.ledger-row span:nth-child(3),.ledger-row span:nth-child(6),.ledger-row span:nth-child(7){display:none}.problem-grid,.features-grid,.pipeline,.integrations-grid,.footer-grid,.language-grid{grid-template-columns:1fr}.problem-card,.feature-card,.integration{border-right:0}.section{padding:68px 0}.section-head{grid-template-columns:1fr;gap:14px}.section-head>div:first-child{gap:8px}.manifest dl,.info-panel dl{grid-template-columns:1fr}.trace-list div{grid-template-columns:1fr}.flow-visual svg{height:176px}.composer-card{position:relative;left:auto;top:auto;margin:12px;width:auto}.gov-gate{left:18px;top:78px}.comparison-row{grid-template-columns:1fr;gap:12px;padding:14px}.comparison-bar{grid-template-columns:66px minmax(86px,1fr) 76px;gap:8px}.reference-head span{text-align:left}.reference-row{grid-template-columns:1fr 58px}.reference-row b{grid-column:1/-1;grid-row:2}.reference-row em{text-align:right}.reference-row small{grid-column:1/-1}.benchmark-chart{padding:14px}.chart-toolbar{gap:10px}.chart-note{font-size:11px}.footer{padding-bottom:90px}}
+	@media(max-width:720px){.shell{width:calc(100% - 28px)}.nav{min-height:58px}.version,.nav-actions .secondary{display:none}.brand{font-size:14px}.hero-grid{padding:34px 0 26px}.use-case-strip{padding-bottom:40px}.hero-copy{order:1}.surface{order:2}.hero h1{margin-top:28px;font-size:42px}.metric-strip,.surface-stats,.eval-metrics{grid-template-columns:repeat(2,1fr)}.ledger-head,.ledger-row{grid-template-columns:1.15fr .62fr .62fr .8fr}.ledger-head span:nth-child(3),.ledger-head span:nth-child(6),.ledger-head span:nth-child(7),.ledger-row span:nth-child(3),.ledger-row span:nth-child(6),.ledger-row span:nth-child(7){display:none}.problem-grid,.features-grid,.pipeline,.integrations-grid,.footer-grid,.language-grid{grid-template-columns:1fr}.problem-card,.feature-card,.integration{border-right:0}.section{padding:68px 0}.section-head{grid-template-columns:1fr;gap:14px}.section-head>div:first-child{gap:8px}.manifest dl,.info-panel dl{grid-template-columns:1fr}.trace-list div{grid-template-columns:1fr}.flow-visual svg{height:176px}.composer-card{position:relative;left:auto;top:auto;margin:12px;width:auto}.gov-gate{left:18px;top:78px}.footer{padding-bottom:90px}}
 @media(max-width:720px){.docs-toolbar,.doc-steps,.doc-grid,.doc-locale-grid,.release-checks{grid-template-columns:1fr}.docs-toolbar{align-items:stretch}.doc-quickstart,.doc-release-panel,.doc-step,.doc-card,.doc-locale-block,.release-checks>div{padding:14px}.code-block{font-size:11px}.doc-quickstart h2,.doc-release-panel h2{font-size:23px}}
 @media(max-width:1120px){.system-strip{grid-template-columns:repeat(2,1fr)}.system-strip div:nth-child(2n){border-right:0}.eval-detail{grid-template-columns:1fr}.eval-trace{border-right:0;border-bottom:1px solid var(--line)}}@media(max-width:720px){.problem-visual{height:86px}.system-strip{grid-template-columns:1fr}.system-strip div{border-right:0}.board-head{align-items:flex-start;flex-direction:column;padding:12px 14px}.feature-viz{height:94px}.trace-row,.dist-row{grid-template-columns:1fr}.eval-metrics .metric:nth-child(2n){border-right:0}.alpha-side{min-height:auto}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}

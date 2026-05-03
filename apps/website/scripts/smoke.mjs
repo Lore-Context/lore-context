@@ -35,8 +35,10 @@ try {
   browser = await chromium.launch({ headless: true });
   await verifyDesktop(browser);
   await verifyMobile(browser);
+  await verifyV10TopLevel(browser);
+  await verifyV10Mobile(browser);
 
-  console.log(JSON.stringify({ ok: true, baseUrl, localesVerified: localeCodes.length, viewports: ["desktop", "mobile"] }, null, 2));
+  console.log(JSON.stringify({ ok: true, baseUrl, localesVerified: localeCodes.length, viewports: ["desktop", "mobile", "v10-desktop", "v10-mobile"] }, null, 2));
 } finally {
   if (browser) await browser.close();
   await stop(server);
@@ -111,6 +113,57 @@ async function verifyMobile(browser) {
     await page.waitForURL(/\/id\/$/);
     await page.getByText("Agen mengingat. Tim membutuhkan bukti.", { exact: true }).waitFor();
     await assertNoHorizontalOverflow(page, "mobile /id/");
+  } finally {
+    await context.close();
+  }
+}
+
+async function verifyV10TopLevel(browser) {
+  const requiredPages = [
+    ["/", "All your agents. One shared memory."],
+    ["/pricing.html", "Aggressively priced. Capped on purpose."],
+    ["/privacy.html", "Capture from sources you connect. Nothing else."],
+    ["/download.html", "Request access, then connect your first source."],
+    ["/docs.html", "Connect, capture, recall — in plain language."],
+    ["/status.html", "Private beta. Public-safe status only."],
+    ["/compare.html", "Lore vs Supermemory, Mem0, Zep, Letta."],
+    ["/company.html", "REDLAND PTE. LTD."],
+    ["/contact.html", "Get in touch."],
+    ["/terms.html", "Terms of Service"],
+    ["/cookies.html", "Cookie Notice"],
+    ["/sitemap.html", "Site map and implementation audit."]
+  ];
+
+  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  try {
+    for (const [path, heading] of requiredPages) {
+      await page.goto(`${baseUrl}${path}`, { waitUntil: "networkidle" });
+      await page.getByRole("heading", { name: heading }).waitFor();
+      await page.getByText("REDLAND PTE. LTD.", { exact: false }).first().waitFor();
+      await assertNoHorizontalOverflow(page, `desktop ${path}`);
+    }
+
+    await page.goto(`${baseUrl}/sitemap.html`, { waitUntil: "networkidle" });
+    for (const [path] of requiredPages.slice(1)) {
+      await page.locator(`a[href="${path}"]`).first().waitFor();
+    }
+  } finally {
+    await page.close();
+  }
+}
+
+async function verifyV10Mobile(browser) {
+  const device = devices["iPhone 13"] ?? { viewport: { width: 390, height: 844 }, userAgent: "LoreSmokeMobileV10" };
+  const context = await browser.newContext(device);
+  try {
+    const page = await context.newPage();
+    for (const path of ["/", "/pricing.html", "/company.html", "/contact.html", "/terms.html", "/cookies.html", "/sitemap.html"]) {
+      await page.goto(`${baseUrl}${path}`, { waitUntil: "networkidle" });
+      await assertNoHorizontalOverflow(page, `mobile ${path}`);
+    }
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.getByRole("link", { name: "Request beta access" }).first().waitFor();
+    await page.getByText("Memory Inbox", { exact: false }).first().waitFor();
   } finally {
     await context.close();
   }

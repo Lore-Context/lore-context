@@ -1,0 +1,16 @@
+{
+  "name": "@lore/browser-extension",
+  "version": "1.0.0-rc.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-assets.mjs",
+    "test": "vitest run",
+    "manifest:check": "node scripts/validate-manifest.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.306",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}

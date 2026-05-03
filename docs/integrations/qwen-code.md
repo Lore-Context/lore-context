@@ -1,9 +1,9 @@
 # Qwen Code
 
-Status: REST API and local stdio MCP launcher are available. Qwen Code actual
-client validation is complete for MCP discovery and one tool call:
-`qwen mcp list` connects to Lore, and a non-interactive Qwen Code run invoked
-`mcp__lore__context_query` against a temporary Lore API.
+Status: REST API and local stdio MCP launcher are available. Use the
+`mcpServers` template below for Qwen Code clients that accept stdio server JSON.
+Actual-client validation remains open until a real `qwen` CLI session can
+discover and use the Lore tools.
 
 ## Recommended Path
 
@@ -40,9 +40,6 @@ Register the MCP server in project scope at `.qwen/settings.json`:
 }
 ```
 
-This repository includes that project config with the relative command
-`node apps/mcp-server/dist/index.js`.
-
 If `LORE_API_KEY` is configured on the API, add the same key under `env`.
 
 Qwen Code also supports registering servers with the CLI. Use the JSON file
@@ -77,9 +74,6 @@ Troubleshooting:
 - If agentmemory is offline, start with Lore's local memory/search tools and defer sync.
 - If Qwen Code shows the server as disconnected, verify the absolute command
   path, `cwd`, environment variables, and timeout in `.qwen/settings.json`.
-- If a non-interactive prompt needs to exercise tools, pass
-  `--allowed-mcp-server-names lore` and an auth method such as OpenRouter or an
-  OpenAI-compatible endpoint.
 
 ## Notes
 

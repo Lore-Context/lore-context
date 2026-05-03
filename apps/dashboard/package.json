@@ -1,6 +1,6 @@
 {
   "name": "@lore/dashboard",
-  "version": "0.6.0-alpha.0",
+  "version": "1.0.0-rc.2",
   "private": true,
   "type": "module",
   "scripts": {

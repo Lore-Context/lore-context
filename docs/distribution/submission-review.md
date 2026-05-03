@@ -49,7 +49,7 @@ Current distribution paths are npm and OCI:
 - Alpha status is visible.
 - The listing points to `https://github.com/Lore-Context/lore-context` and
   `https://lorecontext.com`.
-- No hosted SaaS, billing, managed sync, or benchmark-win claim is implied.
+- No public SaaS GA, billing, managed sync, or benchmark-win claim is implied.
 - No private repo, private host, local path, secret, customer name, or partner
   dataset appears in the listing.
 - Screenshots or GIFs use demo data only.

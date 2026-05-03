@@ -1,0 +1,4 @@
+not-json-line
+{"type":"user","sessionId":"c-mal-1","timestamp":"2026-04-30T11:00:00.000Z","message":{"role":"user","content":"first valid"}}
+{"type":"user","sessionId":"c-mal-1",broken
+{"type":"assistant","sessionId":"c-mal-1","timestamp":"2026-04-30T11:00:01.000Z","message":{"role":"assistant","content":"second valid"}}

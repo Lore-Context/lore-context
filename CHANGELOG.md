@@ -4,6 +4,174 @@ All notable changes to Lore Context are documented here. The format is based on
 [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.0-rc.0] — 2026-05-01
+
+Personal Cloud Beta release candidate. This release closes the v1.0 private
+cloud loop around one consumer-facing promise: all your agents share one memory,
+with Google sign-in, connected-agent onboarding, Memory Inbox review, source
+controls, browser capture, and Evidence Ledger recall traces.
+
+The public open-source release remains anchored on v0.6 unless a separate
+public release decision is made.
+
+### Added
+
+- **Google-only onboarding** — v1.0 removes GitHub login from the consumer
+  website path and positions Google sign-in as the primary account entry.
+- **Memory Inbox and recall loop** — API, dashboard, and profile surfaces now
+  cover pending/approved/rejected memory candidates, recall traces, and user
+  feedback for shared memory reuse.
+- **Production website redesign** — the public homepage now leads with the
+  v1.0 personal cloud beta promise, pricing, privacy posture, download/docs,
+  comparison, legal/company/contact/cookie pages, and a human-readable sitemap.
+- **Release evidence** — website smoke now verifies v1.0 top-level pages across
+  desktop and mobile, while production deployment records the AWS release
+  artifact and Cloudflare Pages deployment.
+
+### Changed
+
+- Root, API, Dashboard, CLI, Capture, Connectors, Profile, and Browser
+  Extension package versions now align on `1.0.0-rc.0`.
+- OpenAPI metadata now reports `1.0.0-rc.0` for the private v1.0 runtime.
+- Website copy now presents the private line as `v1.0 personal cloud beta`
+  while preserving the public `v0.6.0-alpha` open-source boundary.
+
+### Notes / Known limitations
+
+- v1.0 is a private beta release candidate, not public SaaS GA.
+- Billing remains invite-gated; no surprise-overage billing is promised.
+- Full Team workspaces, ADP/BYOK/BYOC, SOC 2/HIPAA claims, and broad public
+  signup remain follow-up work.
+
+## [v0.9.0-beta] — 2026-05-01
+
+Auto-Capture Beta release. This release upgrades the closed-source personal
+cloud beta from “connected cloud memory” to “capture-first memory that can be
+shared across agents.” The public open-source release remains anchored on v0.6
+unless a separate public release decision is made.
+
+### Added
+
+- **Universal session watcher** — `lore watch` now detects Claude Code, Codex,
+  Cursor, and OpenCode/Qwen session locations, tracks checkpoints, uploads safe
+  session deltas, and exposes watcher counters in `lore status`.
+- **Hosted MCP beta** — the private API/MCP line now includes hosted discovery,
+  OAuth/install-token metadata, and hosted tools for capture-source control while
+  keeping local stdio as the public default path.
+- **Browser extension MVP** — `@lore/browser-extension` adds a Manifest V3
+  capture surface for browser-based agents with local options, popup controls,
+  and extractor tests.
+- **Connector framework** — `@lore/connectors` adds connector contracts,
+  fixture-backed Google Drive capture, connector API routes, and smoke coverage
+  for beta environments without live OAuth credentials.
+- **Source-aware memory layer** — Memory Inbox 2.0, layered recall, source
+  provenance, Evidence Ledger source metadata, source checkpoints, and operator
+  usage rollups are now part of the private beta line.
+
+### Changed
+
+- Root, API, Dashboard, CLI, Capture, Connectors, Profile, and Browser Extension
+  package versions now align on `0.9.0-beta.0`.
+- OpenAPI metadata now reports `0.9.0-beta` and verifies the v0.9 capture,
+  source, usage, operator, hosted MCP, and connector paths.
+- Website copy now presents the private line as `v0.9 auto-capture beta` while
+  preserving the public `v0.6.0-alpha` open-source boundary.
+
+### Notes / Known limitations
+
+- v0.9 remains a private/closed-source beta, not public SaaS GA.
+- Google Drive is fixture-backed when live OAuth credentials are absent.
+- Browser extension distribution is source/package based until Chrome Web Store
+  submission is separately reviewed.
+- Team/shared vaults, billing, full ADP/BYOK, BYOC, and broad public signup
+  remain follow-up work.
+
+## [v0.8.0-beta] — 2026-04-30
+
+Personal Cloud Beta release. This release turns the v0.7 private cloud alpha
+into the first usable closed-source personal cloud path for design partners.
+The public open-source release remains anchored on v0.6 unless a separate public
+release decision is made.
+
+### Added
+
+- **Restart-safe cloud persistence** — the private cloud runtime now has a
+  `CloudStore` boundary with Postgres-backed accounts, vaults, install tokens,
+  device tokens, agent tokens, capture sources, capture jobs, usage events, and
+  audit events.
+- **v0.8 capture ingestion** — `POST /v1/capture/sessions` accepts canonical
+  Claude Code and Codex session envelopes, enforces idempotency, rejects paused
+  sources, and blocks raw archive uploads unless the vault allows them.
+- **Local bridge hardening** — `lore connect`, `lore status`, `lore watch`, and
+  `lore disconnect` now cover reversible Claude Code/Codex config writes,
+  backup/rollback, mock pairing, token redaction, and secure credential storage.
+- **Memory Inbox and shared recall package** — `@lore/profile` now includes
+  inbox state, memory edges, profile-store helpers, agent-specific context packs,
+  and Evidence Ledger trace builders.
+- **Personal cloud beta dashboard** — the dashboard now includes onboarding,
+  connect-agent, source status, Memory Inbox, profile editor, Evidence Ledger,
+  privacy/export/delete, and usage/pricing beta states.
+- **Release-gate scripts** — v0.8 adds private beta verification scripts and
+  fixtures for persistence, auth/vault isolation, bridge dry-runs, recall,
+  privacy deletion/export, profile reconciliation, and usage metering.
+
+### Changed
+
+- Root, API, Dashboard, CLI, Capture, and Profile package versions now align on
+  `0.8.0-beta.0`.
+- OpenAPI metadata now reports `0.8.0-beta` and verifies 38 REST paths.
+- Production deployment target advances from the v0.7 private cloud alpha to
+  the v0.8 personal cloud beta line.
+
+### Notes / Known limitations
+
+- v0.8 is still a private/closed-source cloud beta, not public SaaS GA.
+- OAuth signup, billing, team/shared vaults, and full enterprise compliance
+  remain follow-up work.
+- Live Postgres restart rehearsal, real macOS Keychain verification, and
+  design-partner onboarding evidence remain production validation tasks.
+
+## [v0.7.0-alpha] — 2026-04-30
+
+Private Cloud Alpha release. This release closes the first hosted/private
+memory path for Lore without changing the public open-source v0.6 release
+contract.
+
+### Added
+
+- **Cloud account and device boundary** — the private API now includes cloud
+  account, install token, device pairing, token rotation/revocation, vault, and
+  capture job surfaces.
+- **Agent connection CLI** — `@lore/cli` adds `lore connect`, `lore status`, and
+  `lore watch` foundations for Claude Code, Codex, Cursor, and OpenCode
+  integration planning.
+- **Session capture package** — `@lore/capture` adds Claude Code and Codex
+  session parsing, redaction, idempotency, scanner, stop-hook, and queue
+  envelope helpers.
+- **Profile and recall package** — `@lore/profile` extracts durable user/project
+  facts and composes recall context from captured sessions.
+- **Hosted dashboard alpha UX** — the dashboard now starts from connected-agent,
+  memory feed, profile, privacy, source health, and usage states instead of an
+  empty control plane.
+
+### Changed
+
+- Root, API, Dashboard, CLI, Capture, and Profile package versions now align on
+  `0.7.0-alpha.0`.
+- OpenAPI metadata now reports `0.7.0-alpha`.
+- The AWS-backed private production runtime is upgraded to the v0.7 cloud alpha
+  line on the existing Singapore EC2 + Docker Compose deployment.
+
+### Notes / Known limitations
+
+- v0.7 private cloud alpha is not a public SaaS signup launch.
+- The production runtime is still the existing single-node private alpha stack:
+  EC2 + Docker Compose + local Postgres/pgvector + Cloudflare Tunnel/Access.
+- Real OAuth signup, billing, managed multi-tenant persistence hardening, and
+  public hosted onboarding remain follow-up work.
+- Public open-source distribution remains anchored on `v0.6.0-alpha` until a
+  separate public release decision is made.
+
 ## [v0.6.0-alpha] — 2026-04-29
 
 Distribution and Trust Sprint release. This release takes the v0.5 adoption

@@ -155,4 +155,4 @@ Geplante Punkte für nachfolgende Releases:
   CodeQL-Statikanalyse und Dependabot.
 - **v0.6**: Sigstore-signierte Container-Images, SLSA-Provenienz, npm-Veröffentlichung über
   GitHub OIDC statt langlebiger Tokens.
-- **v0.7**: Verschlüsselung ruhender Speicher für `risk_tags`-markierte Speicherinhalte via KMS-Envelope-Verschlüsselung.
+- **Future hosted hardening**: Verschlüsselung ruhender Speicher für `risk_tags`-markierte Speicherinhalte via KMS-Envelope-Verschlüsselung.

@@ -1,0 +1,27 @@
+{
+  "name": "@lore/cli",
+  "version": "1.0.0-rc.2",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lore": "dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lore": "node dist/cli.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lore/capture": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

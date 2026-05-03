@@ -69,26 +69,9 @@ const homeRuntimeLabels = [
   "used_in_response",
   "stale_score",
   "review_status",
-  "Same-harness comparison",
-  "Retrieval hit@5",
-  "Lore Context",
-  "Mem0 OSS local",
-  "LoCoMo-200",
-  "P95 latency",
-  "P99 latency",
-  "Query errors",
-  "47.5%",
-  "31.5%",
-  "709.8ms",
-  "External published references + Lore measured result",
-  "Lore Context v0.6",
-  "our retrieval-only run",
-  "Zep 30/30",
-  "Memobase v0.0.37",
-  "Letta Filesystem",
-  "LangMem",
-  "91.6%",
-  "80.32%",
+  "Recall@5",
+  "Precision@5",
+  "Latency",
   "pnpm quickstart -- --dry-run --activation-report",
   "MCP clients",
   "context.query",
@@ -111,7 +94,7 @@ const docsPageMarkers = [
   "Deployment",
   "Integrations",
   "RELEASE GATE",
-  "28 REST paths verified by pnpm openapi:check",
+  "38 REST paths verified by pnpm openapi:check",
   "Context traces expose used and ignored memory rows",
   "17 locales and 189 static files generated",
   "LOCALIZED DOCS",
@@ -145,7 +128,10 @@ const motionKeys = [
 ];
 
 const launchPageCount = 4;
-const expectedFileCount = 6 + launchPageCount + pageSlugs.length + localeCodes.length * (1 + pageSlugs.length);
+// v1.0 layer: pricing, download, compare, sitemap are net-new (not in pageSlugs).
+// company, contact, terms, cookies, docs, privacy, status override pageSlugs entries.
+const v10NetNewTopLevel = 4;
+const expectedFileCount = 6 + launchPageCount + pageSlugs.length + v10NetNewTopLevel + localeCodes.length * (1 + pageSlugs.length);
 if (files.size !== expectedFileCount) {
   failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
 }
@@ -183,8 +169,8 @@ for (const locale of localeCodes) {
     failures.push(`${homePath} should expose 6 product feature cards.`);
   }
 
-  if ((html.match(/class="alpha-row"/g) ?? []).length !== 9) {
-    failures.push(`${homePath} should expose 9 alpha/build status rows.`);
+  if ((html.match(/class="alpha-row"/g) ?? []).length !== 10) {
+    failures.push(`${homePath} should expose 10 alpha/build status rows.`);
   }
 
   if ((html.match(/class="integration"/g) ?? []).length !== 10) {
@@ -234,9 +220,92 @@ for (const path of [
   "blog/index.html",
   "blog/v0-6-distribution-and-trust-sprint/index.html",
   "benchmark/index.html",
+  "download.html",
+  "compare.html",
+  "sitemap.html",
   ...pageSlugs.map((slug) => `${slug}.html`)
 ]) {
   if (!files.has(path)) failures.push(`Missing release file: ${path}`);
+}
+
+// v1.0 consumer surface — required content checks. The locale-prefixed v0.6
+// alpha homepage at <locale>/index.html keeps its v3 hero copy; these checks
+// only validate the new English-canonical top-level pages.
+const v10HomeMarkers = [
+  "<h1>All your agents. One shared memory.</h1>",
+  ">Request beta access<",
+  ">See how it works<",
+  'data-v10-cta="beta"',
+  'data-v10-banner',
+  'data-v10-section="how-it-works"',
+  'data-v10-section="surfaces"',
+  'data-v10-section="pricing-preview"',
+  'data-v10-pricing'
+];
+requireTexts("index.html", files.get("index.html") ?? "", v10HomeMarkers);
+
+const v10PricingMarkers = ["v1.0 / PRICING", "$2.99/mo", "$7.99/mo", "$19/mo", "Hard caps", "no overage"];
+requireTexts("pricing.html", files.get("pricing.html") ?? "", v10PricingMarkers);
+
+const v10PrivacyMarkers = ["v1.0 / PRIVACY", "summarizes by default", "Pause and private mode", "Authorized sources only", "Summary-only default"];
+requireTexts("privacy.html", files.get("privacy.html") ?? "", v10PrivacyMarkers);
+
+const v10DownloadMarkers = ["v1.0 / PRIVATE BETA", "Request beta access", "Google sign-in for invited users", "lore connect", "Chrome MV3"];
+requireTexts("download.html", files.get("download.html") ?? "", v10DownloadMarkers);
+
+const v10DocsMarkers = ["v1.0 / DOCS", "Sign in with Google", "Memory Inbox", "Evidence Ledger", "lore connect", '/en/docs.html'];
+requireTexts("docs.html", files.get("docs.html") ?? "", v10DocsMarkers);
+
+const v10StatusMarkers = ["v1.0 / STATUS", "Private beta", "Browser extension", "Capture ingestion"];
+requireTexts("status.html", files.get("status.html") ?? "", v10StatusMarkers);
+
+const v10CompareMarkers = ["v1.0 / COMPARE", "Supermemory", "Mem0", "Zep", "Letta", "No SOC 2 claim"];
+requireTexts("compare.html", files.get("compare.html") ?? "", v10CompareMarkers);
+
+const v10SitemapMarkers = ["SITEMAP", "REDLAND PTE. LTD.", "202304648K", "Software and application development"];
+requireTexts("sitemap.html", files.get("sitemap.html") ?? "", v10SitemapMarkers);
+
+const v10CompanyMarkers = ["COMPANY", "REDLAND PTE. LTD.", "202304648K", "1 North Bridge Road", "Singapore 179094", "Software and application development"];
+requireTexts("company.html", files.get("company.html") ?? "", v10CompanyMarkers);
+
+const v10ContactMarkers = ["CONTACT", "redland2024@gmail.com", "REDLAND PTE. LTD."];
+requireTexts("contact.html", files.get("contact.html") ?? "", v10ContactMarkers);
+
+const v10TermsMarkers = ["TERMS", "REDLAND PTE. LTD.", "Singapore", "No production reliance"];
+requireTexts("terms.html", files.get("terms.html") ?? "", v10TermsMarkers);
+
+const v10CookiesMarkers = ["COOKIES", "advertising cookies", "third-party tracking", "localStorage"];
+requireTexts("cookies.html", files.get("cookies.html") ?? "", v10CookiesMarkers);
+
+requireTexts("sitemap.xml", files.get("sitemap.xml") ?? "", [
+  "https://lorecontext.com/pricing.html",
+  "https://lorecontext.com/company.html",
+  "https://lorecontext.com/contact.html",
+  "https://lorecontext.com/terms.html",
+  "https://lorecontext.com/cookies.html",
+  "https://lorecontext.com/sitemap.html"
+]);
+
+// The v1.0 surface must avoid affirmative claims the lane explicitly
+// forbids (negations like "No SOC 2 claim" are allowed; the regex matches
+// only positive marketing).
+const forbiddenAffirmations = [
+  /\bSOC ?2 (?:certified|compliant|ready)\b/i,
+  /\b(?:Lore is|we are) generally available\b/i,
+  /\bsign in with GitHub\b/i,
+  /\bunlimited (?:capture|recall|memory|storage)\s+(?:for everyone|tier|included|guaranteed)\b/i,
+  /\bbeats? all benchmarks\b/i
+];
+for (const path of [
+  "index.html", "pricing.html", "privacy.html", "download.html", "docs.html", "status.html", "compare.html",
+  "company.html", "contact.html", "terms.html", "cookies.html", "sitemap.html"
+]) {
+  const text = files.get(path) ?? "";
+  for (const pattern of forbiddenAffirmations) {
+    if (pattern.test(text)) {
+      failures.push(`${path} contains a forbidden v1.0 marketing claim: ${pattern}`);
+    }
+  }
 }
 
 requireTexts("blog/v0-6-distribution-and-trust-sprint/index.html", files.get("blog/v0-6-distribution-and-trust-sprint/index.html") ?? "", [
@@ -279,7 +348,9 @@ requireTexts("llms.txt", llmsTxt, [
   "pnpm quickstart -- --dry-run --activation-report",
   "https://github.com/Lore-Context/lore-context/blob/main/docs/getting-started.md",
   "https://github.com/Lore-Context/lore-context/blob/main/docs/release-status.md",
-  "public repository material only"
+  "public repository material only",
+  "All your agents. One shared memory.",
+  "v1.0 Personal Cloud Beta"
 ]);
 const llmsFullTxt = files.get("llms-full.txt") ?? "";
 requireTexts("llms-full.txt", llmsFullTxt, [

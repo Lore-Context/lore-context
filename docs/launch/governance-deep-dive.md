@@ -52,4 +52,3 @@ unreadable.
 Governance is not a reason to expose Lore publicly without authentication. Keep
 API keys scoped, dashboard protected, and remote deployment private until a
 separate cloud release is designed and reviewed.
-

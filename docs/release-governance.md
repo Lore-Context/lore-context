@@ -143,13 +143,14 @@ Publication record:
   `@lore-context/server@0.6.0-alpha.1` on npm and
   `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` on GHCR are the current
   public install paths; workflow run `25120707303` passed.
-- Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` verified with v0.6 content.
+- Website: `https://lorecontext.com/` and `https://www.lorecontext.com/` verified with the `v0.8 cloud beta` marker while preserving the public `v0.6.0-alpha` open-source boundary.
 - AI-readable docs: `/llms.txt`, `/llms-full.txt`, and `robots.txt` LLMs pointer verified.
-- Public API health: `https://api.lorecontext.com/health` returns ok.
-- AWS-backed private demo runtime: application source remains the public
-  application closure source; later docs/distribution-only commits do not require
-  an API redeploy. Private instance IDs, SSM command IDs, and account details
-  stay out of public docs.
+- Public API health: `https://api.lorecontext.com/health` is bearer-auth
+  protected in the current private cloud runtime.
+- AWS-backed private cloud runtime: v0.8 production is deployed from
+  `bb8e1a585fd0e13051fdd999e09dcacde5b79258`; API, Dashboard, and Postgres
+  health are tracked in closed operator notes. Private instance IDs, SSM command
+  IDs, and account details stay out of public docs.
 - Public status snapshot: [release-status.md](release-status.md).
 
 The remaining governance task after v0.6 is to clean up local workflow:

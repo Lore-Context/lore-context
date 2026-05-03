@@ -1,19 +1,22 @@
-# v0.6 Adoption Validation
+# Adoption and Private Beta Validation
 
-Last updated: 2026-04-29
+Last updated: 2026-05-01
 
-This file tracks adoption evidence after the `v0.6.0-alpha` release. It is
-public-safe: do not add secrets, customer data, private memory exports, or
-partner names unless the partner has explicitly approved being named.
+This file tracks public-safe adoption evidence after the `v0.6.0-alpha` release
+and private-beta validation after `v0.8.0-beta`. Do not add secrets, customer
+data, private memory exports, raw transcripts, or partner names unless the
+partner has explicitly approved being named.
 
 ## Current Evidence
 
 | Area | Status | Evidence |
 |---|---|---|
+| Private cloud beta | Deployed | `v0.8.0-beta` is closed in `Lore-Context/lore-cloud`; private release and post-deploy evidence commits are recorded in closed operator notes; CI runs `25164511648` and `25165067958` passed |
+| Production cloud runtime | Live and protected | AWS Singapore runtime runs the private beta line; API, Dashboard, and Postgres containers healthy; API/OpenAPI require bearer auth externally; Dashboard redirects through Cloudflare Access |
+| Production website | Live with v0.8 beta marker | Cloudflare Pages deployment `https://ae146d38.lore-context.pages.dev`; `https://lorecontext.com/en/` and `https://www.lorecontext.com/en/` show `v0.8 cloud beta` |
 | Public `main` | Post-release closure, distribution, adoption-validation, HN launch-readiness, npm-backed MCP Registry, and status-doc refresh commits are on `main`; npm-backed Registry closure source `8637e37546b24caba4f170182beca613f0ba6d09` | CI run `25120831678`, success |
-| Production website | Live with HN launch pages | `https://lorecontext.com/`, `https://www.lorecontext.com/quickstart/`, `/benchmark/`, and `/blog/v0-6-distribution-and-trust-sprint/` verified after the current Cloudflare Pages production deploy |
 | AI-readable docs | Live and redeployed | `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified against current website build output |
-| Public API health | Live | `https://api.lorecontext.com/health` returns `status: ok` |
+| Public API health | Protected | `https://api.lorecontext.com/health` returns expected bearer-auth `401` without credentials in the current private cloud runtime |
 | Clean checkout activation | Maintainer-run proof complete | fresh clone to first `context.query`: `10.13s`; first Evidence Ledger view: `10.13s` |
 | Claude Code golden path | Actual client path complete | `claude mcp add/list/get` succeeded after the docs command order was fixed |
 | Cursor golden path | Actual client path complete | `cursor-agent` `2026.04.28-e984b46` logged in, project `.cursor/mcp.json` discovered, `mcp enable/list/list-tools lore` listed 11 tools, and headless prompt-level `context_query` + `trace_get` succeeded against demo data. Evidence: trace `ctx_479d26d6-d0b2-48ba-9bbe-7b0ac943c145`, `MATCHED=true`, 2 retrieved / 2 used rows. |
@@ -38,16 +41,21 @@ published instructions from a fresh user perspective.
 
 ## Open P0 Tasks
 
-1. Run 3-5 design partner activation sessions using
+1. Run 20-50 private beta activation sessions using
    `docs/design-partners/intake.md` and
    `docs/design-partners/activation-scorecard.md`.
-2. Re-run production launch page verification after any future website deploy:
+2. Track the v0.8 funnel for every beta user: account/invite -> `lore connect`
+   -> `lore watch` -> first captured memory -> Memory Inbox action -> first
+   cross-agent recall.
+3. Re-run production launch page verification after any future website deploy:
    `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/`,
    and `sitemap.xml`.
-3. Submit marketplace / MCP hub listings beyond the Official MCP Registry after
+4. Submit marketplace / MCP hub listings beyond the Official MCP Registry after
    human review of copy, screenshots, and registry-specific schemas.
-4. Repeat Claude Code, Cursor, and Qwen Code golden paths with fresh users and
+5. Repeat Claude Code, Codex, Cursor, and Qwen Code golden paths with fresh users and
    record second-day retention.
+6. Validate privacy controls in production: pause source, private mode, export,
+   delete memory, delete source, and delete vault.
 
 ## Evidence Storage
 

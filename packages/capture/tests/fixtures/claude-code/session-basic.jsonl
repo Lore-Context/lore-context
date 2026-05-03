@@ -1,0 +1,5 @@
+{"type":"summary","summary":"ignored meta line"}
+{"type":"user","sessionId":"c-abc-123","timestamp":"2026-04-30T10:00:00.000Z","cwd":"/Users/me/proj","message":{"role":"user","content":[{"type":"text","text":"Hi, please refactor utils.ts"}]}}
+{"type":"assistant","sessionId":"c-abc-123","timestamp":"2026-04-30T10:00:01.000Z","message":{"role":"assistant","content":[{"type":"text","text":"Sure, here is the plan."},{"type":"tool_use","name":"Read","input":{"path":"utils.ts"}}]}}
+{"type":"user","sessionId":"c-abc-123","timestamp":"2026-04-30T10:00:02.000Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"tu_1","content":"file body"}]}}
+{"type":"user","sessionId":"c-abc-123","timestamp":"2026-04-30T10:00:03.000Z","message":{"role":"user","content":"My API key is sk-ant-AAAAAAAAAAAAAAAAAAAAAAAAAA-do-not-leak. <private>secret plan</private> Done."}}

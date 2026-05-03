@@ -1,5 +1,16 @@
-import { describe, expect, it } from "vitest";
-import { getMcpServerInfo, getMcpToolDefinitions, getMutatingToolNames, handleJsonRpcMessage } from "../src/index.js";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  getAdvancedMcpToolNames,
+  getDefaultMcpToolNames,
+  getHostedMcpAuthorizationServerMetadata,
+  getHostedMcpProtectedResourceMetadata,
+  getHostedMcpWwwAuthenticateHeader,
+  getMcpServerInfo,
+  getMcpToolDefinitions,
+  getMutatingToolNames,
+  handleHostedMcpHttpRequest,
+  handleJsonRpcMessage
+} from "../src/index.js";
 
 describe("getMcpServerInfo", () => {
   it("declares the small Lore MCP surface", () => {
@@ -11,15 +22,71 @@ describe("getMcpServerInfo", () => {
     expect(getMcpServerInfo().tools).not.toContain("agentmemory_raw" as never);
   });
 
-  it("marks state-changing tools as mutating", () => {
-    expect(getMutatingToolNames()).toEqual(["memory_write", "memory_forget", "memory_update", "memory_supersede", "eval_run"]);
+  it("marks state-changing tools as mutating (full list with advanced tools)", () => {
+    expect(getMutatingToolNames({ includeAdvanced: true })).toEqual([
+      "memory.add_candidate",
+      "memory.inbox_approve",
+      "memory.inbox_reject",
+      "memory.delete",
+      "memory_write",
+      "memory_forget",
+      "memory_update",
+      "memory_supersede",
+      "source.pause",
+      "source.resume",
+      "profile.update_candidate",
+      "eval_run"
+    ]);
   });
 
-  it("requires a reason for memory_forget", () => {
-    const forget = getMcpToolDefinitions().find((tool) => tool.name === "memory_forget");
+  it("requires a reason for memory_forget (advanced tool)", () => {
+    const forget = getMcpToolDefinitions({ includeAdvanced: true }).find((tool) => tool.name === "memory_forget");
     expect(forget?.inputSchema.required).toContain("reason");
     expect(forget?.inputSchema.properties).toMatchObject({
       hard_delete: { type: "boolean" }
+    });
+  });
+});
+
+describe("hosted MCP HTTP helpers", () => {
+  it("declares OAuth protected-resource and authorization-server metadata", () => {
+    expect(getHostedMcpProtectedResourceMetadata("https://api.lorecontext.com/mcp")).toMatchObject({
+      resource: "https://api.lorecontext.com/mcp",
+      authorization_servers: ["https://api.lorecontext.com"],
+      scopes_supported: expect.arrayContaining(["mcp.read", "mcp.write"])
+    });
+    expect(getHostedMcpAuthorizationServerMetadata("https://api.lorecontext.com/mcp")).toMatchObject({
+      issuer: "https://api.lorecontext.com",
+      token_endpoint: "https://api.lorecontext.com/v1/cloud/devices/pair",
+      lore_beta: expect.objectContaining({
+        dynamic_client_registration: false
+      })
+    });
+    expect(getHostedMcpWwwAuthenticateHeader("https://api.lorecontext.com/mcp")).toContain(
+      'resource_metadata="https://api.lorecontext.com/.well-known/oauth-protected-resource"'
+    );
+  });
+
+  it("serves hosted MCP JSON-RPC over POST without starting stdio", async () => {
+    const response = await handleHostedMcpHttpRequest(new Request("https://api.lorecontext.com/mcp", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "mcp-protocol-version": "2025-11-25"
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" })
+    }));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      jsonrpc: "2.0",
+      id: 1,
+      result: {
+        tools: expect.arrayContaining([
+          expect.objectContaining({ name: "memory.recall" }),
+          expect.objectContaining({ name: "source.pause" })
+        ])
+      }
     });
   });
 });
@@ -48,29 +115,152 @@ describe("handleJsonRpcMessage", () => {
     });
   });
 
-  it("lists MCP tools with JSON schemas", async () => {
-    const response = await handleJsonRpcMessage({ jsonrpc: "2.0", id: "tools", method: "tools/list" });
+  it("lists MCP tools with JSON schemas (advanced mode includes all tools)", async () => {
+    process.env.LORE_MCP_ADVANCED_TOOLS = "1";
+    try {
+      const response = await handleJsonRpcMessage({ jsonrpc: "2.0", id: "tools", method: "tools/list" });
 
-    expect(response).toMatchObject({
-      result: {
-        tools: expect.arrayContaining([
-          expect.objectContaining({
-            name: "context_query",
-            inputSchema: expect.objectContaining({
-              required: ["query"],
-              properties: expect.objectContaining({
-                mode: expect.objectContaining({ enum: ["auto", "memory", "web", "repo", "tool_traces"] }),
-                sources: expect.objectContaining({ type: "object" })
+      expect(response).toMatchObject({
+        result: {
+          tools: expect.arrayContaining([
+            expect.objectContaining({
+              name: "context_query",
+              inputSchema: expect.objectContaining({
+                required: ["query"],
+                properties: expect.objectContaining({
+                  mode: expect.objectContaining({ enum: ["auto", "memory", "web", "repo", "tool_traces"] }),
+                  sources: expect.objectContaining({ type: "object" })
+                })
               })
+            }),
+            expect.objectContaining({
+              name: "memory_supersede",
+              inputSchema: expect.objectContaining({ required: ["memory_id", "content", "reason"] })
+            }),
+            expect.objectContaining({
+              name: "memory.recall",
+              inputSchema: expect.objectContaining({ required: ["query"] })
+            }),
+            expect.objectContaining({
+              name: "memory.inbox_reject",
+              inputSchema: expect.objectContaining({ required: ["memory_id", "reason"] })
+            }),
+            expect.objectContaining({
+              name: "evidence.trace_get",
+              inputSchema: expect.objectContaining({ required: ["trace_id"] })
             })
-          }),
-          expect.objectContaining({
-            name: "memory_supersede",
-            inputSchema: expect.objectContaining({ required: ["memory_id", "content", "reason"] })
-          })
-        ])
+          ])
+        }
+      });
+    } finally {
+      delete process.env.LORE_MCP_ADVANCED_TOOLS;
+    }
+  });
+
+  it("proxies hosted beta inbox and evidence tools to existing REST endpoints", async () => {
+    const seen: Array<{ url: string; method: string | undefined; body: string | undefined }> = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      seen.push({ url: String(input), method: init?.method, body: init?.body?.toString() });
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    };
+
+    await handleJsonRpcMessage(
+      {
+        jsonrpc: "2.0",
+        id: "approve",
+        method: "tools/call",
+        params: {
+          name: "memory.inbox_approve",
+          arguments: { memory_id: "mem_c", reason: "reviewed by hosted MCP beta" }
+        }
+      },
+      { apiBaseUrl: "http://lore.local", fetchImpl }
+    );
+    await handleJsonRpcMessage(
+      {
+        jsonrpc: "2.0",
+        id: "ledger",
+        method: "tools/call",
+        params: {
+          name: "evidence.trace_get",
+          arguments: { trace_id: "ctx_1" }
+        }
+      },
+      { apiBaseUrl: "http://lore.local", fetchImpl }
+    );
+
+    expect(seen).toEqual([
+      {
+        url: "http://lore.local/v1/governance/memory/mem_c/approve",
+        method: "POST",
+        body: JSON.stringify({ reason: "reviewed by hosted MCP beta" })
+      },
+      {
+        url: "http://lore.local/v1/evidence/ledger/ctx_1",
+        method: "GET",
+        body: undefined
       }
-    });
+    ]);
+  });
+
+  it("proxies source pause and resume through capture heartbeats", async () => {
+    const seen: Array<{ url: string; body: string | undefined }> = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      seen.push({ url: String(input), body: init?.body?.toString() });
+      return new Response(JSON.stringify({ source: { id: "src_1", status: "paused" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    };
+
+    await handleJsonRpcMessage(
+      {
+        jsonrpc: "2.0",
+        id: "pause",
+        method: "tools/call",
+        params: {
+          name: "source.pause",
+          arguments: { source_id: "src_1", reason: "maintenance window" }
+        }
+      },
+      { apiBaseUrl: "http://lore.local", fetchImpl }
+    );
+    await handleJsonRpcMessage(
+      {
+        jsonrpc: "2.0",
+        id: "resume",
+        method: "tools/call",
+        params: {
+          name: "source.resume",
+          arguments: { source_id: "src_1" }
+        }
+      },
+      { apiBaseUrl: "http://lore.local", fetchImpl }
+    );
+
+    expect(seen).toEqual([
+      {
+        url: "http://lore.local/v1/capture/sources/src_1/heartbeat",
+        body: JSON.stringify({
+          status: "paused",
+          source_type: "hosted_mcp",
+          source_provider: "hosted_mcp",
+          metadata: { action: "source.pause", reason: "maintenance window" }
+        })
+      },
+      {
+        url: "http://lore.local/v1/capture/sources/src_1/heartbeat",
+        body: JSON.stringify({
+          status: "active",
+          source_type: "hosted_mcp",
+          source_provider: "hosted_mcp",
+          metadata: { action: "source.resume" }
+        })
+      }
+    ]);
   });
 
   it("proxies memory updates to version-aware REST endpoints", async () => {
@@ -301,5 +491,100 @@ describe("handleJsonRpcMessage", () => {
     expect(text).not.toMatch(/SELECT/i);
     expect(text).not.toMatch(/\/app\//);
     expect(text).toBe("operation failed");
+  });
+});
+
+describe("MCP tool surface tiers", () => {
+  beforeEach(() => {
+    delete process.env.LORE_MCP_ADVANCED_TOOLS;
+  });
+
+  afterEach(() => {
+    delete process.env.LORE_MCP_ADVANCED_TOOLS;
+  });
+
+  it("default surface contains only core tools — no advanced tools exposed", () => {
+    const defaultNames = getDefaultMcpToolNames();
+    expect(defaultNames).toContain("context_query");
+    expect(defaultNames).toContain("memory.recall");
+    expect(defaultNames).toContain("memory.add_candidate");
+    expect(defaultNames).toContain("memory.inbox_list");
+    expect(defaultNames).toContain("memory.inbox_approve");
+    expect(defaultNames).toContain("memory.inbox_reject");
+    expect(defaultNames).toContain("memory.delete");
+    expect(defaultNames).toContain("memory_write");
+    expect(defaultNames).toContain("memory_search");
+    expect(defaultNames).toContain("source.pause");
+    expect(defaultNames).toContain("source.resume");
+
+    // advanced tools must NOT appear in the default surface
+    expect(defaultNames).not.toContain("memory_forget");
+    expect(defaultNames).not.toContain("memory_list");
+    expect(defaultNames).not.toContain("memory_get");
+    expect(defaultNames).not.toContain("memory_update");
+    expect(defaultNames).not.toContain("memory_supersede");
+    expect(defaultNames).not.toContain("memory_export");
+    expect(defaultNames).not.toContain("evidence.trace_get");
+    expect(defaultNames).not.toContain("profile.get");
+    expect(defaultNames).not.toContain("eval_run");
+    expect(defaultNames).not.toContain("trace_get");
+  });
+
+  it("advanced surface contains all tools when includeAdvanced:true", () => {
+    const advancedNames = getAdvancedMcpToolNames();
+    expect(advancedNames).toContain("memory_forget");
+    expect(advancedNames).toContain("memory_list");
+    expect(advancedNames).toContain("evidence.trace_get");
+    expect(advancedNames).toContain("eval_run");
+
+    const allNames = getMcpToolDefinitions({ includeAdvanced: true }).map((t) => t.name);
+    expect(allNames).toContain("context_query");
+    expect(allNames).toContain("memory_forget");
+    expect(allNames.length).toBeGreaterThan(getDefaultMcpToolNames().length);
+  });
+
+  it("getMcpToolDefinitions() without options returns only default tools", () => {
+    const tools = getMcpToolDefinitions();
+    const names = tools.map((t) => t.name);
+    expect(names).not.toContain("memory_list");
+    expect(names).not.toContain("eval_run");
+    expect(names).toContain("context_query");
+  });
+
+  it("LORE_MCP_ADVANCED_TOOLS=1 env var enables advanced tools via getMcpToolDefinitions()", () => {
+    process.env.LORE_MCP_ADVANCED_TOOLS = "1";
+    const names = getMcpToolDefinitions().map((t) => t.name);
+    expect(names).toContain("memory_list");
+    expect(names).toContain("eval_run");
+    expect(names).toContain("context_query");
+  });
+
+  it("getMcpServerInfo() tools list respects default tier filter", () => {
+    const info = getMcpServerInfo();
+    expect(info.tools).toContain("context_query");
+    expect(info.tools).not.toContain("memory_list");
+  });
+
+  it("getMcpServerInfo({ includeAdvanced:true }) includes advanced tools", () => {
+    const info = getMcpServerInfo({ includeAdvanced: true });
+    expect(info.tools).toContain("memory_list");
+    expect(info.tools).toContain("eval_run");
+  });
+
+  it("getMutatingToolNames() only includes default mutating tools by default", () => {
+    const mutating = getMutatingToolNames();
+    expect(mutating).toContain("memory.add_candidate");
+    expect(mutating).toContain("source.pause");
+    expect(mutating).not.toContain("memory_forget");
+    expect(mutating).not.toContain("eval_run");
+  });
+
+  it("tools/list MCP response contains only default tools when advanced mode is off", async () => {
+    const response = await handleJsonRpcMessage({ jsonrpc: "2.0", id: "tl", method: "tools/list" });
+    const tools = (response as { result: { tools: Array<{ name: string }> } }).result.tools;
+    const names = tools.map((t) => t.name);
+    expect(names).toContain("context_query");
+    expect(names).not.toContain("memory_list");
+    expect(names).not.toContain("eval_run");
   });
 });

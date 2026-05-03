@@ -8,10 +8,15 @@ export const config = {
 export function middleware(request: NextRequest): NextResponse {
   const isProd = process.env.NODE_ENV === "production";
   const disableAuth = process.env.LORE_DASHBOARD_DISABLE_AUTH === "1";
+  const publicSaas = process.env.LORE_DASHBOARD_PUBLIC_SAAS === "1";
 
   // Disable auth is only allowed in non-production environments
   if (disableAuth && !isProd) {
-    return NextResponse.next();
+    return withDashboardAuthMode(request, "dev");
+  }
+
+  if (publicSaas) {
+    return withDashboardAuthMode(request, "public");
   }
 
   const expectedUser = process.env.DASHBOARD_BASIC_AUTH_USER;
@@ -79,5 +84,11 @@ export function middleware(request: NextRequest): NextResponse {
     });
   }
 
-  return NextResponse.next();
+  return withDashboardAuthMode(request, "basic");
+}
+
+function withDashboardAuthMode(request: NextRequest, mode: "basic" | "dev" | "public"): NextResponse {
+  const headers = new Headers(request.headers);
+  headers.set("x-lore-dashboard-authenticated", mode);
+  return NextResponse.next({ request: { headers } });
 }

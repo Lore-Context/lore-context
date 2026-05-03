@@ -1,6 +1,6 @@
 # Design Partner Session Tracker
 
-Last updated: 2026-04-29
+Last updated: 2026-05-01
 
 Use this tracker for public-safe adoption evidence. Do not include customer
 secrets, production traces, raw private memory records, private datasets, or
@@ -8,7 +8,7 @@ partner names unless the partner has explicitly approved being named.
 
 ## Target
 
-Run 3-5 activation sessions before choosing the `v0.7` lane.
+Run 20-50 private beta activation sessions before choosing the `v0.9` lane.
 
 An activation-positive session requires:
 
@@ -16,6 +16,8 @@ An activation-positive session requires:
 - no unresolved security-boundary issue;
 - first `context.query` and first Evidence Ledger view reached during the
   session or documented as the exact blocker;
+- for v0.8 beta users, first connected agent, first captured memory, first
+  Memory Inbox action, and first cross-agent recall are recorded;
 - a clear next-step decision: continue, retry after blocker, or stop.
 
 ## Sessions

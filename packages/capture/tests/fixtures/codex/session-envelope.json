@@ -1,0 +1,12 @@
+{
+  "id": "codex-sess-7",
+  "cwd": "/Users/me/proj",
+  "started_at": "2026-04-30T12:00:00.000Z",
+  "ended_at": "2026-04-30T12:00:30.000Z",
+  "items": [
+    { "role": "user", "text": "Open the GitHub PAT ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345.", "timestamp": "2026-04-30T12:00:00.000Z" },
+    { "role": "assistant", "content": [{ "type": "text", "text": "I will not echo the token." }], "timestamp": "2026-04-30T12:00:05.000Z" },
+    { "role": "tool", "tool": "shell", "tool_call": { "name": "shell", "arguments": { "cmd": "ls" } }, "timestamp": "2026-04-30T12:00:10.000Z" },
+    { "role": "tool", "tool": "shell", "tool_result": { "output": "file1\nfile2", "is_error": false }, "timestamp": "2026-04-30T12:00:11.000Z" }
+  ]
+}

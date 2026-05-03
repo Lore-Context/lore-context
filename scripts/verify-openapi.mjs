@@ -42,6 +42,17 @@ if (!openApiDocument.info?.title || !openApiDocument.info?.version) {
   failures.push("OpenAPI info.title and info.version are required");
 }
 
+// Lockstep version invariant: the OpenAPI document's `info.version` must match
+// the active release line. Bump this constant when cutting the next RC/GA tag
+// so a drift between the source and the published `/openapi.json` is caught
+// before deploy. Plan reference: rc.2 final review item 6 (MEDIUM-8).
+const EXPECTED_OPENAPI_VERSION = "1.0.0-rc.2";
+if (openApiDocument.info?.version && openApiDocument.info.version !== EXPECTED_OPENAPI_VERSION) {
+  failures.push(
+    `OpenAPI info.version is ${openApiDocument.info.version}; expected ${EXPECTED_OPENAPI_VERSION}`
+  );
+}
+
 const paths = openApiDocument.paths ?? {};
 for (const path of requiredOpenApiPaths) {
   if (!paths[path]) {

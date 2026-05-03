@@ -1,0 +1,4 @@
+{"role":"user","text":"List files in src/","timestamp":"2026-04-30T15:00:00.000Z"}
+{"role":"assistant","text":"I will list the files in the src/ directory.","timestamp":"2026-04-30T15:00:01.000Z"}
+{"role":"tool","toolName":"shell","tool_calls":[{"name":"shell","arguments":{"cmd":"ls src"}}],"timestamp":"2026-04-30T15:00:02.000Z"}
+{"role":"assistant","text":"Found three files: index.ts, server.ts, types.ts","timestamp":"2026-04-30T15:00:03.000Z"}

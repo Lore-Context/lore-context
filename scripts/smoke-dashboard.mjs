@@ -50,14 +50,48 @@ try {
   const page = await context.newPage();
   await page.setExtraHTTPHeaders({ authorization: basicAuthHeader });
   await page.goto(dashboardUrl, { waitUntil: "networkidle" });
-  await page.getByRole("heading", { name: "Lore Context" }).waitFor();
-  await page.getByText("Memory Inventory").waitFor();
-  await page.getByText("Eval Playground").waitFor();
+
+  // Default ordinary-user view: must pass without opening Developer view.
+  await page.getByRole("heading", { level: 1, name: "Lore" }).waitFor();
+  await page.getByRole("heading", { name: "Step 1: Sign in" }).waitFor();
+  await page.getByRole("heading", { name: "Your first 4 steps" }).waitFor();
+  await page.getByRole("heading", { name: "Connect an AI app" }).waitFor();
+  await page.getByRole("heading", { name: "Memory Inbox" }).waitFor();
+  await page.getByRole("heading", { name: "What Lore is keeping" }).waitFor();
+  await page.getByRole("heading", { name: "Connected sources" }).waitFor();
+  await page.getByRole("heading", { name: "What Lore knows about you" }).waitFor();
+  await page.getByRole("heading", { name: "Why a memory was used" }).waitFor();
+  await page.getByRole("heading", { name: /Privacy.*controls/ }).waitFor();
+  await page.getByRole("heading", { name: "Usage" }).waitFor();
+
+  // Default view must NOT expose developer-only controls.
+  if (await page.getByRole("heading", { name: "Memory Inventory" }).count()) {
+    throw new Error("Memory Inventory should be hidden until Developer view is opened.");
+  }
+  if (await page.getByRole("heading", { name: "Eval Playground" }).count()) {
+    throw new Error("Eval Playground should be hidden until Developer view is opened.");
+  }
+
+  // Open Developer view, then assert advanced controls.
+  await page.getByRole("button", { name: "Developer view", exact: true }).click();
+  await page.getByRole("button", { name: "Hide developer view", exact: true }).waitFor();
+
+  await page.getByRole("heading", { name: "Context Query" }).waitFor();
+  await page.getByRole("heading", { name: "Memory Write" }).waitFor();
+  await page.getByRole("heading", { name: "Eval Playground" }).waitFor();
+  await page.getByRole("heading", { name: "Memory Inventory" }).waitFor();
+
+  // Seeded memory should appear in the Memory Inventory table.
   await page.getByText("Dashboard smoke memory proves", { exact: false }).first().waitFor();
+
+  // Run Query exercises /v1/context/query and renders the JSON result.
   await page.getByRole("button", { name: /Run Query/i }).click();
   await page.getByText("Dashboard smoke memory proves", { exact: false }).first().waitFor();
+
+  // Compare Providers exercises /v1/eval/run and surfaces lore-local results.
   await page.getByRole("button", { name: /Compare Providers/i }).click();
   await page.getByText("lore-local", { exact: true }).first().waitFor();
+
   console.log(JSON.stringify({ ok: true, dashboardUrl, apiUrl }, null, 2));
 } finally {
   if (browser) {

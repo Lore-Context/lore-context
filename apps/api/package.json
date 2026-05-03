@@ -1,6 +1,6 @@
 {
   "name": "@lore/api",
-  "version": "0.6.0-alpha.0",
+  "version": "1.0.0-rc.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,10 +8,13 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@lore-context/server": "workspace:*",
     "@lore/agentmemory-adapter": "workspace:*",
+    "@lore/connectors": "workspace:*",
     "@lore/eval": "workspace:*",
     "@lore/governance": "workspace:*",
     "@lore/mif": "workspace:*",
+    "@lore/model-gateway": "workspace:*",
     "@lore/search": "workspace:*",
     "@lore/shared": "workspace:*",
     "@lore/web": "workspace:*",
