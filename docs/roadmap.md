@@ -2,15 +2,15 @@
 
 Last updated: 2026-05-03
 
-Lore Context ships through three deliberate tiers: a public OSS alpha
-(`v0.6.0-alpha`), a private personal-cloud RC (`v1.0.0-rc.0`), and a planned
-Public SaaS Beta Readiness version (`v1.0.0-rc.2`). They are not
+Lore Context ships through three deliberate tiers: a historical public OSS alpha
+(`v0.6.0-alpha`), a historical private personal-cloud RC (`v1.0.0-rc.0`), and a
+current Public SaaS Beta Readiness pre-release (`v1.0.0-rc.2`). They are not
 interchangeable in public copy.
 
-## Next planned version: `v1.0.0-rc.2 Public SaaS Beta Readiness`
+## Current version: `v1.0.0-rc.2 Public SaaS Beta Readiness`
 
-`v1.0.0-rc.2` is the next planned version. It is not stable GA and not a
-connector-breadth sprint. The full lane-by-lane plan lives in
+`v1.0.0-rc.2` is the current public SaaS beta readiness version. It is not
+stable GA and not a connector-breadth sprint. The full lane-by-lane plan lives in
 [`.omx/plans/lore-v1-rc2-public-saas-beta-readiness-plan.md`](../.omx/plans/lore-v1-rc2-public-saas-beta-readiness-plan.md).
 
 Theme: from live cloud beta to self-serve beta value. Ordinary users should be
@@ -18,7 +18,7 @@ able to sign in, connect one assistant, get an automatically captured memory,
 review and approve it, and recall it from another assistant — without
 understanding MCP, install tokens, bearer tokens, or JSON config.
 
-P0 lanes for rc.2:
+P0 lanes closed for rc.2:
 
 1. State and docs reconciliation: live endpoints, public/private boundary,
    distinct OSS/RC/Beta tiers.
@@ -41,46 +41,43 @@ small-model installation for default users, ten shallow connectors,
 team/shared vault product, SOC 2 / HIPAA / BYOC / BYOK claims, full ADP, and
 unsupported benchmark-win claims.
 
-## Current private cloud beta: `v1.0.0-rc.0`
+## Current cloud beta readiness: `v1.0.0-rc.2`
 
 Release status:
 
-- Private repo: `Lore-Context/lore-cloud`.
-- Package line: `1.0.0-rc.0`.
-- Private `main`: v1.0 closure line with Google sign-in, Memory Inbox, shared
-  recall, browser capture, production website redesign, and the source-level
-  OAuth callback/Set-Cookie parity fixes that are already live on AWS.
-- Release tag: `v1.0.0-rc.0` is the private personal-cloud beta release tag.
-- AWS production: Singapore AWS runtime runs the private beta stack through
+- Public repo: `Lore-Context/lore-context`.
+- Package line: `1.0.0-rc.2`.
+- Public `main`: v1.0.0-rc.2 closure line with Google sign-in, Memory Inbox,
+  shared recall, browser capture, production website redesign, app-domain OAuth
+  callback, safety rails, observability, and release metadata.
+- Release tag: `v1.0.0-rc.2` is the public SaaS beta readiness pre-release tag.
+- AWS production: Singapore AWS runtime runs the cloud beta stack through
   Docker Compose at an artifact-backed `production-v1.0` release line; private
   instance IDs and host paths stay in closed operator notes.
 - Cloudflare Pages production: custom domains show the v1.0 homepage:
-  `All your agents. One shared memory.`
-- OpenAPI metadata: `1.0.0-rc.0`, including v0.9 capture/source/connector
-  foundations plus v1.0 Google sign-in, account/vault, Memory Inbox, and recall
-  surfaces.
+  `All your agents. One shared memory.`, root CTA `Request beta access`, and
+  production deployment `97e0dc8c`.
+- OpenAPI metadata: `1.0.0-rc.2` with 72 paths, including v0.9
+  capture/source/connector foundations plus v1.0 Google sign-in, account/vault,
+  Memory Inbox, recall, usage, operator, and hosted MCP surfaces.
 - Google OAuth production runtime: `/auth/google/start` returns a real Google
   authorization-code URL; OpenAPI exposes `GET` and `POST`
   `/auth/google/callback`; Safari sign-in and `/v1/me` session reuse have been
   verified after the Set-Cookie bridge fix.
-- Website follow-up: Pages deploy `e08c5588` is live on custom domains; root now
-  uses `Request beta access` as the ordinary-user entry, `/download` shows the
-  private beta access page, and local-model copy is removed from the v1.0 root
-  proof text.
+- Website closure: Pages deploy `97e0dc8c` is live on custom domains; root uses
+  `Request beta access` as the ordinary-user entry, `/download` resolves to the
+  beta access page, and `/llms.txt`, `/llms-full.txt`, and `robots.txt` are live.
 - Public SaaS conversion: app-domain Google sign-in, the session-cookie
   dashboard, CSRF-protected self-service token issuance, and real
   `lct_device_` / `lct_service_` token generation are now reachable in
   production. As of 2026-05-03 the public dashboard at
   `https://app.lorecontext.com/` returns `200` and the proxy
   `https://app.lorecontext.com/api/lore/auth/google/start` returns a real
-  Google authorization-code URL. Public access remains invite/cap controlled
-  while the rc.2 Public SaaS Beta Readiness work closes ordinary-user
-  activation, Memory Inbox liveness, auto-capture, safety rails, and
-  observability.
+  Google authorization-code URL with app-domain callback. Public access remains
+  invite/cap controlled while beta validation runs.
 - Beta focus: ordinary users sign in with Google, connect agents, review
   automatically captured memory, and reuse the same memory across agents.
-- Public boundary: this is a closed-source private beta for design partners, not
-  public SaaS GA.
+- Public boundary: this is Public SaaS Beta Readiness, not public SaaS GA.
 
 Shipped in the beta line:
 

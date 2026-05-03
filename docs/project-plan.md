@@ -4,23 +4,23 @@ Last updated: 2026-05-03
 
 ## 0. 负责人结论
 
-`v0.6.0-alpha` 已完成公开发布和生产闭环；`v1.0.0-rc.0` 已作为当前闭源 personal cloud beta release candidate 完成私有仓库、Cloudflare 官网和 AWS 生产发布闭环；下一计划版本是 `v1.0.0-rc.2 Public SaaS Beta Readiness`，不是 stable GA。当前项目状态是“v1.0 cloud 已上线，进入面向普通用户的 SaaS Beta Readiness：onboarding、自动 capture、Memory Inbox、recall、production 运维和公开文档可信度”。
+`v0.6.0-alpha` 已完成公开 OSS alpha 发布和生产闭环；`v1.0.0-rc.0` 是历史闭源 personal cloud beta release candidate；`v1.0.0-rc.2 Public SaaS Beta Readiness` 已在公开仓库完成 tag、PR、GitHub Release、Cloudflare Pages 官网和 AWS API/Dashboard 生产部署验证。`v1.0.0-rc.2` 不是 stable GA；当前项目状态是“Public SaaS beta readiness 已上线，继续保持 invite/cap 控制，进入真实 beta 用户验证”。
 
 完整 rc.2 lane 计划见 [`.omx/plans/lore-v1-rc2-public-saas-beta-readiness-plan.md`](../.omx/plans/lore-v1-rc2-public-saas-beta-readiness-plan.md)。
 
-v1.0 闭源发布事实：
+v1.0 / rc.2 生产发布事实：
 
-- Private repo: `Lore-Context/lore-cloud`。
-- Private cloud version line: `1.0.0-rc.0`。
-- Private `main`: v1.0 personal cloud closure line 包含 Google sign-in、Memory Inbox、shared recall、browser capture、connected-agent onboarding、v1.0 website redesign、OAuth callback/Set-Cookie source fix 和生产状态文档；latest runtime-deployed application source 只记录在闭源 operator notes（私有 release SHA 与 host 路径不进入公开 track）。
-- Release tag: `v1.0.0-rc.0` 作为闭源 personal cloud beta release candidate 标签。
-- Website: Cloudflare Pages production deployment `https://e08c5588.lore-context.pages.dev`；`https://lorecontext.com/` 和 `https://www.lorecontext.com/` 均显示 `All your agents. One shared memory.`，首页 CTA 已切到 `Request beta access`，`/download` 已切到 private beta access 页面，旧 `Continue with Google` CTA 和 local-model 文案缺陷已关闭。
-- AWS production: 新加坡 AWS runtime 运行 Docker Compose private beta runtime，已应用 2026-05-02 Google OAuth callback + Set-Cookie runtime hotfix。私有 instance ID、release SHA 与 host 路径仅记录在闭源 operator notes，不进入公开 track。
-- AWS verification: SSM deploy + post-deploy + OAuth callback + Set-Cookie + 2026-05-02 recheck + symlink check all success；私有 command IDs 和 host details 只保留在闭源 operator notes；API、Dashboard、Postgres containers healthy。
-- API proof: 内部 OpenAPI reports `1.0.0-rc.0` and retains v0.9 capture/connector foundations plus v1.0 Google start/callback、account、Memory Inbox、recall trace surfaces；Safari 真实 Google 登录后 `/v1/me` 返回当前 personal vault 和 session scopes。
-- Public SaaS P0: 本地和生产均已实现 app-domain Google sign-in、dashboard session cookie、CSRF-protected self-service install-token issuance、dashboard redeem 到真实 `lct_device_` / `lct_service_` token 的闭环；2026-05-03 公网验证 `https://app.lorecontext.com/` 返回 `200`、`https://app.lorecontext.com/api/lore/auth/google/start` 返回 `200` 并生成真实 Google authorization-code URL、`https://api.lorecontext.com/openapi.json` 返回 OpenAPI `3.1.0` (`1.0.0-rc.0`)、未授权 `https://api.lorecontext.com/v1/cloud/whoami` 返回 `401 cloud.token_required`。Public access 仍受 invite/cap 控制；正式可向普通用户开放需要走完 rc.2 Public SaaS Beta Readiness 的 onboarding、Memory Inbox 实控、自动 capture、safety rails、observability 和 docs 一致性 lane。
+- Public repo: `Lore-Context/lore-context`。
+- Public SaaS beta readiness version line: `1.0.0-rc.2`。
+- Public `main`: rc.2 release closure line includes Google-only onboarding, dashboard session cookies, CSRF-protected install-token issuance, Memory Inbox controls, capture automation, safety rails, observability/docs updates, and production deployment evidence.
+- Release tag: `v1.0.0-rc.2` public pre-release tag.
+- Website: Cloudflare Pages production deployment `https://97e0dc8c.lore-context.pages.dev`；`https://lorecontext.com/` 和 `https://www.lorecontext.com/` 均显示 `All your agents. One shared memory.`，首页 CTA 为 `Request beta access`，`/download` 正常重定向到 beta access 页面，`/llms.txt`、`/llms-full.txt`、`robots.txt` 均通过公网验证。
+- AWS production: 新加坡 AWS runtime 运行 Docker Compose API、Dashboard、Postgres/pgvector；私有 instance ID、SSM command IDs、release host path 与账号细节仅记录在闭源 operator notes，不进入公开 track。
+- AWS verification: rehearsal、deploy、post-deploy、env alignment、Google OAuth app-domain callback、OpenAPI 和外部 smoke 均通过；API、Dashboard、Postgres containers healthy。
+- API proof: 外部 OpenAPI reports `1.0.0-rc.2` with 72 paths and retains v0.9 capture/connector foundations plus v1.0 Google start/callback、account、Memory Inbox、recall trace、usage、operator、hosted MCP surfaces。
+- Public SaaS P0: 本地和生产均已实现 app-domain Google sign-in、dashboard session cookie、CSRF-protected self-service install-token issuance、dashboard redeem 到真实 `lct_device_` / `lct_service_` token 的闭环；2026-05-03 公网验证 `https://app.lorecontext.com/` 返回 `200`、`https://app.lorecontext.com/api/lore/auth/google/start` 返回 `200` 并生成真实 Google authorization-code URL，callback redirect URI 为 `https://app.lorecontext.com/api/lore/auth/google/callback`，`https://api.lorecontext.com/openapi.json` 返回 OpenAPI `3.1.0` (`1.0.0-rc.2`)，未授权 `https://api.lorecontext.com/v1/cloud/whoami` 返回 `401 cloud.token_required`。Public access 仍受 invite/cap 控制；这不是 stable GA 或开放 billing 发布。
 - Core scope: Google-only onboarding、personal vault、agent connect、browser extension capture、connector framework、Memory Inbox、source-aware recall、Evidence Ledger traces、usage/cost guardrails、production website redesign。
-- Public boundary: v1.0 personal cloud beta 不等于 public SaaS GA；公开开源 release 仍保持 `v0.6.0-alpha`，除非后续单独做 public release。
+- Public boundary: `v1.0.0-rc.2` 是 public SaaS beta readiness pre-release，不等于 public SaaS GA；billing、team/shared vault、BYOC/BYOK 和合规认证声明仍是后续阶段。
 
 v0.8 闭源生产事实：
 
@@ -47,19 +47,19 @@ v1.0 产品决策：
 
 当前公开事实：
 
-- GitHub Release: `v0.6.0-alpha` pre-release，发布时间 `2026-04-29T08:50:21Z`。
-- Release tag: `v0.6.0-alpha` 指向 release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
-- Public `main`: release tag 之后已有文档、分发、npm MCP package、MCP Registry、Cursor/Qwen adoption validation、marketplace asset、HN launch-readiness 和本轮状态文档刷新提交；npm-backed Registry closure source `8637e37546b24caba4f170182beca613f0ba6d09`，CI run `25120831678` passed。
-- Closed `lore-cloud` main: v1.0 personal cloud beta closure line includes the source-level OAuth callback/Set-Cookie parity fix and website ordinary-user CTA fix；production evidence is recorded in [release-status.md](release-status.md)。
+- GitHub Release: `v1.0.0-rc.2` pre-release，发布时间 `2026-05-03`；`v0.6.0-alpha` remains the historical public OSS alpha release.
+- Release tag: `v1.0.0-rc.2` 指向 rc.2 public SaaS beta readiness source；`v0.6.0-alpha` remains at release commit `4f0eadf369e99e364bd06b7d3228b84a9f7501b9`。
+- Public `main`: includes rc.2 merge, CI, production deployment closure, docs/website release metadata, plus the earlier distribution, npm MCP package, MCP Registry, Cursor/Qwen adoption validation, marketplace asset, and HN launch-readiness work.
+- Closed `lore-cloud` main: historical v1.0 personal cloud beta closure line remains a private operator baseline; current public-safe production evidence is recorded in [release-status.md](release-status.md)。
 - MCP distribution baseline: `1914718c3136fab2f7eed167445e97a910b62bb0`，GitHub Actions run `25110357633` passed。
 - Adoption closure source: `1a64980682216d715d0da40a37ee03b0a752f9e9`，GitHub Actions run `25112973276` passed。
 - MCP Registry: `io.github.Lore-Context/lore-context-mcp` 已在 Official MCP Registry 发布，状态 `active`，发布时间 `2026-04-29T16:23:19.42298Z`；Registry 当前列出 npm `@lore-context/server@0.6.0-alpha.1` 和 GHCR OCI `ghcr.io/lore-context/lore-context-mcp:0.6.0-alpha.1` 两条公共安装路径。
 - npm MCP server package: `@lore-context/server@0.6.0-alpha.1` 已发布；fresh install 后 `lore-context-server` 通过 MCP SDK `tools/list` 返回 11 个工具。
-- Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `All your agents. One shared memory.`，同时保留 public `v0.6.0-alpha` 开源边界；live CTA 已改为普通用户优先的 `Request beta access` 入口。
+- Website: `https://lorecontext.com/` 和 `https://www.lorecontext.com/` 已显示 `All your agents. One shared memory.`；live CTA 已改为普通用户优先的 `Request beta access` 入口，当前公开 pre-release 边界是 `v1.0.0-rc.2` Public SaaS Beta Readiness。
 - AI-readable docs: `https://lorecontext.com/llms.txt` 和 `https://lorecontext.com/llms-full.txt` 已上线，且已与当前 website build 产物重新部署一致；`robots.txt` 包含 LLMs 指针。
 - HN launch website surfaces: `/quickstart/`、`/blog/v0-6-distribution-and-trust-sprint/`、`/benchmark/` 已部署到生产官网并通过 `lorecontext.com` / `www.lorecontext.com` 验证；源码移除了未被公开报告支撑的 benchmark-win 数字。
-- Public API health: 当前私有云生产运行时下，`https://api.lorecontext.com/health` 返回 `ok`；外部 `/openapi.json` 返回 `200` 用于 API discovery；私有 beta 数据面仍需 bearer/session/Access 保护。
-- AWS-backed production runtime: 当前线上 API/Dashboard/Postgres 均 healthy；Google OAuth start、browser callback、Safari session persistence 和 `/v1/me` 已通过公网验证；运行时为 v1.0 private beta release line with 2026-05-02 OAuth callback + Set-Cookie hotfix。私有 AWS instance、SSM command 和账号细节只记录在闭源 operator notes / `lore-cloud`。
+- Public API health: `https://api.lorecontext.com/health` 返回 `ok`；外部 `/openapi.json` 返回 `1.0.0-rc.2` / 72 paths 用于 API discovery；beta 数据面仍需 bearer/session/Access 保护。
+- AWS-backed production runtime: 当前线上 API/Dashboard/Postgres 均 healthy；Google OAuth start 使用 app-domain callback，callback error path、unauthenticated cloud protection 和 OpenAPI 版本已通过公网验证。私有 AWS instance、SSM command 和账号细节只记录在闭源 operator notes。
 
 公开状态快照记录在 [release-status.md](release-status.md)。发布后的采用验证证据记录在
 [adoption-validation.md](adoption-validation.md)。
@@ -76,29 +76,29 @@ v1.0 产品决策：
 
 | 项目面 | 当前状态 |
 |---|---|
-| 公开版本 | `v0.6.0-alpha` pre-release |
-| 私有云版本 | `1.0.0-rc.0` |
-| 公开根版本 | `0.6.0-alpha.0` |
+| 公开版本 | `v1.0.0-rc.2` pre-release |
+| 云端版本 | `1.0.0-rc.2` |
+| 公开根版本 | `1.0.0-rc.2` |
 | 公开仓库 | `Lore-Context/lore-context` |
-| 当前公开线 | `main`；release tag 之后包含 release-closure、integration validation、npm MCP package、MCP distribution、Cursor/Qwen adoption validation、marketplace asset、HN launch-readiness 和状态文档刷新 commits |
-| 公开 tag | `v0.6.0-alpha` at `4f0eadf369e99e364bd06b7d3228b84a9f7501b9` |
-| GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v0.6.0-alpha` |
+| 当前公开线 | `main`；包含 `v1.0.0-rc.2` public SaaS beta readiness closure、release metadata、production deploy evidence，以及 earlier release-closure、integration validation、npm MCP package、MCP distribution、Cursor/Qwen adoption validation、marketplace asset、HN launch-readiness commits |
+| 公开 tag | `v1.0.0-rc.2` |
+| GitHub Release | `https://github.com/Lore-Context/lore-context/releases/tag/v1.0.0-rc.2` |
 | MCP distribution baseline | run `25110357633`, success on `1914718c3136fab2f7eed167445e97a910b62bb0` |
 | Adoption closure CI | run `25112973276`, success on `1a64980682216d715d0da40a37ee03b0a752f9e9` |
 | Launch-readiness CI | run `25115346417`, success on `f7fe14234ca89c02397da230de3e27f90576c469` |
 | npm-backed Registry closure CI | run `25120831678`, success on `8637e37546b24caba4f170182beca613f0ba6d09` |
 | Closed repo current baseline | `lore-cloud` v1.0 personal cloud beta closure line with post-closure OAuth/website source fixes; stable RC tag baseline remains in closed operator notes |
-| 私有 Release | `v1.0.0-rc.0` private beta release candidate |
+| Release | `v1.0.0-rc.2` public SaaS beta readiness pre-release |
 | 官网 | `https://lorecontext.com/` and `https://www.lorecontext.com/` live with `All your agents. One shared memory.` |
 | AI-readable docs | `/llms.txt`, `/llms-full.txt`, `robots.txt` live |
 | HN launch pages | `/quickstart/`, `/blog/v0-6-distribution-and-trust-sprint/`, `/benchmark/` live on production domains |
-| Public API | `https://api.lorecontext.com/health` returns `ok`; external `/openapi.json` returns `200` for API discovery; private beta data surfaces remain auth-gated |
-| AWS/API runtime | `production-v1.0` release line with 2026-05-02 OAuth callback + Set-Cookie hotfix; API, Dashboard, Postgres healthy. Specific release SHA and host paths stay in closed operator notes |
+| Public API | `https://api.lorecontext.com/health` returns `ok`; external `/openapi.json` reports `1.0.0-rc.2`; beta data surfaces remain auth-gated |
+| AWS/API runtime | `v1.0.0-rc.2` release line; API, Dashboard, Postgres healthy. Specific release SHA and host paths stay in closed operator notes |
 | MCP Registry | Official Registry active for `io.github.Lore-Context/lore-context-mcp`; npm + OCI package entries live; publish workflow run `25120707303`, success |
 | npm MCP server package | `@lore-context/server@0.6.0-alpha.1` public; fresh install + MCP `tools/list` verified |
 | HN launch | deferred by HN new-account Show HN restriction; draft preserved for retry |
-| 私有云端组件 | v1.0 personal cloud beta 已在闭源仓库和 AWS 生产闭环，不属于公开 OSS alpha 承诺 |
-| 当前公开非目标 | public hosted SaaS, billing, managed cloud sync, remote MCP HTTP default |
+| 云端组件 | v1.0.0-rc.2 public SaaS beta readiness 已在 AWS 生产闭环；仍受 invite/cap 控制 |
+| 当前公开非目标 | stable GA, public billing, team/shared vault, BYOC/BYOK, compliance certification claims |
 
 ### 1.1 v0.6 已交付能力
 
@@ -238,13 +238,13 @@ git diff --check
 
 发布后状态复核：
 
-- Private release tag `v1.0.0-rc.0` is the closed personal-cloud beta release tag.
-- Closed `lore-cloud` release source remains the stable private RC tag baseline; post-closure source fixes now keep OAuth callback/Set-Cookie parity in `main`.
-- Cloudflare Pages production domains verified after deploy `e08c5588`; custom domains show `All your agents. One shared memory.`, root CTA is `Request beta access`, and `/download` shows the private beta access page.
-- AWS production deploy and post-deploy checks (artifact deploy, OAuth callback closure, Set-Cookie bridge, runtime recheck, symlink check) all passed; private SSM command IDs stay in closed operator notes.
-- Safari real Google sign-in verified callback session persistence: `/v1/me` returned the current account, personal vault, Google identity, and web session scopes.
-- Internal OpenAPI verifies `1.0.0-rc.0`, Google sign-in start/callback, Memory Inbox, recall traces, capture, source, connector, usage, operator, and hosted MCP surfaces.
-- External API health and OpenAPI discovery verified; Dashboard access redirects to Cloudflare Access.
+- Public release tag `v1.0.0-rc.2` is the public SaaS beta readiness pre-release tag.
+- Public PR merge and GitHub CI passed before production deployment; historical closed `v1.0.0-rc.0` remains a private operator baseline only.
+- Cloudflare Pages production domains verified after deploy `97e0dc8c`; custom domains show `All your agents. One shared memory.`, root CTA is `Request beta access`, `/download` resolves to the beta access page, and `/llms.txt` / `/llms-full.txt` / `robots.txt` return `200`.
+- AWS production rehearsal, deploy, env alignment, and post-deploy checks all passed; private SSM command IDs stay in closed operator notes.
+- Google sign-in start verified through the app-domain proxy with redirect URI `https://app.lorecontext.com/api/lore/auth/google/callback`; callback denial redirects safely to `/?auth_error=400`.
+- External OpenAPI verifies `1.0.0-rc.2` with 72 paths, including Google sign-in start/callback, Memory Inbox, recall traces, capture, source, connector, usage, operator, and hosted MCP surfaces.
+- External API health, Dashboard root, and unauthenticated cloud protection verified.
 - npm-backed Registry closure commit `8637e37546b24caba4f170182beca613f0ba6d09` verified by CI run `25120831678`.
 - `/llms.txt`, `/llms-full.txt`, and `robots.txt` verified.
 - Clean checkout activation machine timing captured.
@@ -265,8 +265,9 @@ Decision:
 
 - `v0.6.0-alpha` 已作为 Distribution and Trust Sprint 发布。
 - `v0.8.0-beta` 已作为 closed-source Personal Cloud Beta 部署闭环。
-- `v1.0.0-rc.0` 已作为 closed-source Personal Cloud Beta RC 部署闭环。
-- 现在进入 private beta validation，不立即升级 stable GA，不做无边界 public signup/billing rollout。
+- `v1.0.0-rc.0` 已作为 historical closed-source Personal Cloud Beta RC 部署闭环。
+- `v1.0.0-rc.2` 已作为 Public SaaS Beta Readiness pre-release 部署闭环。
+- 现在进入 invite/cap beta validation，不立即升级 stable GA，不做无边界 public signup/billing rollout。
 
 Drivers:
 
