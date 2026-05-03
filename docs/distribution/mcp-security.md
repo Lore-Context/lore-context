@@ -63,4 +63,3 @@ posts must not include:
 - private hostnames;
 - unpublished cloud runbooks;
 - unsupported benchmark claims.
-

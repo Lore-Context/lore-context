@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lore Context - All your agents. One shared memory.</title>
+  <meta name="description" content="Lore Context gives Claude Code, Codex, Cursor, OpenCode, and web AI tools one shared memory with review, scores, and evidence." />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fbfcfd;
+      --surface: #ffffff;
+      --surface-glass: rgba(255,255,255,.78);
+      --surface-strong: #f6f9fb;
+      --ink: #121417;
+      --muted: #5d6673;
+      --soft: #eef2f6;
+      --line: #dce3ea;
+      --line-strong: #c5d0dc;
+      --teal: #078d84;
+      --green: #12925f;
+      --amber: #bd7a00;
+      --blue: #246bfe;
+      --red: #c2413b;
+      --edge: rgba(255,255,255,.92);
+      --shadow: 0 24px 70px rgba(24, 35, 50, 0.12);
+      --shadow-soft: 0 16px 42px rgba(24, 35, 50, 0.09);
+      --shadow-tight: 0 8px 20px rgba(24, 35, 50, 0.08);
+      --radius: 8px;
+      --container: 1180px;
+      --gutter: 28px;
+      --font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", Consolas, ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    html, body { max-width: 100%; overflow-x: clip; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        linear-gradient(90deg, rgba(7,141,132,.045) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(36,107,254,.035) 1px, transparent 1px),
+        linear-gradient(180deg, #f8fbfc 0%, var(--bg) 420px),
+        var(--bg);
+      background-size: 72px 72px, 72px 72px, auto, auto;
+      color: var(--ink);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    svg { display: block; max-width: 100%; }
+    p, h1, h2, h3 { margin: 0; }
+    p { color: var(--muted); text-wrap: pretty; }
+    h1, h2, h3 { text-wrap: balance; letter-spacing: 0; }
+    :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    .count-up { font-variant-numeric: tabular-nums; }
+
+    .container {
+      width: min(100%, var(--container));
+      margin-inline: auto;
+      padding-inline: var(--gutter);
+    }
+    .section {
+      position: relative;
+      padding-block: 92px;
+      scroll-margin-top: 92px;
+      border-top: 1px solid var(--line);
+    }
+    .section:nth-of-type(even) {
+      background: linear-gradient(180deg, rgba(255,255,255,.56), rgba(246,249,251,.44));
+    }
+    .section:first-of-type { border-top: 0; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .lead {
+      font-size: clamp(18px, 1.4vw, 21px);
+      line-height: 1.55;
+      max-width: 62ch;
+    }
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(260px, .55fr);
+      align-items: end;
+      gap: 32px;
+      margin-bottom: 34px;
+    }
+    .section-head h2 {
+      font-size: clamp(33px, 4vw, 56px);
+      line-height: 1.04;
+      font-weight: 760;
+    }
+    .section-head p { max-width: 44ch; }
+    .mono {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .02em;
+    }
+    .tag, .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .tag { padding: 6px 10px; font-size: 12px; }
+    .pill {
+      padding: 7px 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 700;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 99px;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(18,146,95,.12);
+      flex: 0 0 auto;
+    }
+
+    .card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.86)) padding-box,
+        linear-gradient(135deg, rgba(255,255,255,.98), rgba(7,141,132,.22), rgba(36,107,254,.12)) border-box;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 0 var(--edge) inset, var(--shadow-tight);
+      transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease, background .24s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--line-strong);
+      box-shadow: 0 1px 0 var(--edge) inset, var(--shadow-soft);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 11px 16px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+      cursor: pointer;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #1b1f25, var(--ink));
+      border-color: var(--ink);
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(18,20,23,.18);
+    }
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,.18) 42%, transparent 56%);
+      transform: translateX(-120%);
+      transition: transform .45s ease;
+      pointer-events: none;
+    }
+    .btn-primary:hover::after { transform: translateX(120%); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 16px 38px rgba(18,20,23,.22); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--line-strong);
+    }
+    .btn-secondary:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+    .btn-link {
+      padding-inline: 0;
+      border: 0;
+      background: transparent;
+      color: var(--teal);
+    }
+    .btn-link::after { content: "->"; font-family: var(--mono); font-size: 12px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(251,252,253,.80);
+      border-bottom: 1px solid rgba(220,227,234,.82);
+      backdrop-filter: blur(22px) saturate(1.18);
+      box-shadow: 0 1px 0 rgba(255,255,255,.7) inset;
+    }
+    .topbar-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 780;
+      font-size: 18px;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, #fff, #f6fbfb);
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 8px 20px rgba(8, 33, 42, .08);
+      color: var(--teal);
+      flex: 0 0 auto;
+    }
+    .brand-mark .core { fill: var(--ink); }
+    .brand-mark .node { fill: #fff; stroke: currentColor; stroke-width: 1.8; }
+    .brand-mark .link {
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      opacity: .85;
+      stroke-dasharray: 24;
+      animation: traceMark 5.2s ease-in-out infinite;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+    nav a {
+      position: relative;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -9px;
+      height: 2px;
+      border-radius: 9px;
+      background: var(--teal);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .18s ease;
+    }
+    nav a:hover, nav a.is-active { color: var(--ink); }
+    nav a.is-active::after, nav a:hover::after { transform: scaleX(1); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+    .hero {
+      position: relative;
+      padding-block: 86px 42px;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(7,141,132,.38), rgba(36,107,254,.22), transparent);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(430px, 1.05fr);
+      gap: 58px;
+      align-items: center;
+    }
+    .hero h1 {
+      font-size: clamp(48px, 6.2vw, 84px);
+      line-height: .98;
+      font-weight: 790;
+      max-width: 10.8ch;
+      margin-bottom: 22px;
+      text-shadow: 0 1px 0 #fff;
+    }
+    .hero .lead { margin-bottom: 28px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .hero-proof {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid rgba(197,208,220,.8);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72)),
+        linear-gradient(90deg, rgba(7,141,132,.08), transparent);
+      overflow: hidden;
+      box-shadow: 0 1px 0 var(--edge) inset, var(--shadow-soft);
+    }
+    .hero-proof div { position: relative; padding: 16px; border-right: 1px solid var(--line); }
+    .hero-proof div:last-child { border-right: 0; }
+    .hero-proof div::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--teal), transparent);
+      opacity: .45;
+      transform: scaleX(var(--proof, .72));
+      transform-origin: left;
+    }
+    .hero-proof div:nth-child(1) { --proof: .98; }
+    .hero-proof div:nth-child(2) { --proof: .86; }
+    .hero-proof div:nth-child(3) { --proof: .40; }
+    .hero-proof strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1;
+      margin-bottom: 6px;
+      font-family: var(--mono);
+      letter-spacing: -.02em;
+    }
+    .hero-proof span { display: block; color: var(--muted); font-size: 12px; }
+
+    .product-preview {
+      position: relative;
+      padding: 14px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.94), rgba(248,251,252,.84)) padding-box,
+        linear-gradient(135deg, rgba(7,141,132,.46), rgba(255,255,255,.9), rgba(36,107,254,.22)) border-box;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: floatPanel 7s ease-in-out infinite;
+    }
+    .product-preview::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(18,20,23,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18,20,23,.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.6), transparent 68%);
+    }
+    .product-preview::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.48) 45%, transparent 58%);
+      transform: translateX(-78%);
+      animation: sheen 8s ease-in-out infinite;
+    }
+    .preview-top {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      padding: 0 8px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .window-dots { display: flex; gap: 6px; }
+    .window-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 99px;
+      background: #c9d3dc;
+    }
+    .preview-body {
+      position: relative;
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      min-height: 498px;
+      background: rgba(255,255,255,.72);
+    }
+    .preview-side {
+      padding: 18px 14px;
+      border-right: 1px solid var(--line);
+    }
+    .side-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .side-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(220,227,234,.8);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .side-item strong { color: var(--ink); font-size: 13px; }
+    .preview-main { padding: 18px; }
+    .memory-card {
+      position: relative;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(220,227,234,.9);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 12px 28px rgba(24,35,50,.08);
+    }
+    .memory-card.live { border-color: rgba(7,141,132,.36); }
+    .memory-card.live::before {
+      content: "";
+      position: absolute;
+      inset: -1px auto -1px -1px;
+      width: 4px;
+      border-radius: 8px 0 0 8px;
+      background: var(--teal);
+      animation: liveRail 2.8s ease-in-out infinite;
+    }
+    .memory-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+    .memory-card h3 { font-size: 18px; line-height: 1.28; margin-bottom: 10px; }
+    .memory-card p { font-size: 13px; }
+    .mini-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .mini-actions button {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 7px 10px;
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .mini-actions button.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .agent-chip {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 10px;
+      min-height: 68px;
+      overflow: hidden;
+    }
+    .agent-chip strong { display: block; font-size: 12px; margin-bottom: 3px; }
+    .agent-chip span { display: block; color: var(--muted); font-size: 11px; }
+    .agent-chip.is-hot { border-color: rgba(7,141,132,.45); box-shadow: 0 0 0 3px rgba(7,141,132,.08); }
+    .flow-line {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 21px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--teal), var(--green), transparent);
+      opacity: .5;
+    }
+    .packet {
+      position: absolute;
+      bottom: 17px;
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--teal);
+      animation: packet 4.2s linear infinite;
+    }
+    .packet:nth-child(2) { animation-delay: 1.25s; background: var(--green); }
+    .packet:nth-child(3) { animation-delay: 2.5s; background: var(--blue); }
+
+    .proof-strip {
+      padding-block: 32px 64px;
+    }
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.2fr;
+      gap: 12px;
+    }
+    .proof-card {
+      padding: 18px;
+      min-height: 124px;
+    }
+    .proof-card strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: 26px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .proof-card p { font-size: 13px; }
+    .proof-card.highlight {
+      background:
+        linear-gradient(145deg, #23272f, var(--ink));
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .proof-card.highlight p { color: rgba(255,255,255,.72); }
+
+    .agent-cards {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .agent-card {
+      position: relative;
+      padding: 18px;
+      min-height: 156px;
+      overflow: hidden;
+    }
+    .agent-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, var(--teal), transparent);
+      opacity: .38;
+    }
+    .agent-card h3 { font-size: 17px; margin-bottom: 8px; }
+    .agent-card p { font-size: 13px; }
+    .connector-note {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .connector-note p { font-size: 14px; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .step {
+      padding: 24px;
+      min-height: 268px;
+    }
+    .step .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      font-family: var(--mono);
+      color: var(--teal);
+      background: #fff;
+      margin-bottom: 20px;
+    }
+    .step h3 { font-size: 22px; margin-bottom: 10px; }
+    .step p { font-size: 15px; }
+
+    .scores-layout {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(360px, 1.08fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+    .score-main {
+      position: relative;
+      padding: 28px;
+      background:
+        linear-gradient(135deg, rgba(7,141,132,.08), rgba(18,146,95,.06)),
+        #fff;
+      overflow: hidden;
+    }
+    .score-main::after {
+      content: "";
+      position: absolute;
+      inset: auto 28px 24px auto;
+      width: 128px;
+      height: 128px;
+      border-radius: 999px;
+      background:
+        conic-gradient(var(--teal) 0 78%, rgba(220,227,234,.72) 78% 100%);
+      opacity: .12;
+      pointer-events: none;
+    }
+    .score-main h3 { font-size: 30px; margin-bottom: 12px; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .metric {
+      position: relative;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.78);
+      overflow: hidden;
+    }
+    .metric::after {
+      content: "";
+      display: block;
+      height: 3px;
+      width: var(--p, 64%);
+      margin-top: 13px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--teal), var(--green));
+      box-shadow: 0 0 18px rgba(7,141,132,.20);
+    }
+    .metric strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: 28px;
+      letter-spacing: -.03em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .score-table {
+      position: relative;
+      padding: 22px;
+      overflow: hidden;
+    }
+    .score-table::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, var(--teal), rgba(36,107,254,.38), transparent);
+      opacity: .7;
+    }
+    .score-table-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .score-table-head h3 {
+      font-size: 18px;
+      margin-bottom: 3px;
+    }
+    .score-table-head p { font-size: 12px; }
+    .score-row {
+      display: grid;
+      grid-template-columns: minmax(112px, .8fr) minmax(0, 1.2fr) 86px;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      transition: background .18s ease, padding-inline .18s ease, margin-inline .18s ease;
+    }
+    .score-row:hover {
+      margin-inline: -10px;
+      padding-inline: 10px;
+      border-radius: var(--radius);
+      background: rgba(7,141,132,.045);
+    }
+    .score-row:last-child { border-bottom: 0; }
+    .score-row strong {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+    }
+    .score-row p { font-size: 12px; }
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .bar {
+      height: 10px;
+      border-radius: 99px;
+      background: var(--soft);
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      width: var(--w);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--teal), var(--green));
+      transform-origin: left;
+      animation: fillBar 1.15s ease both;
+    }
+    .score-value {
+      font-family: var(--mono);
+      text-align: right;
+      font-weight: 800;
+    }
+    .score-footnote {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: #fff8e8;
+      border: 1px solid rgba(189,122,0,.22);
+      color: #7a4f00;
+      font-size: 12px;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(430px, 1.15fr);
+      gap: 24px;
+      align-items: start;
+    }
+    .control-stack { display: grid; gap: 12px; }
+    .control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .control strong { display: block; margin-bottom: 4px; }
+    .control p { font-size: 13px; }
+    .toggle {
+      width: 44px;
+      height: 24px;
+      padding: 3px;
+      border-radius: 99px;
+      background: #dce3ea;
+    }
+    .toggle::before {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 18px;
+      border-radius: 99px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    }
+    .toggle.on { background: var(--teal); }
+    .toggle.on::before { transform: translateX(20px); }
+    .ledger {
+      padding: 22px;
+      background: #fff;
+    }
+    .ledger-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) 78px;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .ledger-row:last-child { border-bottom: 0; }
+    .ledger-row p { font-size: 12px; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--green);
+    }
+    .status.warn::before { background: var(--amber); }
+    .status.stop::before { background: var(--red); }
+    .ledger-row.is-hot {
+      margin-inline: -12px;
+      padding-inline: 12px;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, rgba(7,141,132,.08), rgba(7,141,132,.025));
+      box-shadow: inset 3px 0 0 rgba(7,141,132,.65);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .price-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 438px;
+      padding: 22px;
+      overflow: hidden;
+    }
+    .price-card::after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      bottom: 70px;
+      width: 46px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(7,141,132,.48));
+      opacity: .8;
+    }
+    .price-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(7,141,132,.65), transparent);
+      opacity: .36;
+    }
+    .price-card.featured {
+      border-color: rgba(7,141,132,.45);
+      box-shadow: 0 0 0 3px rgba(7,141,132,.08), 0 18px 54px rgba(7,141,132,.16);
+    }
+    .price-card.featured::before { opacity: 1; height: 4px; }
+    .price-head { min-height: 82px; }
+    .price-head h3 { font-size: 20px; margin-bottom: 8px; }
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 34px;
+      letter-spacing: -.04em;
+      font-weight: 860;
+    }
+    .price span { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .price-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .price-list li {
+      position: relative;
+      padding-left: 18px;
+    }
+    .price-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .58em;
+      width: 7px;
+      height: 7px;
+      border-radius: 99px;
+      background: var(--teal);
+    }
+    .price-card .btn { margin-top: auto; width: 100%; }
+    .pricing-note {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .pricing-note p { font-size: 13px; }
+
+    .advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .advanced-card {
+      position: relative;
+      padding: 22px;
+      min-height: 210px;
+      overflow: hidden;
+    }
+    .advanced-card::after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: 44px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(7,141,132,.68));
+    }
+    .advanced-card h3 { margin-bottom: 10px; }
+    .advanced-card p { font-size: 14px; }
+
+    footer {
+      padding: 40px 0 46px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: start;
+    }
+    .footer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .reveal {
+      opacity: 1;
+      transform: none;
+      animation: riseIn .72s ease both;
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes packet {
+      0% { left: 8%; opacity: 0; transform: scale(.8); }
+      12% { opacity: 1; }
+      84% { opacity: 1; }
+      100% { left: 90%; opacity: 0; transform: scale(1.05); }
+    }
+    @keyframes riseIn {
+      from { opacity: .01; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes traceMark {
+      0%, 100% { stroke-dashoffset: 0; opacity: .78; }
+      50% { stroke-dashoffset: 24; opacity: 1; }
+    }
+    @keyframes floatPanel {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes sheen {
+      0%, 42% { transform: translateX(-78%); opacity: 0; }
+      54% { opacity: .7; }
+      70%, 100% { transform: translateX(78%); opacity: 0; }
+    }
+    @keyframes liveRail {
+      0%, 100% { opacity: .72; }
+      50% { opacity: 1; }
+    }
+    @keyframes fillBar {
+      from { transform: scaleX(.08); opacity: .48; }
+      to { transform: scaleX(1); opacity: 1; }
+    }
+
+    @media (max-width: 1120px) {
+      nav { max-width: 470px; overflow-x: auto; padding-block: 8px; scrollbar-width: none; }
+      nav::-webkit-scrollbar { display: none; }
+      .hero-grid, .scores-layout, .trust-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .agent-cards, .advanced-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      :root { --gutter: 18px; }
+      .topbar-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px 12px;
+        padding-block: 8px;
+      }
+      nav {
+        grid-column: 1 / -1;
+        width: 100%;
+        max-width: none;
+        gap: 7px;
+      }
+      nav a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 8px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        font-size: 12px;
+      }
+      nav a::after { display: none; }
+      nav a.is-active { border-color: rgba(7,141,132,.42); background: rgba(7,141,132,.07); }
+      .nav-actions .btn-secondary { display: none; }
+      .nav-actions .btn { padding-inline: 12px; font-size: 13px; }
+      .section { padding-block: 68px; scroll-margin-top: 122px; }
+      .hero { padding-block: 44px 28px; }
+      .hero h1 { font-size: clamp(42px, 12vw, 58px); max-width: 12ch; }
+      .hero-grid { gap: 30px; }
+      .hero-proof, .proof-grid, .steps, .metric-grid, .agent-cards, .advanced-grid, .pricing-grid, .section-head, .footer-grid { grid-template-columns: 1fr; }
+      .hero-proof div { border-right: 0; border-bottom: 1px solid var(--line); }
+      .hero-proof div:last-child { border-bottom: 0; }
+      .preview-body { grid-template-columns: 1fr; min-height: auto; }
+      .preview-side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .agent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .proof-strip { padding-block-end: 42px; }
+      .score-row, .ledger-row { grid-template-columns: 1fr; gap: 7px; }
+      .score-table-head { flex-direction: column; align-items: flex-start; }
+      .score-value { text-align: left; }
+      .pricing-note { grid-template-columns: 1fr; }
+      .footer-links { justify-content: flex-start; }
+    }
+    @media (max-width: 460px) {
+      .hero-actions .btn { width: 100%; }
+      .agent-grid { grid-template-columns: 1fr; }
+      .product-preview { margin-inline: -4px; padding: 10px; }
+      .memory-card, .price-card, .score-main, .score-table, .ledger, .step, .advanced-card { padding: 18px; }
+      .connector-note { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+      .bar i { width: var(--w); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" data-od-id="topnav">
+    <div class="container topbar-inner">
+      <a class="brand" href="#home" aria-label="Lore Context home">
+        <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+          <path class="link" d="M17 17 8.5 8.5M17 17 25.5 8.5M17 17 8.5 25.5M17 17 25.5 25.5" />
+          <circle class="node" cx="8.5" cy="8.5" r="3.6" />
+          <circle class="node" cx="25.5" cy="8.5" r="3.6" />
+          <circle class="node" cx="8.5" cy="25.5" r="3.6" />
+          <circle class="node" cx="25.5" cy="25.5" r="3.6" />
+          <circle class="core" cx="17" cy="17" r="5.1" />
+        </svg>
+        <span>Lore Context</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#agents">Agents</a>
+        <a href="#how">How</a>
+        <a href="#scores">Scores</a>
+        <a href="#trust">Trust</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#advanced">Advanced</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-secondary" href="#scores">Compare</a>
+        <a class="btn btn-primary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request beta</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="hero" id="home" data-od-id="hero">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <p class="eyebrow">Personal AI memory cloud</p>
+          <h1>All your agents. One shared memory.</h1>
+          <p class="lead">Lore gives Claude Code, Codex, Cursor, OpenCode, and web AI tools the same reviewed memory, so you stop explaining the same facts again.</p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="btn btn-primary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request beta access</a>
+            <a class="btn btn-secondary" href="#how">See how it works</a>
+          </div>
+          <div class="hero-tags" aria-label="Product highlights">
+            <span class="tag"><span class="dot" aria-hidden="true"></span>Google sign-in first</span>
+            <span class="tag">Memory Inbox</span>
+            <span class="tag">Evidence Ledger</span>
+            <span class="tag">Exportable memory</span>
+          </div>
+          <div class="hero-proof" aria-label="Lore score summary">
+            <div><strong class="count-up" data-count="1" data-decimals="3">1.000</strong><span>Recall@5 on the current early-access retrieval check</span></div>
+            <div><strong class="count-up" data-count="0.875" data-decimals="3">0.875</strong><span>MRR with source-aware retrieval path</span></div>
+            <div><strong class="count-up" data-count="3" data-prefix="$" data-decimals="0">$3</strong><span>Lite plan starts low for everyday users</span></div>
+          </div>
+        </div>
+
+        <div class="product-preview reveal" aria-label="Lore product preview">
+          <div class="preview-top">
+            <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span class="pill">Shared vault preview</span>
+          </div>
+          <div class="preview-body">
+            <aside class="preview-side" aria-label="Vault preview navigation">
+              <div class="side-title">LORE VAULT</div>
+              <div class="side-item"><strong>Inbox</strong><span>3</span></div>
+              <div class="side-item"><strong>Approved</strong><span>128</span></div>
+              <div class="side-item"><strong>Agents</strong><span>6</span></div>
+              <div class="side-item"><strong>Ledger</strong><span>Live</span></div>
+              <div class="side-item"><strong>Private mode</strong><span>Off</span></div>
+            </aside>
+            <div class="preview-main">
+              <article class="memory-card live" data-memory-card>
+                <div class="memory-meta"><span id="memory-source">Captured from a work session today</span><span id="memory-state">Reviewing</span></div>
+                <h3 id="memory-title">Remember that I prefer concise weekly project summaries before new tasks begin.</h3>
+                <p id="memory-copy">Lore keeps the source and date attached, so the next agent can use this preference without asking again.</p>
+                <div class="mini-actions">
+                  <button type="button" class="primary">Approve</button>
+                  <button type="button">Edit</button>
+                  <button type="button">Reject</button>
+                  <button type="button">Delete</button>
+                </div>
+              </article>
+              <article class="memory-card">
+                <div class="memory-meta"><span>Used by a connected agent</span><span>Source-aware</span></div>
+                <h3>Use the approved tone when writing follow-up emails and project notes.</h3>
+                <p>The agent sees what you approved, where it came from, and when it needs a fresh review.</p>
+              </article>
+              <div class="agent-grid" aria-label="Connected agent preview">
+                <div class="agent-chip is-hot" data-agent-chip><strong>Claude Code</strong><span>captures sessions</span></div>
+                <div class="agent-chip" data-agent-chip><strong>Codex</strong><span>recalls preferences</span></div>
+                <div class="agent-chip" data-agent-chip><strong>Cursor</strong><span>uses project facts</span></div>
+                <div class="agent-chip" data-agent-chip><strong>ChatGPT</strong><span>web capture ready</span></div>
+              </div>
+            </div>
+            <div class="flow-line" aria-hidden="true"></div>
+            <span class="packet" aria-hidden="true"></span>
+            <span class="packet" aria-hidden="true"></span>
+            <span class="packet" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-strip" data-od-id="proof-strip">
+      <div class="container proof-grid">
+        <article class="proof-card card reveal highlight">
+          <strong>One vault</strong>
+          <p>Claude Code, Codex, Cursor, OpenCode, and web AI use the same reviewed memory.</p>
+        </article>
+        <article class="proof-card card reveal">
+          <strong class="count-up" data-count="1" data-decimals="3">1.000</strong>
+          <p>Recall@5 on Lore's current early-access retrieval check.</p>
+        </article>
+        <article class="proof-card card reveal">
+          <strong class="count-up" data-count="0" data-decimals="3">0.000</strong>
+          <p>Stale-hit rate on the same small sample set.</p>
+        </article>
+        <article class="proof-card card reveal">
+          <strong>Clear labels</strong>
+          <p>The score panel separates Lore's own check from external benchmark references.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="agents" data-od-id="agents">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">Works where you already work</p>
+            <h2>Your memory follows every agent you choose.</h2>
+          </div>
+          <p class="lead">Connect the tools once, review captured memory, and let the next agent start with the facts you already approved.</p>
+        </div>
+        <div class="agent-cards">
+          <article class="agent-card card reveal"><h3>Claude Code</h3><p>Import session summaries and keep project decisions available for later coding tasks.</p></article>
+          <article class="agent-card card reveal"><h3>Codex</h3><p>Recall project preferences, previous decisions, and approved facts across runs.</p></article>
+          <article class="agent-card card reveal"><h3>Cursor</h3><p>Bring approved project memory into editor-first work.</p></article>
+          <article class="agent-card card reveal"><h3>OpenCode</h3><p>Keep CLI agent context aligned with the same personal memory vault.</p></article>
+          <article class="agent-card card reveal"><h3>Web AI</h3><p>Keep useful ChatGPT, Claude.ai, Gemini, and research context in one reviewed memory.</p></article>
+        </div>
+        <div class="connector-note reveal">
+          <p><strong>Connect once, reuse everywhere:</strong> Lore is built to capture useful context from the tools you approve, then share the reviewed memory with the next agent you use.</p>
+          <a class="btn btn-link" href="#pricing">See plans</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how" data-od-id="how">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">How it works</p>
+            <h2>A simple memory loop for non-technical users.</h2>
+          </div>
+          <p class="lead">Sign in once, connect your tools, approve what matters, and let Lore handle the memory layer in the background.</p>
+        </div>
+        <div class="steps">
+          <article class="step card reveal">
+            <span class="num">01</span>
+            <h3>Connect agents</h3>
+            <p>Google sign-in creates a personal vault. Lore then connects agent sessions, web AI, and later document connectors with user consent.</p>
+          </article>
+          <article class="step card reveal">
+            <span class="num">02</span>
+            <h3>Review memory</h3>
+            <p>Captured facts land in Memory Inbox. You approve, edit, reject, delete, or mark sensitive facts private before they become durable.</p>
+          </article>
+          <article class="step card reveal">
+            <span class="num">03</span>
+            <h3>Recall with receipts</h3>
+            <p>Every connected agent can recall approved memory. Evidence Ledger records source, timestamp, conflicts, and whether the memory was used.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="scores" data-od-id="scores">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">Transparent scorecard</p>
+            <h2>Know exactly what has been measured.</h2>
+          </div>
+          <p class="lead">Early access includes an honest score view: Lore's current retrieval check, external benchmark references, and clear labels where the methods differ.</p>
+        </div>
+        <div class="scores-layout">
+          <article class="score-main card reveal">
+            <span class="pill">Lore retrieval check</span>
+            <h3>Current early-access score snapshot</h3>
+            <p>Four sample memories, four questions, top-5 retrieval. This shows the retrieval and Evidence Ledger path working in the current early-access check.</p>
+            <div class="metric-grid">
+              <div class="metric" style="--p:100%"><strong class="count-up" data-count="1" data-decimals="3">1.000</strong><span>Recall@5</span></div>
+              <div class="metric" style="--p:87.5%"><strong class="count-up" data-count="0.875" data-decimals="3">0.875</strong><span>MRR</span></div>
+              <div class="metric" style="--p:20%"><strong class="count-up" data-count="0.2" data-decimals="3">0.200</strong><span>Precision@5 on a small sample set</span></div>
+              <div class="metric" style="--p:6%"><strong class="count-up" data-count="0" data-decimals="3">0.000</strong><span>Stale-hit rate</span></div>
+            </div>
+          </article>
+          <article class="score-table card reveal" aria-label="Score comparison table">
+            <div class="score-table-head">
+              <div>
+                <h3>External benchmark references</h3>
+                <p>Public figures are shown separately from Lore's own early-access retrieval check.</p>
+              </div>
+              <span class="pill">Method labels kept visible</span>
+            </div>
+            <div class="score-row">
+              <strong><span class="rank-badge">01</span>Supermemory</strong>
+              <div><div class="bar"><i style="--w:81.6%"></i></div><p>Published LongMemEval-S reference from Supermemory research.</p></div>
+              <span class="score-value count-up" data-count="81.6" data-decimals="1" data-suffix="%">81.6%</span>
+            </div>
+            <div class="score-row">
+              <strong><span class="rank-badge">02</span>Zep</strong>
+              <div><div class="bar"><i style="--w:71.2%"></i></div><p>External LongMemEval-S reference reported in the same research.</p></div>
+              <span class="score-value count-up" data-count="71.2" data-decimals="1" data-suffix="%">71.2%</span>
+            </div>
+            <div class="score-row">
+              <strong><span class="rank-badge">03</span>Full context</strong>
+              <div><div class="bar"><i style="--w:60.2%"></i></div><p>External LongMemEval-S full-context reference.</p></div>
+              <span class="score-value count-up" data-count="60.2" data-decimals="1" data-suffix="%">60.2%</span>
+            </div>
+            <div class="score-row">
+              <strong><span class="rank-badge">--</span>Mem0</strong>
+              <div><div class="bar"><i style="--w:0%"></i></div><p>No comparable public score shown on the reviewed official pages.</p></div>
+              <span class="score-value">-</span>
+            </div>
+            <div class="score-row">
+              <strong><span class="rank-badge">--</span>Letta</strong>
+              <div><div class="bar"><i style="--w:0%"></i></div><p>No comparable public score shown on the reviewed official pages.</p></div>
+              <span class="score-value">-</span>
+            </div>
+            <p class="score-footnote">Benchmark methods differ. Lore's current score is an early retrieval check; larger public comparisons will be labeled separately when available.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="trust" data-od-id="trust">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">Trust and control</p>
+            <h2>Shared memory needs review, deletion, and receipts.</h2>
+          </div>
+            <p class="lead">You stay in control as Lore captures more context: pause collection, exclude sensitive sources, export memory, or delete what no longer belongs.</p>
+        </div>
+        <div class="trust-grid">
+          <div class="control-stack reveal">
+            <div class="control"><div><strong>Pause capture</strong><p>Stop new collection without deleting approved memory.</p></div><span class="toggle on" aria-hidden="true"></span></div>
+            <div class="control"><div><strong>Private mode</strong><p>Exclude sensitive sources or sessions from automatic capture.</p></div><span class="toggle" aria-hidden="true"></span></div>
+            <div class="control"><div><strong>Export or delete</strong><p>Export MIF records, remove one source, delete one memory, or delete the vault.</p></div><span class="tag">User owned</span></div>
+          </div>
+          <article class="ledger card reveal" aria-label="Evidence Ledger preview">
+            <div class="ledger-head">
+              <h3>Evidence Ledger</h3>
+              <span class="pill">Live recall trail</span>
+            </div>
+            <div class="ledger-row is-hot" data-ledger-row>
+              <span class="status">Used</span>
+              <div><strong>Preferred summary style</strong><p>Retrieved from an approved user preference with source and date attached.</p></div>
+              <span class="mono">High fit</span>
+            </div>
+            <div class="ledger-row" data-ledger-row>
+              <span class="status warn">Ignored</span>
+              <div><strong>Old delivery address</strong><p>Ignored because a newer approved memory replaced it.</p></div>
+              <span class="mono">Stale</span>
+            </div>
+            <div class="ledger-row" data-ledger-row>
+              <span class="status stop">Blocked</span>
+              <div><strong>Sensitive document note</strong><p>Blocked because private mode excludes this source from recall.</p></div>
+              <span class="mono">Risk</span>
+            </div>
+            <div class="ledger-row" data-ledger-row>
+              <span class="status">Ready</span>
+              <div><strong>Travel preference</strong><p>Ready for connected agents that are allowed to use personal preferences.</p></div>
+              <span class="mono">Clear</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing" data-od-id="pricing">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">Simple early-access plans</p>
+            <h2>Start free, then upgrade only when your memory grows.</h2>
+          </div>
+          <p class="lead">Lore is priced for everyday use: a useful free tier, a low-cost Lite plan, and clear upgrades for heavier personal or team memory.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card card reveal">
+            <div class="price-head"><span class="pill">Start</span><h3>Free</h3></div>
+            <div class="price">$0<span>/mo</span></div>
+            <ul class="price-list">
+              <li>2 connected agents</li>
+              <li>100K memory tokens</li>
+              <li>1K searches per month</li>
+              <li>30-day Evidence Ledger</li>
+              <li>Manual export</li>
+            </ul>
+            <a class="btn btn-secondary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Join beta</a>
+          </article>
+          <article class="price-card card reveal featured">
+            <div class="price-head"><span class="pill">Lowest paid</span><h3>Lite</h3></div>
+            <div class="price">$3<span>/mo</span></div>
+            <ul class="price-list">
+              <li>5 connected agents</li>
+              <li>1M memory tokens</li>
+              <li>10K searches per month</li>
+              <li>2 connectors</li>
+              <li>90-day Evidence Ledger</li>
+            </ul>
+            <a class="btn btn-primary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request Lite</a>
+          </article>
+          <article class="price-card card reveal">
+            <div class="price-head"><span class="pill">Best value</span><h3>Pro</h3></div>
+            <div class="price">$9<span>/mo</span></div>
+            <ul class="price-list">
+              <li>Unlimited personal agents</li>
+              <li>10M memory tokens</li>
+              <li>50K searches per month</li>
+              <li>5 connectors</li>
+              <li>1-year Evidence Ledger</li>
+            </ul>
+            <a class="btn btn-secondary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request Pro</a>
+          </article>
+          <article class="price-card card reveal">
+            <div class="price-head"><span class="pill">Small teams</span><h3>Team</h3></div>
+            <div class="price">$29<span>/mo</span></div>
+            <ul class="price-list">
+              <li>5 shared seats</li>
+              <li>Shared team memory</li>
+              <li>25M memory tokens</li>
+              <li>250K searches per month</li>
+              <li>Admin deletion and export</li>
+            </ul>
+            <a class="btn btn-secondary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request Team</a>
+          </article>
+          <article class="price-card card reveal">
+            <div class="price-head"><span class="pill">Private</span><h3>Enterprise</h3></div>
+            <div class="price">Custom</div>
+            <ul class="price-list">
+              <li>Private deployment path under discussion</li>
+              <li>Retention and export controls</li>
+              <li>Audit export</li>
+              <li>Security review on request</li>
+              <li>Beta-stage scoping only</li>
+            </ul>
+            <a class="btn btn-secondary" href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Talk to us</a>
+          </article>
+        </div>
+        <div class="pricing-note reveal">
+          <p><strong>Low-cost by design:</strong> Lore's Lite and Pro plans are positioned below many public memory-cloud plans, while usage caps keep the service sustainable.</p>
+          <a class="btn btn-link" href="#scores">View score details</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="advanced" data-od-id="advanced">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="eyebrow">Advanced layer</p>
+            <h2>Cloud first for most people. Portable and private when you need it.</h2>
+          </div>
+          <p class="lead">Most people can start with the hosted vault. Builders and privacy-sensitive teams can still use export, evals, governance, and private deployment paths.</p>
+        </div>
+        <div class="advanced-grid">
+          <article class="advanced-card card reveal"><h3>MIF export</h3><p>Portable memory records preserve source, review status, and context across systems.</p></article>
+          <article class="advanced-card card reveal"><h3>Recall evals</h3><p>Run Recall@K, Precision@K, MRR, stale-hit, and latency checks on owned datasets.</p></article>
+          <article class="advanced-card card reveal"><h3>Governance</h3><p>Retention, redaction, approval, conflict, and audit paths for serious memory use.</p></article>
+          <article class="advanced-card card reveal"><h3>Private deploy</h3><p>Use the hosted vault first, then move to a private deployment when your workflow requires it.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer data-od-id="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="#home" aria-label="Lore Context home footer">
+          <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+            <path class="link" d="M17 17 8.5 8.5M17 17 25.5 8.5M17 17 8.5 25.5M17 17 25.5 25.5" />
+            <circle class="node" cx="8.5" cy="8.5" r="3.6" />
+            <circle class="node" cx="25.5" cy="8.5" r="3.6" />
+            <circle class="node" cx="8.5" cy="25.5" r="3.6" />
+            <circle class="node" cx="25.5" cy="25.5" r="3.6" />
+            <circle class="core" cx="17" cy="17" r="5.1" />
+          </svg>
+          <span>Lore Context</span>
+        </a>
+        <div class="footer-meta">
+          <span>Operator: REDLAND PTE. LTD.</span>
+          <span>UEN: 202304648K</span>
+          <span>Jurisdiction: Singapore</span>
+          <span><a href="mailto:redland2024@gmail.com">redland2024@gmail.com</a></span>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="#agents">Agents</a>
+        <a href="#scores">Scores</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#advanced">Advanced</a>
+        <a href="mailto:redland2024@gmail.com?subject=Lore%20Context%20Beta%20Access">Request beta</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const revealItems = Array.from(document.querySelectorAll(".reveal"));
+      const navLinks = Array.from(document.querySelectorAll("nav a[href^='#']"));
+      const sections = navLinks
+        .map((link) => document.querySelector(link.getAttribute("href")))
+        .filter(Boolean);
+
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      revealItems.forEach((item) => revealObserver.observe(item));
+
+      const formatCount = (value, decimals, prefix, suffix) => {
+        const fixed = value.toFixed(decimals);
+        return `${prefix}${fixed}${suffix}`;
+      };
+      const countItems = Array.from(document.querySelectorAll("[data-count]"));
+      const countObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.target.dataset.counted === "true") return;
+          const item = entry.target;
+          const target = Number.parseFloat(item.dataset.count || "0");
+          const decimals = Number.parseInt(item.dataset.decimals || "0", 10);
+          const prefix = item.dataset.prefix || "";
+          const suffix = item.dataset.suffix || "";
+          const duration = 820;
+          const startTime = performance.now();
+          item.dataset.counted = "true";
+
+          const tick = (now) => {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            item.textContent = formatCount(target * eased, decimals, prefix, suffix);
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          countObserver.unobserve(item);
+        });
+      }, { threshold: 0.35 });
+      countItems.forEach((item) => countObserver.observe(item));
+
+      const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach((link) => {
+            link.classList.toggle("is-active", link.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      }, { rootMargin: "-35% 0px -58% 0px", threshold: 0.01 });
+      sections.forEach((section) => navObserver.observe(section));
+
+      const states = [
+        {
+          source: "Captured from a work session today",
+          state: "Reviewing",
+          title: "Remember that I prefer concise weekly project summaries before new tasks begin.",
+          copy: "Lore keeps the source and date attached, so the next agent can use this preference without asking again."
+        },
+        {
+          source: "Captured from a pricing discussion",
+          state: "Approved",
+          title: "Use the approved tone when writing follow-up emails and project notes.",
+          copy: "The agent sees what you approved, where it came from, and when it needs a fresh review."
+        },
+        {
+          source: "Captured from a personal preference",
+          state: "Ready",
+          title: "Default to morning meetings unless the calendar already has a deadline block.",
+          copy: "Connected assistants can use this preference when scheduling, drafting, or preparing the day."
+        },
+        {
+          source: "Captured from a writing session",
+          state: "Source-aware",
+          title: "Keep customer messages short, direct, and focused on the next action.",
+          copy: "Lore makes the preference available without exposing unrelated conversation history."
+        }
+      ];
+      const source = document.getElementById("memory-source");
+      const state = document.getElementById("memory-state");
+      const title = document.getElementById("memory-title");
+      const copy = document.getElementById("memory-copy");
+      const memoryCard = document.querySelector("[data-memory-card]");
+      const chips = Array.from(document.querySelectorAll("[data-agent-chip]"));
+      let stateIndex = 0;
+      window.setInterval(() => {
+        stateIndex = (stateIndex + 1) % states.length;
+        const next = states[stateIndex];
+        memoryCard?.classList.remove("live");
+        window.setTimeout(() => {
+          if (source) source.textContent = next.source;
+          if (state) state.textContent = next.state;
+          if (title) title.textContent = next.title;
+          if (copy) copy.textContent = next.copy;
+          chips.forEach((chip, index) => chip.classList.toggle("is-hot", index === stateIndex % chips.length));
+          memoryCard?.classList.add("live");
+        }, 140);
+      }, 4200);
+
+      const ledgerRows = Array.from(document.querySelectorAll("[data-ledger-row]"));
+      let ledgerIndex = 0;
+      window.setInterval(() => {
+        ledgerIndex = (ledgerIndex + 1) % ledgerRows.length;
+        ledgerRows.forEach((row, index) => row.classList.toggle("is-hot", index === ledgerIndex));
+      }, 2700);
+    })();
+  </script>
+</body>
+</html>

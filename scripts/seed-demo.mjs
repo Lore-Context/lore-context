@@ -17,7 +17,7 @@ const fallbackMemories = [
     confidence: 0.92
   },
   {
-    content: "Lore should expose a small governed MCP surface instead of raw agentmemory tools.",
+    content: "Lore automatically captures and reviews session context from connected AI tools and apps.",
     memory_type: "project_rule",
     project_id: projectId,
     confidence: 0.9
@@ -42,11 +42,11 @@ const fallbackDataset = {
       ]
     },
     {
-      sessionId: "demo_mcp",
+      sessionId: "demo_connect",
       messages: [
         {
           role: "user",
-          content: "Lore should expose a small governed MCP surface instead of raw agentmemory tools."
+          content: "Lore automatically captures and reviews session context from connected AI tools and apps."
         }
       ]
     },
@@ -62,7 +62,7 @@ const fallbackDataset = {
   ],
   questions: [
     { question: "What is Lore's first product proof?", goldSessionIds: ["demo_eval"] },
-    { question: "What should Lore expose through MCP?", goldSessionIds: ["demo_mcp"] },
+    { question: "What does Lore capture from connected AI tools?", goldSessionIds: ["demo_connect"] },
     { question: "What must pass before private deployment?", goldSessionIds: ["demo_deploy"] }
   ]
 };

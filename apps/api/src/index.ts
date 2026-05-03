@@ -29,7 +29,7 @@ import {
   type SourceRef,
   type WebEvidence
 } from "@lore/shared";
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createServer, type IncomingMessage, type OutgoingHttpHeaders, type ServerResponse } from "node:http";
 import { randomUUID } from "node:crypto";
 import { dirname } from "node:path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -37,6 +37,8 @@ import { Pool, type PoolClient } from "pg";
 import { loadSchemaSql } from "./db/schema.js";
 import { log } from "./logger.js";
 import { openApiDocument } from "./openapi.js";
+import { CloudError, CloudPlatform, PostgresCloudStore, serializeCloudError, type CloudAuthContext } from "./cloud.js";
+import { ConnectorPlatform, serializeConnectorError } from "./connectors.js";
 
 const LORE_MAX_JSON_BYTES = Number(process.env.LORE_MAX_JSON_BYTES ?? 1048576);
 const LORE_REQUEST_TIMEOUT_MS = Number(process.env.LORE_REQUEST_TIMEOUT_MS ?? 30000);
@@ -198,6 +200,7 @@ export interface LoreApiDependencies {
   storePath?: string;
   apiKey?: string;
   apiKeys?: LoreApiKeyRule[];
+  cloudPlatform?: CloudPlatform;
 }
 
 export type LoreApiRole = "reader" | "writer" | "admin";
@@ -212,6 +215,25 @@ interface AuthContext {
   configured: boolean;
   role: LoreApiRole;
   projectIds?: string[];
+}
+
+interface HostedMcpModule {
+  handleHostedMcpHttpRequest: (request: Request, options: {
+    apiBaseUrl?: string;
+    apiKey?: string;
+    protocolVersion?: string;
+    fetchImpl?: typeof fetch;
+    resourceUrl?: string | URL;
+    authorizationServerUrl?: string | URL;
+  }) => Promise<Response>;
+}
+
+let hostedMcpModulePromise: Promise<HostedMcpModule> | undefined;
+
+async function loadHostedMcpModule(): Promise<HostedMcpModule> {
+  const specifier = "../../mcp-server/dist/index.js";
+  hostedMcpModulePromise ??= import(specifier) as Promise<HostedMcpModule>;
+  return hostedMcpModulePromise;
 }
 
 export class InMemoryLoreStore {
@@ -495,7 +517,7 @@ export class InMemoryLoreStore {
 
 export class PostgresLoreStore extends InMemoryLoreStore {
   readonly ready: Promise<void>;
-  private readonly pool: Pool;
+  readonly pool: Pool;
   private readonly ownsPool: boolean;
   private readonly autoApplySchema: boolean;
   private readonly defaultOrganizationId: string;
@@ -1360,10 +1382,19 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
   const searchProvider = deps.searchProvider ?? noopSearchProvider;
   const now = deps.now ?? (() => new Date());
   const apiKeys = resolveApiKeys(deps);
+  // v0.8 platform: when the lore store runs against Postgres, wire the cloud
+  // platform to the same database so account/vault/device/token/usage rows
+  // survive process restarts. Otherwise default to the in-memory store, which
+  // matches v0.7 behaviour for unit tests and dev runs.
+  const cloudStore = store instanceof PostgresLoreStore ? new PostgresCloudStore({ pool: store.pool }) : undefined;
+  const cloudPlatform = deps.cloudPlatform ?? new CloudPlatform({ store: cloudStore, now });
+  const connectorPlatform = new ConnectorPlatform({ cloudPlatform, now });
   const rateLimiter = createRateLimiter();
 
   return {
     store,
+    cloudPlatform,
+    connectorPlatform,
     async handle(request: Request): Promise<Response> {
       const requestId = randomUUID();
       const clientIp = getClientIp(request);
@@ -1385,6 +1416,77 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
 
           if (request.method === "GET" && path === "/openapi.json") {
             return json(openApiDocument);
+          }
+
+          // v0.9 connector paths also use cloud bearer tokens so they can be
+          // exercised by paired beta devices before dedicated connector OAuth
+          // scopes exist.
+          if (connectorPlatform.isConnectorPath(path)) {
+            try {
+              const result = await connectorPlatform.handle({
+                request,
+                url,
+                path,
+                method: request.method
+              });
+              return json(result.payload, result.status);
+            } catch (error) {
+              const connectorError = serializeConnectorError(error);
+              if (connectorError.status === 401) {
+                rateLimiter.recordAuthFailure(clientIp);
+              }
+              log.error("connector handler error", { requestId, code: connectorError.code, status: connectorError.status });
+              return json({ error: { code: connectorError.code, message: connectorError.message, status: connectorError.status } }, connectorError.status);
+            }
+          }
+
+          if (isHostedMcpPath(path)) {
+            try {
+              return await handleHostedMcpRoute({
+                request,
+                url,
+                path,
+                cloudPlatform,
+                store,
+                agentMemory,
+                searchProvider,
+                now,
+                requestId
+              });
+            } catch (error) {
+              const cloudError = serializeCloudError(error);
+              if (cloudError.status === 401) {
+                rateLimiter.recordAuthFailure(clientIp);
+              }
+              log.error("hosted mcp handler error", { requestId, code: cloudError.code, status: cloudError.status });
+              return json({ error: { code: cloudError.code, message: cloudError.message, status: cloudError.status } }, cloudError.status, cloudError.headers);
+            }
+          }
+
+          // v0.7 cloud paths use their own bearer-token auth and must be
+          // routed before the v0.6 api-key gate so cloud bridge / capture
+          // tokens are not rejected by the legacy `LORE_API_KEY` check.
+          if (cloudPlatform.isCloudPath(path)) {
+            const adminAuth = authenticateRequest(request, apiKeys);
+            const hasAdminApiKey = adminAuth?.role === "admin" && !adminAuth.projectIds;
+            try {
+              const result = await cloudPlatform.handle({
+                request,
+                url,
+                path,
+                method: request.method,
+                hasAdminApiKey,
+                isLoopback: isLoopbackRequest(request)
+              });
+              return cloudResponse(result);
+            } catch (error) {
+              const cloudError = serializeCloudError(error);
+              if (cloudError.status === 401) {
+                rateLimiter.recordAuthFailure(clientIp);
+              }
+              log.error("cloud handler error", { requestId, code: cloudError.code, status: cloudError.status });
+              return json({ error: { code: cloudError.code, message: cloudError.message, status: cloudError.status } }, cloudError.status, cloudError.headers);
+            }
           }
 
           const auth = authenticateRequest(request, apiKeys);
@@ -1419,6 +1521,228 @@ export function createLoreApi(deps: LoreApiDependencies = {}) {
       ]);
     }
   };
+}
+
+interface HostedMcpRouteOptions {
+  request: Request;
+  url: URL;
+  path: string;
+  cloudPlatform: CloudPlatform;
+  store: InMemoryLoreStore;
+  agentMemory: AgentMemoryAdapter;
+  searchProvider: SearchProvider;
+  now: () => Date;
+  requestId: string;
+}
+
+function isHostedMcpPath(path: string): boolean {
+  return path === "/mcp" ||
+    path === "/.well-known/oauth-protected-resource" ||
+    path === "/.well-known/oauth-authorization-server";
+}
+
+async function handleHostedMcpRoute(options: HostedMcpRouteOptions): Promise<Response> {
+  const { request, url, path, cloudPlatform, store, agentMemory, searchProvider, now, requestId } = options;
+
+  if (request.method === "GET" && path === "/.well-known/oauth-protected-resource") {
+    return json(getHostedMcpProtectedResourceMetadata(url), 200);
+  }
+
+  if (request.method === "GET" && path === "/.well-known/oauth-authorization-server") {
+    return json(getHostedMcpAuthorizationServerMetadata(url), 200);
+  }
+
+  if (request.method === "OPTIONS" && path === "/mcp") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        allow: "POST, OPTIONS",
+        "access-control-allow-headers": "authorization, content-type, mcp-protocol-version",
+        "access-control-allow-methods": "POST, OPTIONS"
+      }
+    });
+  }
+
+  if (path !== "/mcp") {
+    throw new CloudError("mcp.route_not_found", "hosted MCP route not found", 404);
+  }
+
+  if (request.method !== "POST") {
+    return json(
+      { error: { code: "mcp.method_not_allowed", message: "hosted MCP requires POST", status: 405 } },
+      405,
+      { allow: "POST, OPTIONS" }
+    );
+  }
+
+  const presented = readCloudBearerToken(request);
+  if (!presented) {
+    throw new CloudError(
+      "mcp.token_required",
+      "bearer token required for hosted MCP",
+      401,
+      { "www-authenticate": getHostedMcpWwwAuthenticateHeader(url) }
+    );
+  }
+
+  let cloudAuth: CloudAuthContext;
+  try {
+    cloudAuth = await cloudPlatform.authenticate(presented);
+  } catch (error) {
+    const serialized = serializeCloudError(error);
+    throw new CloudError(
+      serialized.code,
+      serialized.message,
+      serialized.status,
+      serialized.status === 401 ? { "www-authenticate": getHostedMcpWwwAuthenticateHeader(url) } : serialized.headers
+    );
+  }
+
+  if (!cloudAuth.scopes.includes("mcp.read")) {
+    throw new CloudError("mcp.scope_missing", "mcp.read scope is required for hosted MCP", 403);
+  }
+
+  // Hosted MCP write kill switch. Read/discovery (`tools/list`,
+  // `initialize`, `resources/*`, `prompts/*`) is always allowed; only
+  // mutating `tools/call` invocations are gated. This mirrors the
+  // capture/install-token kill-switch pattern: cloud operators can disable
+  // mutation without dropping the discovery surface.
+  if (!cloudPlatform.featureFlags().hostedMcpWrites) {
+    const peek = await peekHostedMcpWriteIntent(request);
+    if (peek.isWrite) {
+      throw new CloudError(
+        "mcp.write_disabled",
+        `hosted MCP write tool '${peek.toolName}' is disabled by operator kill switch`,
+        503
+      );
+    }
+  }
+
+  const mcp = await loadHostedMcpModule();
+  const loreAuth = cloudAuthToLoreAuth(cloudAuth);
+  const fetchImpl: typeof fetch = async (input, init = {}) => {
+    const targetUrl = new URL(String(input));
+    const targetRequest = new Request(targetUrl, {
+      method: init.method,
+      headers: init.headers,
+      body: init.body
+    });
+    if (cloudPlatform.isCloudPath(targetUrl.pathname)) {
+      const result = await cloudPlatform.handle({
+        request: targetRequest,
+        url: targetUrl,
+        path: targetUrl.pathname,
+        method: targetRequest.method,
+        hasAdminApiKey: false,
+        isLoopback: false
+      });
+      return cloudResponse(result);
+    }
+    return handleRequest(targetRequest, targetUrl, targetUrl.pathname, loreAuth, store, agentMemory, searchProvider, now, requestId);
+  };
+
+  return mcp.handleHostedMcpHttpRequest(request, {
+    apiBaseUrl: url.origin,
+    apiKey: presented,
+    fetchImpl,
+    protocolVersion: request.headers.get("mcp-protocol-version") ?? undefined,
+    resourceUrl: url,
+    authorizationServerUrl: url
+  });
+}
+
+function cloudAuthToLoreAuth(auth: CloudAuthContext): AuthContext {
+  return {
+    configured: true,
+    role: auth.scopes.includes("mcp.write") ? "admin" : "reader"
+  };
+}
+
+function readCloudBearerToken(request: Request): string | undefined {
+  const match = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i);
+  const token = match?.[1]?.trim();
+  return token?.startsWith("lct_") ? token : undefined;
+}
+
+// Hosted MCP mutating tools — kept in lockstep with `mutates: true` entries in
+// apps/mcp-server/src/index.ts. Read/discovery tools (context_query,
+// memory_search, memory_list, memory_get, memory_export, evidence.trace_get,
+// trace_get, profile.get, memory.recall, memory.inbox_list) and JSON-RPC
+// methods other than `tools/call` are NOT gated.
+export const HOSTED_MCP_WRITE_TOOLS: ReadonlySet<string> = new Set([
+  "memory_write",
+  "memory_forget",
+  "memory_update",
+  "memory_supersede",
+  "memory.add_candidate",
+  "memory.inbox_approve",
+  "memory.inbox_reject",
+  "memory.delete",
+  "source.pause",
+  "source.resume",
+  "profile.update_candidate",
+  "eval_run"
+]);
+
+export async function peekHostedMcpWriteIntent(
+  request: Request
+): Promise<{ isWrite: false } | { isWrite: true; toolName: string }> {
+  // Clone so the original body remains consumable by the MCP runtime.
+  let payload: unknown;
+  try {
+    payload = await request.clone().json();
+  } catch {
+    return { isWrite: false };
+  }
+  if (!payload || typeof payload !== "object") return { isWrite: false };
+  const message = payload as { method?: unknown; params?: unknown };
+  if (message.method !== "tools/call") return { isWrite: false };
+  const params = message.params;
+  if (!params || typeof params !== "object") return { isWrite: false };
+  const name = (params as { name?: unknown }).name;
+  if (typeof name !== "string") return { isWrite: false };
+  if (!HOSTED_MCP_WRITE_TOOLS.has(name)) return { isWrite: false };
+  return { isWrite: true, toolName: name };
+}
+
+function getHostedMcpProtectedResourceMetadata(url: URL): Record<string, unknown> {
+  return {
+    resource: `${url.origin}/mcp`,
+    resource_name: "Lore Hosted MCP",
+    authorization_servers: [url.origin],
+    bearer_methods_supported: ["header"],
+    scopes_supported: ["mcp.read", "mcp.write"],
+    mcp_endpoint: `${url.origin}/mcp`,
+    documentation: "https://lorecontext.com/docs/hosted-mcp"
+  };
+}
+
+function getHostedMcpAuthorizationServerMetadata(url: URL): Record<string, unknown> {
+  return {
+    issuer: url.origin,
+    authorization_endpoint: `${url.origin}/oauth/authorize`,
+    token_endpoint: `${url.origin}/v1/cloud/devices/pair`,
+    device_authorization_endpoint: `${url.origin}/v1/cloud/install-token`,
+    response_types_supported: ["code"],
+    grant_types_supported: [
+      "authorization_code",
+      "refresh_token",
+      "urn:ietf:params:oauth:grant-type:device_code",
+      "lore:install_token"
+    ],
+    token_endpoint_auth_methods_supported: ["none"],
+    code_challenge_methods_supported: ["S256"],
+    scopes_supported: ["mcp.read", "mcp.write"],
+    lore_beta: {
+      install_token_endpoint: `${url.origin}/v1/cloud/install-token`,
+      pairing_endpoint: `${url.origin}/v1/cloud/devices/pair`,
+      dynamic_client_registration: false
+    }
+  };
+}
+
+function getHostedMcpWwwAuthenticateHeader(url: URL): string {
+  return `Bearer realm="Lore Hosted MCP", resource_metadata="${url.origin}/.well-known/oauth-protected-resource", scope="mcp.read mcp.write"`;
 }
 
 function requireScopedProjectId(auth: AuthContext, projectId: string | undefined, endpoint: string): void {
@@ -1982,7 +2306,7 @@ export function startServer(port = Number(process.env.PORT ?? 3000)): void {
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const request = await nodeRequestToFetchRequest(req);
     const response = await app.handle(request);
-    res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
+    res.writeHead(response.status, responseHeadersToNodeHeaders(response.headers));
     res.end(await response.text());
   });
   server.listen(port, () => {
@@ -2021,6 +2345,22 @@ export function startServer(port = Number(process.env.PORT ?? 3000)): void {
 
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
+}
+
+export function responseHeadersToNodeHeaders(headers: Headers): OutgoingHttpHeaders {
+  const out: OutgoingHttpHeaders = {};
+  for (const [key, value] of headers.entries()) {
+    if (key.toLowerCase() === "set-cookie") {
+      continue;
+    }
+    out[key] = value;
+  }
+
+  const setCookies = headers.getSetCookie();
+  if (setCookies.length > 0) {
+    out["set-cookie"] = setCookies;
+  }
+  return out;
 }
 
 if (process.argv[1]?.endsWith("/dist/index.js")) {
@@ -2089,6 +2429,23 @@ function json(payload: unknown, status = 200, headers?: Record<string, string>):
     status,
     headers: { "content-type": "application/json; charset=utf-8", ...headers }
   });
+}
+
+// Cloud handlers may set multi-valued Set-Cookie headers (session + csrf in
+// one response). The JS Headers API only takes scalar values per .set(), so
+// we use .append() for arrays. Used by /auth/google/callback and /auth/logout.
+function cloudResponse(result: { payload: unknown; status: number; headers?: Record<string, string | string[]> }): Response {
+  const headers = new Headers({ "content-type": "application/json; charset=utf-8" });
+  if (result.headers) {
+    for (const [key, value] of Object.entries(result.headers)) {
+      if (Array.isArray(value)) {
+        for (const item of value) headers.append(key, item);
+      } else {
+        headers.set(key, value);
+      }
+    }
+  }
+  return new Response(JSON.stringify(result.payload, null, 2), { status: result.status, headers });
 }
 
 function resolveApiKeys(deps: LoreApiDependencies): LoreApiKeyRule[] {

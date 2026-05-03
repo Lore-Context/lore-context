@@ -1,6 +1,6 @@
 {
   "name": "lore-context",
-  "version": "0.6.0-alpha.0",
+  "version": "1.0.0-rc.2",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.30.1",
@@ -10,13 +10,14 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "dev:api": "pnpm --filter @lore/api build && node apps/api/dist/index.js",
+    "dev:api": "pnpm --filter @lore-context/server build && pnpm --filter @lore/api build && node apps/api/dist/index.js",
     "start:api": "node apps/api/dist/index.js",
     "dev:dashboard": "pnpm --filter @lore/dashboard dev",
     "start:dashboard": "pnpm --filter @lore/dashboard start",
     "dev:website": "pnpm --filter @lore/website dev",
     "smoke:api": "pnpm build && node scripts/smoke-api.mjs",
     "smoke:mcp": "pnpm build && node scripts/smoke-mcp.mjs",
+    "smoke:hosted-mcp": "pnpm --filter @lore-context/server build && pnpm --filter @lore/api build && node scripts/smoke-hosted-mcp.mjs",
     "smoke:dashboard": "pnpm build && node scripts/smoke-dashboard.mjs",
     "smoke:postgres": "pnpm --filter @lore/api build && node scripts/smoke-postgres.mjs",
     "smoke:agentmemory": "pnpm --filter @lore/agentmemory-adapter build && node scripts/smoke-agentmemory.mjs",
@@ -26,6 +27,9 @@
     "openapi:check": "node scripts/verify-openapi.mjs",
     "config:integrations": "node scripts/generate-integration-config.mjs",
     "eval:report": "node scripts/export-eval-report.mjs",
+    "smoke:rc1-guardrails": "pnpm --filter @lore/eval build && pnpm --filter @lore/api build && node scripts/smoke-rc1-guardrails.mjs",
+    "smoke:rc2-lane-e": "pnpm --filter @lore/model-gateway build && pnpm --filter @lore-context/server build && node scripts/smoke-rc2-lane-e.mjs",
+    "verify:rc1-performance": "pnpm --filter @lore/eval build && node -e \"import('./packages/eval/dist/index.js').then(m => { const r = m.buildRc1PerformanceGate(m.buildCaptureAckReport([]), m.buildCandidateGenerationReport([]), m.buildRecallApiReport([])); console.log(JSON.stringify(r, null, 2)); })\"",
     "db:schema": "node scripts/apply-postgres-schema.mjs",
     "db:schema:dry-run": "node scripts/apply-postgres-schema.mjs --dry-run",
     "clean": "pnpm -r exec rm -rf dist .turbo coverage"

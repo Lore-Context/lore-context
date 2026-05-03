@@ -44,6 +44,34 @@ describe("openapi", () => {
       info: expect.objectContaining({ title: "Lore Context API" })
     });
   });
+
+  it("serves hosted MCP OAuth metadata without API auth", async () => {
+    const app = createLoreApi({ apiKeys: [{ key: "locked", role: "admin" }] });
+    const response = await app.handle(new Request("https://api.lorecontext.com/.well-known/oauth-protected-resource"));
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      resource: "https://api.lorecontext.com/mcp",
+      authorization_servers: ["https://api.lorecontext.com"],
+      scopes_supported: expect.arrayContaining(["mcp.read", "mcp.write"])
+    });
+  });
+
+  it("returns hosted MCP discovery metadata on unauthenticated 401", async () => {
+    const app = createLoreApi({ apiKeys: [{ key: "locked", role: "admin" }] });
+    const response = await app.handle(new Request("https://api.lorecontext.com/mcp", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" })
+    }));
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("www-authenticate")).toContain("resource_metadata=\"https://api.lorecontext.com/.well-known/oauth-protected-resource\"");
+    await expect(response.json()).resolves.toMatchObject({
+      error: {
+        code: "mcp.token_required"
+      }
+    });
+  });
 });
 
 describe("getEvalProviders", () => {
@@ -67,6 +95,17 @@ describe("database schema", () => {
     expect(sql).toContain("retrieved_memory_ids JSONB");
     expect(sql).toContain("composed_memory_ids JSONB");
     expect(sql).toContain("feedback_at TIMESTAMPTZ");
+  });
+
+  it("includes the v0.9 connector persistence tables", () => {
+    const sql = loadSchemaSql();
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_connections");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_oauth_tokens");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_sync_jobs");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_sync_checkpoints");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_documents");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_webhook_events");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS connector_errors");
   });
 });
 

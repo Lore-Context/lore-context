@@ -51,4 +51,3 @@ that the Evidence Ledger includes a `used` row.
 Evidence Ledger is not a compliance certification by itself. It is a traceable
 product surface that teams can combine with access control, audit logs, review
 workflow, and private deployment controls.
-

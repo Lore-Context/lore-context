@@ -22,19 +22,26 @@ async function proxyLore(request: NextRequest, context: RouteContext): Promise<R
   const params = await context.params;
   const targetBase = process.env.LORE_API_URL ?? "http://127.0.0.1:3000";
   const sourceUrl = new URL(request.url);
-  const targetUrl = new URL(`/${params.path.join("/")}${sourceUrl.search}`, targetBase);
+  const path = params.path.join("/");
+  const targetUrl = new URL(`/${path}${sourceUrl.search}`, targetBase);
   const headers = new Headers();
 
-  copyHeader(request.headers, headers, "authorization");
+  copyBearerHeader(request.headers, headers);
   copyHeader(request.headers, headers, "x-lore-api-key");
+  copyAllowlistedCookies(request.headers, headers);
+  copyHeader(request.headers, headers, "x-lore-csrf");
   copyHeader(request.headers, headers, "content-type");
 
-  // Only inject server-side API key when the request has been authenticated via
-  // middleware basic auth (LORE_DASHBOARD_DISABLE_AUTH=1 or valid credentials).
-  // This prevents confused-deputy attacks where unauthenticated browser requests
-  // gain admin powers through the server-side key injection.
-  if (!headers.has("authorization") && !headers.has("x-lore-api-key") && process.env.LORE_API_KEY) {
-    // middleware.ts gates all requests; reaching here means auth passed
+  // Public SaaS traffic uses Lore's own session cookies. Admin API-key
+  // injection is opt-in and only available after the dashboard middleware has
+  // positively marked the request as Basic-authenticated.
+  if (
+    request.headers.get("x-lore-dashboard-authenticated") === "basic" &&
+    process.env.LORE_DASHBOARD_ADMIN_PROXY === "1" &&
+    !headers.has("authorization") &&
+    !headers.has("x-lore-api-key") &&
+    process.env.LORE_API_KEY
+  ) {
     headers.set("authorization", `Bearer ${process.env.LORE_API_KEY}`);
   }
 
@@ -48,6 +55,14 @@ async function proxyLore(request: NextRequest, context: RouteContext): Promise<R
   const responseHeaders = new Headers();
   copyHeader(response.headers, responseHeaders, "content-type");
   copyHeader(response.headers, responseHeaders, "www-authenticate");
+  copySetCookieHeaders(response.headers, responseHeaders);
+  if (path === "auth/google/callback") {
+    responseHeaders.set("location", response.ok ? "/" : `/?auth_error=${encodeURIComponent(String(response.status))}`);
+    return new Response(null, {
+      status: 303,
+      headers: responseHeaders
+    });
+  }
   return new Response(response.body, {
     status: response.status,
     headers: responseHeaders
@@ -59,4 +74,46 @@ function copyHeader(source: Headers, target: Headers, name: string): void {
   if (value) {
     target.set(name, value);
   }
+}
+
+// Forward only Lore-owned session cookies to the API. The browser may carry
+// unrelated cookies (analytics, third-party widgets) that the API never reads;
+// scrubbing them limits accidental leakage and keeps the proxy contract narrow.
+const FORWARDED_COOKIE_NAMES = new Set(["lore_session", "lore_csrf", "lore_oauth_state"]);
+
+function copyAllowlistedCookies(source: Headers, target: Headers): void {
+  const value = source.get("cookie");
+  if (!value) return;
+  const kept: string[] = [];
+  for (const part of value.split(/;\s*/)) {
+    if (!part) continue;
+    const eq = part.indexOf("=");
+    if (eq <= 0) continue;
+    const name = part.slice(0, eq).trim();
+    if (FORWARDED_COOKIE_NAMES.has(name)) {
+      kept.push(part);
+    }
+  }
+  if (kept.length > 0) {
+    target.set("cookie", kept.join("; "));
+  }
+}
+
+function copyBearerHeader(source: Headers, target: Headers): void {
+  const value = source.get("authorization");
+  if (value?.match(/^Bearer\s+/i)) {
+    target.set("authorization", value);
+  }
+}
+
+function copySetCookieHeaders(source: Headers, target: Headers): void {
+  const getSetCookie = (source as Headers & { getSetCookie?: () => string[] }).getSetCookie;
+  const cookies = typeof getSetCookie === "function" ? getSetCookie.call(source) : [];
+  if (cookies.length > 0) {
+    for (const cookie of cookies) {
+      target.append("set-cookie", cookie);
+    }
+    return;
+  }
+  copyHeader(source, target, "set-cookie");
 }

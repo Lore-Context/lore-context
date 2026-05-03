@@ -23,8 +23,10 @@ Current publication paths:
   package metadata; `npm dist-tag ls` returns `alpha` and `latest`; fresh
   install from a temporary directory succeeded; the installed
   `lore-context-server` returned 11 tools from MCP `tools/list`.
-- `.github/workflows/publish-mcp-registry.yml` builds, smokes, pushes the GHCR
-  image, authenticates with `github-oidc`, and publishes the registry entry.
+- The public repository workflow `publish-mcp-registry.yml` builds, smokes,
+  pushes the GHCR image, authenticates with `github-oidc`, and publishes the
+  registry entry. The private cloud repository records the status but does not
+  own the public Registry publication workflow.
 - GitHub Actions run `25120707303` succeeded.
 - GHCR package `lore-context-mcp` is public, and anonymous Docker manifest
   lookup succeeds.

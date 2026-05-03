@@ -120,4 +120,4 @@ Lore Context는 현재 1.0 이전 알파 소프트웨어입니다. 보안 수정
 
 - **v0.5**: OpenAPI / Swagger 스펙. `pnpm audit --high`, CodeQL 정적 분석 및 dependabot의 CI 통합.
 - **v0.6**: Sigstore 서명 컨테이너 이미지, SLSA 출처, 장기 토큰 대신 GitHub OIDC를 통한 npm 게시.
-- **v0.7**: KMS 봉투 암호화를 통한 `risk_tags` 플래그된 메모리 콘텐츠의 저장 시 암호화.
+- **Future hosted hardening**: KMS 봉투 암호화를 통한 `risk_tags` 플래그된 메모리 콘텐츠의 저장 시 암호화.

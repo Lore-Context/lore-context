@@ -30,7 +30,7 @@ This slice packages Lore for a private demo or internal team rollout without cha
 
 - `postgres`: durable store for shared or multi-operator demos.
 - `api`: Lore REST API on an internal bridge network, published to loopback by default.
-- `dashboard`: operator UI, published to loopback by default and proxying to the API through `LORE_API_URL`.
+- `dashboard`: user-facing SaaS dashboard or protected operator UI, published to loopback by default and proxying to the API through `LORE_API_URL`.
 - `mcp`: optional stdio container for Claude, Cursor, and Qwen operators who want a containerized launcher instead of `node apps/mcp-server/dist/index.js` on the host.
 
 The compose stack intentionally keeps public exposure narrow. Postgres, API, and dashboard all bind to `127.0.0.1` by default through variableized port mappings.
@@ -40,17 +40,25 @@ The compose stack intentionally keeps public exposure narrow. Postgres, API, and
 1. Copy `.env.example` to a private runtime file such as `.env.private`.
 2. Replace `POSTGRES_PASSWORD`.
 3. Prefer `LORE_API_KEYS` over a single `LORE_API_KEY`.
-4. Set `DASHBOARD_LORE_API_KEY` to an `admin` key for the full operator workflow, or to a scoped `reader` key for read-only demos. Set `MCP_LORE_API_KEY` to a `writer` or `reader` key depending on whether the client should mutate memory.
-5. Set `DASHBOARD_BASIC_AUTH_USER` and `DASHBOARD_BASIC_AUTH_PASS`; the dashboard refuses production traffic without Basic Auth.
+4. For public SaaS mode, set Google OAuth vars and use a dashboard redirect URI such as `https://app.lorecontext.com/api/lore/auth/google/callback`.
+5. Set `LORE_DASHBOARD_PUBLIC_SAAS=1` for the ordinary-user dashboard. In this mode the dashboard uses Lore session cookies and CSRF, not Basic Auth, and does not inject the admin API key into browser traffic.
+6. For an internal operator dashboard, leave `LORE_DASHBOARD_PUBLIC_SAAS=0`, set `DASHBOARD_BASIC_AUTH_USER` and `DASHBOARD_BASIC_AUTH_PASS`, and set `LORE_DASHBOARD_ADMIN_PROXY=1` only when the dashboard must proxy admin API calls.
+7. Set `MCP_LORE_API_KEY` to a `writer` or `reader` key depending on whether the client should mutate memory.
 
 Example role separation:
 
 ```bash
 LORE_API_KEYS='[{"key":"<YOUR_READER_KEY>","role":"reader","projectIds":["demo-private"]},{"key":"<YOUR_WRITER_KEY>","role":"writer","projectIds":["demo-private"]},{"key":"<YOUR_ADMIN_KEY>","role":"admin"}]'
-DASHBOARD_LORE_API_KEY=<YOUR_ADMIN_KEY>
+GOOGLE_CLIENT_ID=<YOUR_GOOGLE_OAUTH_CLIENT_ID>
+GOOGLE_CLIENT_SECRET=<YOUR_GOOGLE_OAUTH_CLIENT_SECRET>
+GOOGLE_REDIRECT_URI=https://app.lorecontext.com/api/lore/auth/google/callback
+SESSION_SECRET=<YOUR_32_BYTE_RANDOM_SECRET>
+LORE_DASHBOARD_PUBLIC_SAAS=1
+LORE_DASHBOARD_ADMIN_PROXY=0
+DASHBOARD_LORE_API_KEY=
 MCP_LORE_API_KEY=<YOUR_WRITER_KEY>
-DASHBOARD_BASIC_AUTH_USER=admin
-DASHBOARD_BASIC_AUTH_PASS=<YOUR_DASHBOARD_PASSWORD>
+DASHBOARD_BASIC_AUTH_USER=
+DASHBOARD_BASIC_AUTH_PASS=
 ```
 
 ## Start The Stack
@@ -126,6 +134,8 @@ The containerized launcher is useful for reproducible workstation setup, but it 
 
 - Keep `API_BIND_HOST`, `DASHBOARD_BIND_HOST`, and `POSTGRES_BIND_HOST` on `127.0.0.1` unless an authenticated reverse proxy is already in front of the stack.
 - Prefer `LORE_API_KEYS` with `reader` / `writer` / `admin` separation instead of reusing a single global admin key everywhere.
+- Keep `LORE_DASHBOARD_ADMIN_PROXY=0` for public SaaS. Admin key injection is an internal-operator escape hatch, not a user onboarding path.
+- Require `x-lore-csrf` for session-backed token issuance from the dashboard.
 - Use project-scoped keys for demo clients. The packaged demo project id is `demo-private`.
 - Keep `AGENTMEMORY_URL` on loopback and do not expose raw `agentmemory` directly.
 - Leave `LORE_AGENTMEMORY_REQUIRED=0` unless the private deployment really depends on a live agentmemory runtime.

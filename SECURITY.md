@@ -158,5 +158,5 @@ Items planned for follow-up releases:
   CodeQL static analysis, and dependabot.
 - **v0.6**: Sigstore-signed container images, SLSA provenance, npm publish via
   GitHub OIDC instead of long-lived tokens.
-- **v0.7**: At-rest encryption for `risk_tags`-flagged memory content via KMS
+- **Future hosted hardening**: At-rest encryption for `risk_tags`-flagged memory content via KMS
   envelope encryption.

@@ -165,5 +165,5 @@ Sonraki sürümler için planlanan öğeler:
   dependabot'un CI entegrasyonu.
 - **v0.6**: Sigstore imzalı konteyner görüntüleri, SLSA provenance, uzun ömürlü
   token'lar yerine GitHub OIDC aracılığıyla npm yayınlama.
-- **v0.7**: KMS zarf şifreleme aracılığıyla `risk_tags` ile işaretlenmiş bellek
+- **Future hosted hardening**: KMS zarf şifreleme aracılığıyla `risk_tags` ile işaretlenmiş bellek
   içeriği için bekleme sırasında şifreleme.

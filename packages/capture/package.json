@@ -1,0 +1,28 @@
+{
+  "name": "@lore/capture",
+  "version": "1.0.0-rc.2",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./parsers/claude-code": {
+      "types": "./dist/parsers/claude-code.d.ts",
+      "default": "./dist/parsers/claude-code.js"
+    },
+    "./parsers/codex": {
+      "types": "./dist/parsers/codex.d.ts",
+      "default": "./dist/parsers/codex.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lore/shared": "workspace:*"
+  }
+}

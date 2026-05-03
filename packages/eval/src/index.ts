@@ -1,6 +1,52 @@
 export { runEval, persistRun, loadRuns, diffRuns } from "./runner.js";
 export type { EvalDataset, RetrievalFn, EvalRunResult } from "./runner.js";
 
+export {
+  redactSensitiveContent,
+  isRedactionClean,
+  checkNoLocalModelTerms,
+  checkNoMcpTerminology,
+  runCloudModelFallbackHarness,
+  REDACTION_PLACEHOLDER,
+} from "./guardrails.js";
+export type {
+  RedactionResult,
+  LocalModelCheckResult,
+  McpTerminologyCheckResult,
+  FallbackHarnessResult,
+  CloudModelStatus,
+} from "./guardrails.js";
+
+export {
+  PERF_TARGETS,
+  buildCaptureAckReport,
+  buildCandidateGenerationReport,
+  buildRecallApiReport,
+  buildRc1PerformanceGate,
+} from "./performance.js";
+export type {
+  CaptureAckSample,
+  CaptureAckLatencyReport,
+  CandidateGenerationSample,
+  CandidateGenerationReport,
+  RecallApiSample,
+  RecallApiLatencyReport,
+  Rc1PerformanceGate,
+} from "./performance.js";
+
+export {
+  BETA_FUNNEL_STAGES,
+  buildUserFunnelProgress,
+  buildBetaFunnelReport,
+} from "./beta-funnel.js";
+export type {
+  BetaFunnelStage,
+  ControlActionKind,
+  BetaFunnelEvent,
+  UserFunnelProgress,
+  BetaFunnelReport,
+} from "./beta-funnel.js";
+
 export function recallAtK(relevantIds: string[], retrievedIds: string[], k: number): number {
   if (relevantIds.length === 0) {
     return 0;
