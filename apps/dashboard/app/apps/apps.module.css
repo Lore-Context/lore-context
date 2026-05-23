@@ -1,0 +1,166 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.badge,
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 9px;
+  background: #eef2f7;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.connected {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.pairing,
+.notInstalled {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.error,
+.revoked {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.connectionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.connectionCard {
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHeader h2 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.detail {
+  margin: 12px 0 0;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.metaGrid div {
+  border: 1px solid #e8edf3;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 9px;
+}
+
+.metaGrid dt {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metaGrid dd {
+  margin: 4px 0 0;
+  color: #111827;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.intentNote {
+  margin-top: 10px;
+  border: 1px solid #c7d7fe;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: #344054;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.installPanel {
+  display: grid;
+  gap: 10px;
+}
+
+.commandBox {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #e8edf3;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 10px;
+}
+
+.commandBox code,
+.commandBox p {
+  margin: 0;
+  color: #344054;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 1080px) {
+  .statsGrid,
+  .connectionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .statsGrid,
+  .connectionGrid,
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+  }
+}

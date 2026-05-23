@@ -8,7 +8,7 @@ l'auditabilità e la sicurezza del deployment.
 
 ## Codice di condotta
 
-Questo progetto segue il [Contributor Covenant](../../CODE_OF_CONDUCT.md). Partecipando
+Questo progetto segue il [Contributor Covenant](../../../CODE_OF_CONDUCT.md). Partecipando
 accetti di rispettarlo.
 
 ## Configurazione dello sviluppo

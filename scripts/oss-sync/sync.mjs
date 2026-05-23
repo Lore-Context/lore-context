@@ -8,7 +8,7 @@
  *
  * Reads `scripts/oss-sync/config.json` for the OSS whitelist + commercial
  * blacklist + scrub patterns. Writes a deterministic file list and a
- * MANIFEST.md describing every staged file with its source path.
+ * MANIFEST.md describing every staged file without exposing local source paths.
  *
  * Usage:
  *   node scripts/oss-sync/sync.mjs --dry-run    (default; prints plan)
@@ -251,7 +251,7 @@ function main() {
     "# Lore Context OSS Stage Manifest",
     "",
     `Generated: ${new Date().toISOString()}`,
-    `Source repo: ${REPO_ROOT}`,
+    "Source repo: private source repository (local path intentionally omitted)",
     `Config version: ${cfg.version}`,
     "",
     `Total files staged: ${fileList.length}`,

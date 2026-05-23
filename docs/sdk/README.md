@@ -25,6 +25,11 @@ Start with the [SDK matrix](./sdk-matrix.md) when choosing a package or release 
 - TypeScript package README: `packages/sdk-typescript/README.md`
 - Python package README: `packages/sdk-python/README.md`
 
+Note: the public Python SDK source intentionally excludes the Secret Vault
+crypto mirror (`packages/sdk-python/src/lore_context/secrets/` and
+`packages/sdk-python/tests/secrets/`) until the Secret Vault crypto audit is
+complete. The ordinary API client remains source-available.
+
 ## SDK middleware (v2.0.3+)
 
 Use middleware when you already call an LLM SDK and want Lore memory injected before the model call and retained after the response.

@@ -39,7 +39,7 @@ Full release notes: [`docs/release-notes/v2.1.0.md`](docs/release-notes/v2.1.0.m
 
 **Agent Memory Self-Improvement Loop.** Turns agent execution traces into automatic memory quality improvements without asking normal users to label memory quality. A unified recipe contract drives passive eval dataset generation, shadow recipe trials, safe data-recipe proposals, and a promotion gate that keeps production mutation human-gated. Model fine-tuning explicitly deferred.
 
-Full release notes: [`docs/release-notes/v2.0.9.md`](docs/release-notes/v2.0.9.md). Plan: [`.omc/plans/v2.0.9-plan.md`](../.omc/plans/v2.0.9-plan.md).
+Full release notes: [`docs/release-notes/v2.0.9.md`](docs/release-notes/v2.0.9.md). Internal plan: `.omc/plans/v2.0.9-plan.md`.
 
 **Commit chain (6 implementation commits on `feat/v2.0.9-agent-memory-self-improvement-loop`, plus this E2 release-handoff docs update):**
 ```text
@@ -87,7 +87,7 @@ a64d5e2 Keep butler maintenance shadow safe
 
 ## [v2.0.5-beta.0] — 2026-05-13 (CODE-COMPLETE, BETA — pending external crypto audit)
 
-**Secret Vault for AI Agents.** Zero-knowledge, MCP-native, three-button authorization (`一次` / `永久` / `拒绝`). One prompt per (agent, machine), then never again. 6 MCP tools (`secret.list / get / add / update / revoke / audit_log`) registered alongside `memory.*` and `code.*`. Full release notes: [`docs/release-notes/v2.0.5.md`](release-notes/v2.0.5.md). Plan: [`.omc/plans/v2.0.5-plan.md`](../.omc/plans/v2.0.5-plan.md).
+**Secret Vault for AI Agents.** Zero-knowledge, MCP-native, three-button authorization (`一次` / `永久` / `拒绝`). One prompt per (agent, machine), then never again. 6 MCP tools (`secret.list / get / add / update / revoke / audit_log`) registered alongside `memory.*` and `code.*`. Full release notes: [`docs/release-notes/v2.0.5.md`](docs/release-notes/v2.0.5.md). Internal plan: `.omc/plans/v2.0.5-plan.md`.
 
 **Acceptance:** 49 / 50 PASS, 1 deferred-with-runbook (V2.0.5-B2 Windows DPAPI manual smoke; `docs/runbooks/v2.0.5-windows-dpapi-smoke.md`).
 
@@ -168,7 +168,7 @@ Code Knowledge Graph release. 8 lanes (K/R/C/U/P/M/Q/Z), 40 acceptance criteria,
 
 ## [v2.0.1] — 2026-05-13 (SHIPPED)
 
-Lane L1 Commercial Closure Reality patch. Tag `v2.0.1` targets commit `a7821f293d069736fafd8701763675394d3737d3`. Production image `ghcr.io/lore-context/lore-context-api:a7821f293d06` + dashboard at same SHA deployed to EC2 `[redacted]` ([redacted]). RDS schema upgraded to v20 (`usage_overage_reports` + `idx_usage_meter_events_vault_event_time` present). `LORE_FLAG_V20_QUOTA_GATE=0` (quota gating shipped but off pending operator flip). Full release notes: [`docs/release-notes/v2.0.1.md`](release-notes/v2.0.1.md).
+Lane L1 Commercial Closure Reality patch. Tag `v2.0.1` targets commit `a7821f293d069736fafd8701763675394d3737d3`. Production image `ghcr.io/lore-context/lore-context-api:a7821f293d06` + dashboard at same SHA deployed to EC2 `[redacted]` ([redacted]). RDS schema upgraded to v20 (`usage_overage_reports` + `idx_usage_meter_events_vault_event_time` present). `LORE_FLAG_V20_QUOTA_GATE=0` (quota gating shipped but off pending operator flip). Full release notes: [`docs/release-notes/v2.0.1.md`](docs/release-notes/v2.0.1.md).
 
 Patch on top of v2.0.0 to ship the real commercial-closure code that the v2.0.0 release notes mistakenly claimed was already shipped. The v2.0.0 cutover delivered Stripe live keys + 7 live prices + webhook subscription, but the runtime quota / overage / downgrade code did not exist. v2.0.1 adds:
 
@@ -187,7 +187,7 @@ Patch on top of v2.0.0 to ship the real commercial-closure code that the v2.0.0 
 
 PMF Closure release. Turns v1.9's code-complete commercial substrate into a self-serve SaaS able to accept its first real paid customer end-to-end. 6 lanes shipped, 18 of 30 acceptance criteria PASS, 9 DEFERRED to v2.1 carry-forward (chiefly Stripe live cutover + OpenMeter VM provisioning, both operator-gated), 2 WARN (smoke probe auth + health-extension visibility), 1 partial-WARN, zero FAIL.
 
-Full release notes: [`docs/release-notes/v2.0.0.md`](release-notes/v2.0.0.md). Plan: [`.omc/plans/v2.0-plan.md`](../.omc/plans/v2.0-plan.md).
+Full release notes: [`docs/release-notes/v2.0.0.md`](docs/release-notes/v2.0.0.md). Internal plan: `.omc/plans/v2.0-plan.md`.
 
 ### Added
 

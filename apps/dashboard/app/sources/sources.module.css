@@ -1,0 +1,74 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.badge,
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 9px;
+  background: #eef2f7;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.healthy {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.syncing,
+.paused {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.error,
+.deletePending {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.intentNote {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid #c7d7fe;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: #344054;
+  padding: 7px 9px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+@media (max-width: 1080px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    min-width: 0;
+  }
+}

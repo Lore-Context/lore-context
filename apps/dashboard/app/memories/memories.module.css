@@ -1,0 +1,170 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.badge,
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 9px;
+  background: #eef2f7;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.memoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.memoryCard,
+.profileRow {
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.cardHeader,
+.profileRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHeader h2 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.metaGrid div {
+  border: 1px solid #e8edf3;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 9px;
+}
+
+.metaGrid dt {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metaGrid dd {
+  margin: 4px 0 0;
+  color: #111827;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  text-transform: capitalize;
+}
+
+.actions,
+.compactActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.compactActions {
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.intentNote {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid #c7d7fe;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: #344054;
+  padding: 7px 9px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.profileList {
+  display: grid;
+  gap: 10px;
+}
+
+.profileRow strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+.profileRow p {
+  margin: 6px 0 0;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.profileRow small {
+  display: block;
+  margin-top: 6px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.profileMeta {
+  min-width: 180px;
+  text-align: right;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.profileMeta > span {
+  margin-left: 6px;
+}
+
+@media (max-width: 920px) {
+  .statsGrid,
+  .memoryGrid,
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardHeader,
+  .profileRow {
+    flex-direction: column;
+  }
+
+  .profileMeta {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .compactActions {
+    justify-content: flex-start;
+  }
+}

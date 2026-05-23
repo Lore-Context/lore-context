@@ -1,0 +1,6927 @@
+openapi: 3.1.0
+info:
+  description: "Local-first AI agent context control plane for memory, traces, eval,\
+    \ governance, and Evidence Ledger inspection."
+  title: Lore Context API
+  version: 1.9.0
+servers:
+- description: Local development API
+  url: http://127.0.0.1:3000
+security:
+- bearerAuth: []
+- loreApiKey: []
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+          description: API health
+      security: []
+      summary: Read service health
+  /openapi.json:
+    get:
+      operationId: getOpenApiDocument
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: {}
+          description: OpenAPI document
+      security: []
+      summary: Read the machine-readable OpenAPI contract
+  /.well-known/oauth-protected-resource:
+    get:
+      operationId: getHostedMcpProtectedResourceMetadata
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: {}
+          description: Hosted MCP protected-resource metadata
+      security: []
+      summary: Read hosted MCP OAuth protected-resource metadata
+  /.well-known/oauth-authorization-server:
+    get:
+      operationId: getHostedMcpAuthorizationServerMetadata
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: {}
+          description: Hosted MCP authorization-server metadata
+      security: []
+      summary: Read hosted MCP authorization-server metadata
+  /mcp:
+    post:
+      operationId: hostedMcpJsonRpc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: {}
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: {}
+          description: MCP JSON-RPC response
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Missing or invalid hosted MCP bearer token; WWW-Authenticate
+            points to OAuth metadata
+          headers:
+            WWW-Authenticate:
+              explode: false
+              schema:
+                type: string
+              style: simple
+      security:
+      - bearerAuth: []
+      summary: Run hosted MCP JSON-RPC over HTTP
+  /v1/context/query:
+    post:
+      operationId: contextQuery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContextQueryRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContextQueryResponse"
+          description: Composed context
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Compose agent context and write a trace
+  /v1/memory/write:
+    post:
+      operationId: memoryWrite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemoryWriteRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryWriteResponse"
+          description: Written memory
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Write governed memory
+  /v1/memory/{id}:
+    get:
+      operationId: memoryGet
+      parameters:
+      - description: Memory id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryGet_200_response"
+          description: Memory detail
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Read memory by id
+    patch:
+      operationId: memoryUpdate
+      parameters:
+      - description: Memory id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemoryUpdateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryWriteResponse"
+          description: Updated memory
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Patch a memory in place
+  /v1/memory/{id}/supersede:
+    post:
+      operationId: memorySupersede
+      parameters:
+      - description: Memory id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/memorySupersede_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memorySupersede_200_response"
+          description: Supersede result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Create a successor memory and archive the old one
+  /v1/memory/search:
+    post:
+      operationId: memorySearch
+      parameters:
+      - description: Set to 1/true/yes to include per-stream diagnostics in the response
+          (opt-in; also accepts X-Lore-Diagnostics request header)
+        explode: true
+        in: query
+        name: diagnostics
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/memorySearch_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memorySearch_200_response"
+          description: Memory hits
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memorySearch_400_response"
+          description: Invalid bi-temporal parameter
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Search memory without composing context
+  /v1/memory/list:
+    get:
+      operationId: memoryList
+      parameters:
+      - description: Filter by project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Filter by memory scope
+        explode: true
+        in: query
+        name: scope
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Filter by memory lifecycle status
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Filter by memory type
+        explode: true
+        in: query
+        name: memory_type
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Filter by memory content substring
+        explode: true
+        in: query
+        name: q
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum rows
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryList_200_response"
+          description: Memory list
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List memories visible to the caller
+  /v1/memory/export:
+    get:
+      operationId: memoryExport
+      parameters:
+      - description: Project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: json or markdown
+        explode: true
+        in: query
+        name: format
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: {}
+            text/markdown:
+              schema:
+                type: string
+          description: MIF export
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Export memory as MIF JSON or Markdown
+  /v1/memory/import:
+    post:
+      operationId: memoryImport
+      parameters:
+      - description: Project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryImport_200_response"
+          description: Import result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Import MIF memory
+  /v1/memory/forget:
+    post:
+      operationId: memoryForget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/memoryForget_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryForget_200_response"
+          description: Forget result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Soft or hard delete memories
+  /v1/governance/review-queue:
+    get:
+      operationId: governanceReviewQueue
+      parameters:
+      - description: Project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryList_200_response"
+          description: Review queue
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List candidate or flagged memory requiring review
+  /v1/governance/memory/{id}/approve:
+    post:
+      operationId: governanceMemoryApprove
+      parameters:
+      - description: Memory id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/governanceMemoryApprove_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryGet_200_response"
+          description: Approved memory
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Approve a candidate or flagged memory
+  /v1/governance/memory/{id}/reject:
+    post:
+      operationId: governanceMemoryReject
+      parameters:
+      - description: Memory id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/governanceMemoryReject_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/memoryGet_200_response"
+          description: Rejected memory
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Reject a candidate or flagged memory
+  /v1/audit-logs:
+    get:
+      operationId: auditLogList
+      parameters:
+      - description: Maximum rows
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/auditLogList_200_response"
+          description: Audit logs
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List audit log entries
+  /v1/events/ingest:
+    post:
+      operationId: eventsIngest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/eventsIngest_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/eventsIngest_200_response"
+          description: Event result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Ingest agent telemetry event
+  /v1/integrations/agentmemory/health:
+    get:
+      operationId: agentmemoryHealth
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: {}
+          description: agentmemory health
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Read agentmemory adapter health
+  /v1/integrations/agentmemory/sync:
+    post:
+      operationId: agentmemorySync
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/agentmemorySync_200_response"
+          description: Sync result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Sync memory from agentmemory
+  /v1/traces:
+    get:
+      operationId: traceList
+      parameters:
+      - description: Filter by project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum rows
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/traceList_200_response"
+          description: Trace list
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List context traces
+  /v1/traces/{trace_id}/feedback:
+    post:
+      operationId: traceFeedback
+      parameters:
+      - description: Trace id
+        explode: false
+        in: path
+        name: trace_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/traceFeedback_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/traceFeedback_200_response"
+          description: Updated trace
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Record feedback on a trace
+  /v1/traces/{trace_id}:
+    get:
+      operationId: traceGet
+      parameters:
+      - description: Trace id
+        explode: false
+        in: path
+        name: trace_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/traceFeedback_200_response"
+          description: Trace detail
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Read one context trace
+  /v1/evidence/ledger/{trace_id}:
+    get:
+      operationId: evidenceLedgerGet
+      parameters:
+      - description: Trace id
+        explode: false
+        in: path
+        name: trace_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evidenceLedgerGet_200_response"
+          description: Evidence Ledger
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Read Evidence Ledger for one trace
+  /v1/evidence/ledgers:
+    get:
+      operationId: evidenceLedgerList
+      parameters:
+      - description: Filter by project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum rows
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evidenceLedgerList_200_response"
+          description: Evidence Ledger list
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List recent Evidence Ledgers
+  /v1/eval/providers:
+    get:
+      operationId: evalProviders
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evalProviders_200_response"
+          description: Eval providers
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List eval providers
+  /v1/eval/run:
+    post:
+      operationId: evalRun
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/evalRun_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evalRun_200_response"
+          description: Eval result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Run retrieval evaluation
+  /v1/eval/runs:
+    get:
+      operationId: evalRunList
+      parameters:
+      - description: Project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum rows
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evalRunList_200_response"
+          description: Eval runs
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: List eval runs
+  /v1/eval/runs/{run_id}:
+    get:
+      operationId: evalRunGet
+      parameters:
+      - description: Eval run id
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evalRunGet_200_response"
+          description: Eval run
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Read one eval run
+  /v1/eval/report:
+    get:
+      operationId: evalReport
+      parameters:
+      - description: Project id
+        explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: md or json
+        explode: true
+        in: query
+        name: format
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            text/markdown:
+              schema:
+                type: string
+            application/json:
+              schema:
+                $ref: "#/components/schemas/evalReport_200_response"
+          description: Eval report
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Render latest eval report
+  /v1/cloud/install-token:
+    post:
+      operationId: cloudIssueInstallToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/cloudIssueInstallToken_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloudInstallTokenResponse"
+          description: Install token
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No valid web session
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Admin permission or CSRF required
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      - loreSession: []
+        loreCsrf: []
+      summary: "Issue a single-use install token for local bridge pairing. Admin keys,\
+        \ loopback calls, and signed-in web sessions with CSRF may issue tokens."
+  /v1/cloud/devices/pair:
+    post:
+      operationId: cloudPairDevice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/cloudPairDevice_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloudPairResponse"
+          description: Device paired
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security: []
+      summary: Redeem an install token for device and service tokens
+  /v1/cloud/tokens/revoke:
+    post:
+      operationId: cloudRevokeToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/cloudRevokeToken_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/cloudRevokeToken_200_response"
+          description: Revoke result
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Revoke a cloud token
+  /v1/cloud/tokens/rotate:
+    post:
+      operationId: cloudRotateToken
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloudRotatedToken"
+          description: Rotated token
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Rotate the presented device or service token
+  /v1/cloud/whoami:
+    get:
+      operationId: cloudWhoAmI
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloudWhoAmIResponse"
+          description: Cloud identity
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Identify the cloud caller
+  /v1/cloud/vaults:
+    get:
+      operationId: cloudListVaults
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/cloudListVaults_200_response"
+          description: Vault list
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: List vaults visible to the caller
+  /v1/connectors:
+    get:
+      operationId: connectorList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorList_200_response"
+          description: Connector list
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: List connector providers and vault-scoped connections
+  /v1/connectors/{provider}/authorize:
+    post:
+      description: v1.0 Google Drive connector OAuth is separate from Google sign-in.
+        When live credentials are absent the route returns private-beta credential
+        status instead of pretending Drive is live.
+      operationId: connectorAuthorize
+      parameters:
+      - description: Connector provider id
+        explode: false
+        in: path
+        name: provider
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorAuthorize_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorAuthorizationUrl"
+          description: Authorization URL
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Create a connector OAuth authorization URL
+  /v1/connectors/{provider}/callback:
+    post:
+      description: Fixture-backed private-beta callback. Non-fixture live callbacks
+        fail closed until Google Drive OAuth credentials and token encryption are
+        configured.
+      operationId: connectorCallback
+      parameters:
+      - description: Connector provider id
+        explode: false
+        in: path
+        name: provider
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorCallback_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorCallback_201_response"
+          description: Connector connection
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Complete a connector OAuth callback
+  /v1/connectors/{provider}/webhook:
+    post:
+      operationId: connectorWebhook
+      parameters:
+      - description: Connector provider id
+        explode: false
+        in: path
+        name: provider
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorWebhook_request"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorWebhookResult"
+          description: Webhook accepted
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorWebhookResult"
+          description: Webhook rejected
+      security: []
+      summary: Verify and record a connector webhook
+  /v1/connectors/{connection_id}:
+    delete:
+      operationId: connectorDelete
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Delete stored connector document summaries
+        explode: true
+        in: query
+        name: delete_source_data
+        required: false
+        schema:
+          type: boolean
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorDelete_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorDelete_200_response"
+          description: Connector revoke/delete result
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Revoke a connector or delete its source data
+    get:
+      operationId: connectorStatusGet
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorStatusGet_200_response"
+          description: Connector status
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: "Read connector connection status, checkpoint, and document candidates"
+    patch:
+      operationId: connectorStatusPatch
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorStatusPatch_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorStatusPatch_200_response"
+          description: Connector connection
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Pause or resume a connector connection
+  /v1/connectors/{connection_id}/sync:
+    post:
+      operationId: connectorSync
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorSync_request"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorSyncResponse"
+          description: Connector sync result
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Run a connector backfill or incremental sync
+  /v1/connectors/{connection_id}/resync:
+    post:
+      operationId: connectorResync
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorSyncResponse"
+          description: Connector resync result
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Run a manual Google Drive resync/backfill
+  /v1/connectors/{connection_id}/pause:
+    post:
+      operationId: connectorPause
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorStatusPatch_200_response"
+          description: Connector connection
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Pause a connector connection
+  /v1/connectors/{connection_id}/resume:
+    post:
+      operationId: connectorResume
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorStatusPatch_200_response"
+          description: Connector connection
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Resume a paused connector connection
+  /v1/connectors/{connection_id}/disconnect:
+    post:
+      operationId: connectorDisconnect
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/connectorDelete_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorDelete_200_response"
+          description: Connector disconnect result
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Disconnect a connector and revoke stored connector tokens
+  /v1/connectors/{connection_id}/channels/renew:
+    post:
+      operationId: connectorRenewChannel
+      parameters:
+      - description: Connector connection id
+        explode: false
+        in: path
+        name: connection_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/connectorCallback_201_response"
+          description: Connector connection with renewed channel
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Renew Google Drive push notification channel metadata
+  /v1/capture/sources/{source_id}/heartbeat:
+    post:
+      operationId: captureSourceHeartbeat
+      parameters:
+      - description: Capture source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/captureSourceHeartbeat_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/captureSourceHeartbeat_200_response"
+          description: Heartbeat result
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Record a capture source heartbeat (vault-scoped)
+  /v1/capture/jobs/{job_id}:
+    get:
+      operationId: captureJobGet
+      parameters:
+      - description: Capture job id
+        explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/captureJobGet_200_response"
+          description: Capture job
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      summary: Read a capture job (vault-scoped)
+  /v1/capture/sessions:
+    post:
+      description: "V0.9 capture pipeline. Idempotent on `idempotency_key`. Rejects\
+        \ raw_archive uploads when the vault disallows it. Rejects when the source\
+        \ is paused, in private mode, or unavailable."
+      operationId: captureSessionIngest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/captureSessionIngest_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaptureIngestResponse"
+          description: Idempotent duplicate accepted
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaptureIngestResponse"
+          description: Session accepted for ingestion
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Source paused or raw_archive not allowed
+      security:
+      - bearerAuth: []
+      summary: Upload a captured agent session for ingestion
+  /v1/capture/sessions/{session_id}:
+    get:
+      operationId: captureSessionGet
+      parameters:
+      - description: Captured session id
+        explode: false
+        in: path
+        name: session_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/captureSessionGet_200_response"
+          description: Captured session
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      summary: Read a captured session (vault-scoped)
+  /v1/sources:
+    get:
+      operationId: v09SourcesList
+      parameters:
+      - description: Maximum sources to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      - description: "Filter by source status (active, paused, private_mode, revoked,\
+          \ error)"
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourcesList_200_response"
+          description: Source list
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: List capture sources visible to the caller's vault
+    post:
+      operationId: v09SourcesRegister
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/V09SourceRegisterRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourcesRegister_201_response"
+          description: Source registered
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Register a capture source for the caller's vault
+  /v1/sources/{source_id}:
+    get:
+      operationId: v09SourceGet
+      parameters:
+      - description: Source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourcesRegister_201_response"
+          description: Source
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      summary: Read a source
+    patch:
+      operationId: v09SourceUpdate
+      parameters:
+      - description: Source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/V09SourceUpdateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourcesRegister_201_response"
+          description: Updated source
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      summary: Update display name / raw archive policy / metadata
+  /v1/sources/{source_id}/pause:
+    post:
+      operationId: v09SourcePause
+      parameters:
+      - description: Source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourcesRegister_201_response"
+          description: Paused source
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      summary: Pause a source. Subsequent ingestion is rejected with 409.
+  /v1/sources/{source_id}/resume:
+    post:
+      operationId: v09SourceResume
+      parameters:
+      - description: Source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourcesRegister_201_response"
+          description: Resumed source
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+      - bearerAuth: []
+      summary: Resume a paused source
+  /v1/sources/{source_id}/checkpoints:
+    get:
+      operationId: v09SourceCheckpointList
+      parameters:
+      - description: Source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourceCheckpointList_200_response"
+          description: Checkpoint list
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: List source watcher checkpoints
+    post:
+      operationId: v09SourceCheckpointSave
+      parameters:
+      - description: Source id
+        explode: false
+        in: path
+        name: source_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/V09SourceCheckpointSaveRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09SourceCheckpointSave_200_response"
+          description: Checkpoint upserted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Upsert a watcher checkpoint
+  /v1/capture/events:
+    post:
+      operationId: v09CaptureEventsIngest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/V09CaptureEventBatchRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V09CaptureEventBatchResponse"
+          description: Batch accepted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "Source rejected the batch (paused, private_mode, revoked,\
+            \ error)"
+      security:
+      - bearerAuth: []
+      summary: Ingest a batch of canonical capture events for one source
+  /v1/capture/session-deltas:
+    post:
+      operationId: v09CaptureSessionDeltas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/V09SessionDeltaRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09CaptureSessionDeltas_202_response"
+          description: Deltas accepted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Source rejected the deltas
+      security:
+      - bearerAuth: []
+      summary: Ingest incremental session deltas for an existing session
+  /v1/usage:
+    get:
+      operationId: v09Usage
+      parameters:
+      - description: Recent usage events to include
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V09UsageSummary"
+          description: Usage summary
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      summary: Read vault usage and current plan-limit snapshot
+  /v1/operator/usage:
+    get:
+      operationId: v09OperatorUsage
+      parameters:
+      - description: Maximum vault rows
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v09OperatorUsage_200_response"
+          description: Operator rollup
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+      - bearerAuth: []
+      - loreApiKey: []
+      summary: Cross-vault usage rollup. Operator/admin api-key only.
+  /v1/memory-inbox:
+    get:
+      operationId: v10MemoryInboxList
+      parameters:
+      - description: Optional candidate status filter
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum candidates to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10MemoryInboxList_200_response"
+          description: Memory candidates
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+      security:
+      - bearerAuth: []
+      summary: List Memory Inbox candidates for the authenticated vault.
+  /v1/memory-inbox/{candidate_id}/approve:
+    post:
+      operationId: v10MemoryInboxApprove
+      parameters:
+      - description: Memory candidate id
+        explode: false
+        in: path
+        name: candidate_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10MemoryInboxApprove_200_response"
+          description: Candidate approved
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Candidate not found
+      security:
+      - bearerAuth: []
+      summary: Approve a Memory Inbox candidate for future recall.
+  /v1/memory-inbox/{candidate_id}/reject:
+    post:
+      operationId: v10MemoryInboxReject
+      parameters:
+      - description: Memory candidate id
+        explode: false
+        in: path
+        name: candidate_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10MemoryInboxApprove_200_response"
+          description: Candidate rejected
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Candidate not found
+      security:
+      - bearerAuth: []
+      summary: Reject a Memory Inbox candidate so it is not reused.
+  /v1/recall/traces:
+    get:
+      operationId: v10RecallTraceList
+      parameters:
+      - description: Maximum traces to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10RecallTraceList_200_response"
+          description: Recall traces
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+      security:
+      - bearerAuth: []
+      summary: List recall Evidence Ledger traces for the authenticated vault.
+  /v1/recall/traces/{trace_id}:
+    get:
+      operationId: v10RecallTraceGet
+      parameters:
+      - description: Recall trace id
+        explode: false
+        in: path
+        name: trace_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10RecallTraceGet_200_response"
+          description: Recall trace detail
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Trace not found
+      security:
+      - bearerAuth: []
+      summary: Inspect a single recall trace and its retrieved memory items.
+  /v1/recall/traces/{trace_id}/feedback:
+    post:
+      operationId: v10RecallTraceFeedback
+      parameters:
+      - description: Recall trace id
+        explode: false
+        in: path
+        name: trace_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/v10RecallTraceFeedback_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10RecallTraceFeedback_200_response"
+          description: Feedback recorded
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Trace not found
+      security:
+      - bearerAuth: []
+      summary: Attach user feedback to a recall trace.
+  /auth/google/start:
+    get:
+      operationId: v10AuthGoogleStart
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V10GoogleAuthStartResponse"
+          description: Authorization start
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Auth disabled (env not configured)
+      security: []
+      summary: Begin Google OIDC sign-in. Returns the authorization URL and sets a
+        state cookie.
+  /auth/google/callback:
+    get:
+      operationId: v10AuthGoogleRedirectCallback
+      parameters:
+      - description: Google OAuth authorization code returned to the redirect URI.
+        explode: true
+        in: query
+        name: code
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Opaque OAuth state that must match the state cookie.
+        explode: true
+        in: query
+        name: state
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Google OAuth error value when the user denies or Google rejects
+          the request.
+        explode: true
+        in: query
+        name: error
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V10GoogleAuthCallbackResponse"
+          description: Sign-in succeeded
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Bad input or OAuth state mismatch
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ID token rejected (signature, audience, issuer, or expiry)"
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Auth disabled (env not configured)
+      security: []
+      summary: Complete browser Google OAuth sign-in with an authorization code.
+    post:
+      operationId: v10AuthGoogleCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/V10GoogleAuthCallbackRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V10GoogleAuthCallbackResponse"
+          description: Sign-in succeeded
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Bad input
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: "ID token rejected (signature, audience, issuer, or expiry)"
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Auth disabled (env not configured)
+      security: []
+      summary: "Verify Google ID token, create or reuse account/identity/vault, and\
+        \ set a session cookie."
+  /auth/logout:
+    post:
+      operationId: v10AuthLogout
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v10AuthLogout_200_response"
+          description: Logged out
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: CSRF mismatch
+      security:
+      - loreSession: []
+        loreCsrf: []
+      summary: Revoke the current web session. Requires CSRF header on session cookies.
+  /v1/me:
+    get:
+      operationId: v10Me
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V10MeResponse"
+          description: Current user
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+      security:
+      - loreSession: []
+      summary: "Return the authenticated account, vault, and identity for the current\
+        \ session."
+  /v1/vault:
+    get:
+      operationId: v10MyVault
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V10VaultResponse"
+          description: Personal vault
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: No session
+      security:
+      - loreSession: []
+      summary: Return the personal vault for the current session.
+components:
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+      description: Missing or invalid API key
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+      description: Resource not found
+  schemas:
+    HealthResponse:
+      additionalProperties: {}
+      example:
+        reranker:
+          provider: stub
+        service: ""
+        status: ""
+        timestamp: 2000-01-23T04:56:07.000+00:00
+      properties:
+        status: {}
+        service: {}
+        timestamp:
+          format: date-time
+          type: string
+        reranker:
+          $ref: "#/components/schemas/HealthResponse_reranker"
+    ContextQueryRequest:
+      example:
+        mode: auto
+        project_id: project_id
+        query: query
+        include_sources: true
+        token_budget: 1
+      properties:
+        query:
+          type: string
+        project_id:
+          type: string
+        token_budget:
+          minimum: 1
+          type: integer
+        include_sources:
+          type: boolean
+        mode:
+          enum:
+          - auto
+          - memory
+          - web
+          - repo
+          - tool_traces
+          type: string
+      required:
+      - query
+    ContextQueryResponse:
+      additionalProperties: {}
+      example:
+        traceId: traceId
+        webEvidence:
+        - snippet: snippet
+          fetchedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          source: source
+          title: title
+          url: url
+        - snippet: snippet
+          fetchedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          source: source
+          title: title
+          url: url
+        route:
+          reason: reason
+          memory: true
+          web: true
+          repo: true
+          toolTraces: true
+        tier: free
+        toolTraceEvidence:
+        - snippet: snippet
+          fetchedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          source: source
+          title: title
+          url: url
+        - snippet: snippet
+          fetchedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          source: source
+          title: title
+          url: url
+        warnings:
+        - warnings
+        - warnings
+        confidence: 2.027123023002322
+        usage:
+          webSearches: 7
+          latencyMs: 1
+          memoryReads: 4
+          tokensUsed: 1
+        contextBlock: contextBlock
+        repoEvidence:
+        - snippet: snippet
+          fetchedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          source: source
+          title: title
+          url: url
+        - snippet: snippet
+          fetchedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          source: source
+          title: title
+          url: url
+        memoryHits:
+        - lifecycle:
+            validUntil: 2000-01-23T04:56:07.000+00:00
+            validFrom: 2000-01-23T04:56:07.000+00:00
+            supersededBy: supersededBy
+            status: status
+          score: 1.4658129805029452
+          memory:
+            metadata:
+              key: ""
+            visibility: visibility
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            confidence: 0.8008281904610115
+            memoryType: memoryType
+            content: content
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            riskTags:
+            - riskTags
+            - riskTags
+            scope: scope
+            id: id
+            useCount: 6
+            projectId: projectId
+            status: candidate
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+          highlights:
+          - highlights
+          - highlights
+          provenance:
+            sourceRefs:
+            - ""
+            - ""
+            candidateId: candidateId
+            approvedAt: 2000-01-23T04:56:07.000+00:00
+          streams:
+            sparse:
+              score: 7.061401241503109
+              sparseModel: sparseModel
+              vectorName: vectorName
+              rank: 2
+            graph:
+              score: 3.616076749251911
+              path:
+              - path
+              - path
+              rank: 9
+            dense:
+              score: 5.637376656633329
+              vectorName: vectorName
+              rank: 5
+              embeddingModel: embeddingModel
+          backend: backend
+          explanation: explanation
+        - lifecycle:
+            validUntil: 2000-01-23T04:56:07.000+00:00
+            validFrom: 2000-01-23T04:56:07.000+00:00
+            supersededBy: supersededBy
+            status: status
+          score: 1.4658129805029452
+          memory:
+            metadata:
+              key: ""
+            visibility: visibility
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            confidence: 0.8008281904610115
+            memoryType: memoryType
+            content: content
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            riskTags:
+            - riskTags
+            - riskTags
+            scope: scope
+            id: id
+            useCount: 6
+            projectId: projectId
+            status: candidate
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+          highlights:
+          - highlights
+          - highlights
+          provenance:
+            sourceRefs:
+            - ""
+            - ""
+            candidateId: candidateId
+            approvedAt: 2000-01-23T04:56:07.000+00:00
+          streams:
+            sparse:
+              score: 7.061401241503109
+              sparseModel: sparseModel
+              vectorName: vectorName
+              rank: 2
+            graph:
+              score: 3.616076749251911
+              path:
+              - path
+              - path
+              rank: 9
+            dense:
+              score: 5.637376656633329
+              vectorName: vectorName
+              rank: 5
+              embeddingModel: embeddingModel
+          backend: backend
+          explanation: explanation
+        effectiveTokenBudget: 1
+      properties:
+        traceId:
+          type: string
+        contextBlock:
+          type: string
+        route:
+          $ref: "#/components/schemas/ContextRoute"
+        memoryHits:
+          items:
+            $ref: "#/components/schemas/MemoryHit"
+          type: array
+        webEvidence:
+          items:
+            $ref: "#/components/schemas/WebEvidence"
+          type: array
+        repoEvidence:
+          items:
+            $ref: "#/components/schemas/WebEvidence"
+          type: array
+        toolTraceEvidence:
+          items:
+            $ref: "#/components/schemas/WebEvidence"
+          type: array
+        warnings:
+          items:
+            type: string
+          type: array
+        confidence:
+          type: number
+        usage:
+          $ref: "#/components/schemas/ContextQueryResponse_usage"
+        tier:
+          enum:
+          - free
+          - go
+          - plus
+          - pro
+          type: string
+        effectiveTokenBudget:
+          type: integer
+    ContextRoute:
+      additionalProperties: false
+      example:
+        reason: reason
+        memory: true
+        web: true
+        repo: true
+        toolTraces: true
+      properties:
+        memory:
+          type: boolean
+        web:
+          type: boolean
+        repo:
+          type: boolean
+        toolTraces:
+          type: boolean
+        reason:
+          type: string
+    ContextTrace:
+      additionalProperties: false
+      example:
+        query: query
+        warnings:
+        - warnings
+        - warnings
+        tokenBudget: 6.027456183070403
+        composedMemoryIds:
+        - composedMemoryIds
+        - composedMemoryIds
+        tokensUsed: 1.4658129805029452
+        feedback: useful
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        route:
+          reason: reason
+          memory: true
+          web: true
+          repo: true
+          toolTraces: true
+        retrievedMemoryIds:
+        - retrievedMemoryIds
+        - retrievedMemoryIds
+        id: id
+        projectId: projectId
+        latencyMs: 0.8008281904610115
+        ignoredMemoryIds:
+        - ignoredMemoryIds
+        - ignoredMemoryIds
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        query:
+          type: string
+        route:
+          $ref: "#/components/schemas/ContextRoute"
+        retrievedMemoryIds:
+          items:
+            type: string
+          type: array
+        composedMemoryIds:
+          items:
+            type: string
+          type: array
+        ignoredMemoryIds:
+          items:
+            type: string
+          type: array
+        warnings:
+          items:
+            type: string
+          type: array
+        latencyMs:
+          type: number
+        tokenBudget:
+          type: number
+        tokensUsed:
+          type: number
+        feedback:
+          enum:
+          - useful
+          - wrong
+          - outdated
+          - sensitive
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+    MemoryWriteRequest:
+      example:
+        agent_id: agent_id
+        project_id: project_id
+        scope: scope
+        confidence: 0.8008281904610115
+        memory_type: memory_type
+        content: content
+      properties:
+        content:
+          type: string
+        memory_type:
+          type: string
+        project_id:
+          type: string
+        agent_id:
+          type: string
+        scope:
+          type: string
+        confidence:
+          type: number
+      required:
+      - content
+    MemoryUpdateRequest:
+      example:
+        agent_id: agent_id
+        project_id: project_id
+        scope: scope
+        confidence: 0.8008281904610115
+        memory_type: memory_type
+        content: content
+      properties:
+        content:
+          type: string
+        memory_type:
+          type: string
+        project_id:
+          type: string
+        agent_id:
+          type: string
+        scope:
+          type: string
+        confidence:
+          type: number
+    MemoryWriteResponse:
+      additionalProperties: false
+      example:
+        memory:
+          metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        reviewRequired: true
+      properties:
+        memory:
+          $ref: "#/components/schemas/MemoryRecord"
+        reviewRequired:
+          type: boolean
+    MemoryRecord:
+      additionalProperties: false
+      example:
+        metadata:
+          key: ""
+        visibility: visibility
+        sourceRefs:
+        - path: path
+          id: id
+          type: type
+          excerpt: excerpt
+          url: url
+        - path: path
+          id: id
+          type: type
+          excerpt: excerpt
+          url: url
+        confidence: 0.8008281904610115
+        memoryType: memoryType
+        content: content
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        riskTags:
+        - riskTags
+        - riskTags
+        scope: scope
+        id: id
+        useCount: 6
+        projectId: projectId
+        status: candidate
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        memoryType:
+          type: string
+        scope:
+          type: string
+        visibility:
+          type: string
+        content:
+          type: string
+        status:
+          enum:
+          - candidate
+          - active
+          - confirmed
+          - superseded
+          - expired
+          - deleted
+          type: string
+        confidence:
+          type: number
+        sourceRefs:
+          items:
+            $ref: "#/components/schemas/SourceRef"
+          type: array
+        riskTags:
+          items:
+            type: string
+          type: array
+        metadata:
+          additionalProperties: true
+          type: object
+        useCount:
+          type: integer
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+    MemoryHit:
+      example:
+        lifecycle:
+          validUntil: 2000-01-23T04:56:07.000+00:00
+          validFrom: 2000-01-23T04:56:07.000+00:00
+          supersededBy: supersededBy
+          status: status
+        score: 1.4658129805029452
+        memory:
+          metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        highlights:
+        - highlights
+        - highlights
+        provenance:
+          sourceRefs:
+          - ""
+          - ""
+          candidateId: candidateId
+          approvedAt: 2000-01-23T04:56:07.000+00:00
+        streams:
+          sparse:
+            score: 7.061401241503109
+            sparseModel: sparseModel
+            vectorName: vectorName
+            rank: 2
+          graph:
+            score: 3.616076749251911
+            path:
+            - path
+            - path
+            rank: 9
+          dense:
+            score: 5.637376656633329
+            vectorName: vectorName
+            rank: 5
+            embeddingModel: embeddingModel
+        backend: backend
+        explanation: explanation
+      properties:
+        memory:
+          $ref: "#/components/schemas/MemoryRecord"
+        score:
+          type: number
+        highlights:
+          items:
+            type: string
+          type: array
+        backend:
+          type: string
+        streams:
+          $ref: "#/components/schemas/MemoryHit_streams"
+        lifecycle:
+          $ref: "#/components/schemas/MemoryHit_lifecycle"
+        provenance:
+          $ref: "#/components/schemas/MemoryHit_provenance"
+        explanation:
+          type: string
+      required:
+      - highlights
+      - memory
+      - score
+    WebEvidence:
+      additionalProperties: false
+      example:
+        snippet: snippet
+        fetchedAt: 2000-01-23T04:56:07.000+00:00
+        id: id
+        source: source
+        title: title
+        url: url
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        snippet:
+          type: string
+        source:
+          type: string
+        fetchedAt:
+          format: date-time
+          type: string
+    SourceRef:
+      additionalProperties: false
+      example:
+        path: path
+        id: id
+        type: type
+        excerpt: excerpt
+        url: url
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+        path:
+          type: string
+        url:
+          type: string
+        excerpt:
+          type: string
+    EvidenceLedger:
+      additionalProperties: false
+      example:
+        traceId: traceId
+        summary:
+          ignored: 1
+          composed: 6
+          riskTags:
+          - riskTags
+          - riskTags
+          staleCount: 5
+          warnings: 5
+          retrieved: 0
+          conflictCount: 2
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        route:
+          reason: reason
+          memory: true
+          web: true
+          repo: true
+          toolTraces: true
+        query: query
+        rows:
+        - disposition: used
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          riskTags:
+          - riskTags
+          - riskTags
+          confidence: 7.061401241503109
+          warnings:
+          - warnings
+          - warnings
+          contentPreview: contentPreview
+          memoryId: memoryId
+          status: status
+        - disposition: used
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          riskTags:
+          - riskTags
+          - riskTags
+          confidence: 7.061401241503109
+          warnings:
+          - warnings
+          - warnings
+          contentPreview: contentPreview
+          memoryId: memoryId
+          status: status
+        projectId: projectId
+        actions:
+        - actions
+        - actions
+        traceWarnings:
+        - traceWarnings
+        - traceWarnings
+      properties:
+        traceId:
+          type: string
+        query:
+          type: string
+        projectId:
+          type: string
+        route:
+          $ref: "#/components/schemas/ContextRoute"
+        traceWarnings:
+          items:
+            type: string
+          type: array
+        summary:
+          $ref: "#/components/schemas/EvidenceLedgerSummary"
+        rows:
+          items:
+            $ref: "#/components/schemas/EvidenceLedgerRow"
+          type: array
+        actions:
+          items:
+            type: string
+          type: array
+        createdAt:
+          format: date-time
+          type: string
+    EvidenceLedgerSummary:
+      additionalProperties: false
+      example:
+        ignored: 1
+        composed: 6
+        riskTags:
+        - riskTags
+        - riskTags
+        staleCount: 5
+        warnings: 5
+        retrieved: 0
+        conflictCount: 2
+      properties:
+        retrieved:
+          type: integer
+        composed:
+          type: integer
+        ignored:
+          type: integer
+        warnings:
+          type: integer
+        riskTags:
+          items:
+            type: string
+          type: array
+        staleCount:
+          type: integer
+        conflictCount:
+          type: integer
+    EvidenceLedgerRow:
+      additionalProperties: false
+      example:
+        disposition: used
+        sourceRefs:
+        - path: path
+          id: id
+          type: type
+          excerpt: excerpt
+          url: url
+        - path: path
+          id: id
+          type: type
+          excerpt: excerpt
+          url: url
+        riskTags:
+        - riskTags
+        - riskTags
+        confidence: 7.061401241503109
+        warnings:
+        - warnings
+        - warnings
+        contentPreview: contentPreview
+        memoryId: memoryId
+        status: status
+      properties:
+        memoryId:
+          type: string
+        contentPreview:
+          type: string
+        disposition:
+          enum:
+          - used
+          - ignored
+          - blocked
+          - missing
+          type: string
+        status:
+          type: string
+        confidence:
+          nullable: true
+          type: number
+        sourceRefs:
+          items:
+            $ref: "#/components/schemas/SourceRef"
+          type: array
+        riskTags:
+          items:
+            type: string
+          type: array
+        warnings:
+          items:
+            type: string
+          type: array
+    EvalProvider:
+      additionalProperties: false
+      example:
+        notes: notes
+        id: id
+        label: label
+        source: source
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        source:
+          type: string
+        notes:
+          type: string
+    EvalRunRecord:
+      additionalProperties: false
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        provider: provider
+        id: id
+        metrics:
+          precisionAt5: 6.027456183070403
+          recallAt5: 0.8008281904610115
+          staleHitRate: 5.962133916683182
+          mrr: 1.4658129805029452
+          p95LatencyMs: 5.637376656633329
+        projectId: projectId
+        status: ""
+      properties:
+        id:
+          type: string
+        provider:
+          type: string
+        projectId:
+          type: string
+        metrics:
+          $ref: "#/components/schemas/EvalMetrics"
+        status: {}
+        createdAt:
+          format: date-time
+          type: string
+    EvalMetrics:
+      additionalProperties: false
+      example:
+        precisionAt5: 6.027456183070403
+        recallAt5: 0.8008281904610115
+        staleHitRate: 5.962133916683182
+        mrr: 1.4658129805029452
+        p95LatencyMs: 5.637376656633329
+      properties:
+        recallAt5:
+          type: number
+        precisionAt5:
+          type: number
+        mrr:
+          type: number
+        staleHitRate:
+          type: number
+        p95LatencyMs:
+          type: number
+    AuditLog:
+      additionalProperties: false
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        resourceId: resourceId
+        metadata:
+          key: ""
+        action: action
+        id: id
+        resourceType: resourceType
+      properties:
+        id:
+          type: string
+        action:
+          type: string
+        resourceType:
+          type: string
+        resourceId:
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+    ErrorResponse:
+      additionalProperties: {}
+      example:
+        error:
+          code: code
+          message: message
+          status: 0
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorResponse_error"
+    CloudAccount:
+      additionalProperties: false
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        name: name
+        id: id
+        plan: plan
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+    CloudVault:
+      additionalProperties: false
+      example:
+        accountId: accountId
+        rawArchiveEnabled: true
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        privateMode: true
+        name: name
+        id: id
+        plan: plan
+      properties:
+        id:
+          type: string
+        accountId:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+        rawArchiveEnabled:
+          type: boolean
+        privateMode:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+    CloudDevice:
+      additionalProperties: false
+      example:
+        lastSeenAt: 2000-01-23T04:56:07.000+00:00
+        accountId: accountId
+        vaultId: vaultId
+        id: id
+        label: label
+        platform: platform
+        pairedAt: 2000-01-23T04:56:07.000+00:00
+        status: active
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        accountId:
+          type: string
+        label:
+          type: string
+        platform:
+          type: string
+        status:
+          enum:
+          - active
+          - revoked
+          type: string
+        pairedAt:
+          format: date-time
+          type: string
+        lastSeenAt:
+          format: date-time
+          type: string
+    CloudInstallTokenResponse:
+      additionalProperties: false
+      example:
+        accountId: accountId
+        tokenId: tokenId
+        singleUse: true
+        vaultId: vaultId
+        installToken: installToken
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        installToken:
+          type: string
+        tokenId:
+          type: string
+        vaultId:
+          type: string
+        accountId:
+          type: string
+        expiresAt:
+          format: date-time
+          type: string
+        singleUse:
+          type: boolean
+    CloudPairResponse:
+      additionalProperties: {}
+      example:
+        accountId: accountId
+        vaultId: vaultId
+        deviceTokenExpiresAt: 2000-01-23T04:56:07.000+00:00
+        scopes:
+          service:
+          - service
+          - service
+          device:
+          - device
+          - device
+        serviceToken: serviceToken
+        deviceId: deviceId
+        serviceTokenExpiresAt: 2000-01-23T04:56:07.000+00:00
+        deviceToken: deviceToken
+      properties:
+        deviceId:
+          type: string
+        vaultId:
+          type: string
+        accountId:
+          type: string
+        deviceToken:
+          type: string
+        deviceTokenExpiresAt:
+          format: date-time
+          type: string
+        serviceToken:
+          type: string
+        serviceTokenExpiresAt:
+          format: date-time
+          type: string
+        scopes:
+          $ref: "#/components/schemas/CloudPairResponse_scopes"
+    CloudRotatedToken:
+      additionalProperties: false
+      example:
+        accountId: accountId
+        tokenId: tokenId
+        vaultId: vaultId
+        kind: kind
+        scopes:
+        - scopes
+        - scopes
+        deviceId: deviceId
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        token: token
+      properties:
+        tokenId:
+          type: string
+        token:
+          type: string
+        kind:
+          type: string
+        vaultId:
+          type: string
+        accountId:
+          type: string
+        deviceId:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+        expiresAt:
+          format: date-time
+          type: string
+    CloudWhoAmIResponse:
+      additionalProperties: false
+      example:
+        tokenKind: tokenKind
+        scopes:
+        - scopes
+        - scopes
+        device:
+          lastSeenAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          vaultId: vaultId
+          id: id
+          label: label
+          platform: platform
+          pairedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+        account:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          plan: plan
+        vault:
+          accountId: accountId
+          rawArchiveEnabled: true
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          privateMode: true
+          name: name
+          id: id
+          plan: plan
+      properties:
+        account:
+          $ref: "#/components/schemas/CloudAccount"
+        vault:
+          $ref: "#/components/schemas/CloudVault"
+        device:
+          $ref: "#/components/schemas/CloudDevice"
+        tokenKind:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+    ConnectorProvider:
+      additionalProperties: false
+      example:
+        missingCredentialEnv:
+        - missingCredentialEnv
+        - missingCredentialEnv
+        provider: google_drive
+        auth: ""
+        liveCredentials: true
+        signInScopes:
+        - signInScopes
+        - signInScopes
+        label: label
+        scopes:
+        - scopes
+        - scopes
+        fixtureBacked: true
+        credentialEnv:
+        - credentialEnv
+        - credentialEnv
+        privateBeta: true
+        credentialStatus: configured
+      properties:
+        provider:
+          enum:
+          - google_drive
+          type: string
+        label:
+          type: string
+        auth: {}
+        liveCredentials:
+          type: boolean
+        privateBeta:
+          type: boolean
+        credentialStatus:
+          enum:
+          - configured
+          - missing
+          type: string
+        credentialEnv:
+          items:
+            type: string
+          type: array
+        missingCredentialEnv:
+          items:
+            type: string
+          type: array
+        signInScopes:
+          items:
+            type: string
+          type: array
+        scopes:
+          items:
+            type: string
+          type: array
+        fixtureBacked:
+          type: boolean
+    ConnectorScope:
+      additionalProperties: false
+      example:
+        displayName: displayName
+        id: id
+        type: drive
+      properties:
+        type:
+          enum:
+          - drive
+          - folder
+          - page
+          - database
+          type: string
+        id:
+          type: string
+        displayName:
+          type: string
+    ConnectorConnection:
+      additionalProperties: false
+      example:
+        metadata:
+          key: ""
+        lastError: lastError
+        vaultId: vaultId
+        displayName: displayName
+        lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+        accountId: accountId
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        deletedAt: 2000-01-23T04:56:07.000+00:00
+        provider: google_drive
+        permissions:
+          key: ""
+        scope:
+          displayName: displayName
+          id: id
+          type: drive
+        id: id
+        revokedAt: 2000-01-23T04:56:07.000+00:00
+        status: active
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        accountId:
+          type: string
+        provider:
+          enum:
+          - google_drive
+          type: string
+        displayName:
+          type: string
+        status:
+          enum:
+          - active
+          - paused
+          - revoked
+          - deleted
+          - error
+          type: string
+        scope:
+          $ref: "#/components/schemas/ConnectorScope"
+        permissions:
+          additionalProperties: true
+          type: object
+        metadata:
+          additionalProperties: true
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        lastSyncedAt:
+          format: date-time
+          nullable: true
+          type: string
+        revokedAt:
+          format: date-time
+          nullable: true
+          type: string
+        deletedAt:
+          format: date-time
+          nullable: true
+          type: string
+        lastError:
+          nullable: true
+          type: string
+    ConnectorAuthorizationUrl:
+      additionalProperties: false
+      example:
+        authorizationUrl: authorizationUrl
+        missingCredentialEnv:
+        - missingCredentialEnv
+        - missingCredentialEnv
+        provider: google_drive
+        signInScopes:
+        - signInScopes
+        - signInScopes
+        state: state
+        scopes:
+        - scopes
+        - scopes
+        fixtureBacked: true
+        credentialEnv:
+        - credentialEnv
+        - credentialEnv
+        privateBeta: true
+        credentialStatus: configured
+      properties:
+        provider:
+          enum:
+          - google_drive
+          type: string
+        authorizationUrl:
+          type: string
+        state:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+        signInScopes:
+          items:
+            type: string
+          type: array
+        fixtureBacked:
+          type: boolean
+        privateBeta:
+          type: boolean
+        credentialStatus:
+          enum:
+          - configured
+          - missing
+          type: string
+        credentialEnv:
+          items:
+            type: string
+          type: array
+        missingCredentialEnv:
+          items:
+            type: string
+          type: array
+    ConnectorDocumentSummary:
+      additionalProperties: false
+      example:
+        metadata:
+          key: ""
+        schemaVersion: ""
+        sourceRefs:
+        - key: ""
+        - key: ""
+        provider: google_drive
+        connectionId: connectionId
+        externalId: externalId
+        mimeType: mimeType
+        title: title
+        excerpt: excerpt
+        contentHash: contentHash
+      properties:
+        schemaVersion: {}
+        provider:
+          enum:
+          - google_drive
+          type: string
+        connectionId:
+          type: string
+        externalId:
+          type: string
+        title:
+          type: string
+        mimeType:
+          type: string
+        excerpt:
+          type: string
+        contentHash:
+          type: string
+        sourceRefs:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+        metadata:
+          additionalProperties: true
+          type: object
+    ConnectorSyncResponse:
+      additionalProperties: {}
+      example:
+        sync:
+          mode: backfill
+          checkpoint:
+            key: ""
+          provider: google_drive
+          documents:
+          - summary:
+              metadata:
+                key: ""
+              schemaVersion: ""
+              sourceRefs:
+              - key: ""
+              - key: ""
+              provider: google_drive
+              connectionId: connectionId
+              externalId: externalId
+              mimeType: mimeType
+              title: title
+              excerpt: excerpt
+              contentHash: contentHash
+            candidate:
+              key: ""
+            modifiedAt: 2000-01-23T04:56:07.000+00:00
+            externalId: externalId
+            id: id
+            mimeType: mimeType
+            title: title
+          - summary:
+              metadata:
+                key: ""
+              schemaVersion: ""
+              sourceRefs:
+              - key: ""
+              - key: ""
+              provider: google_drive
+              connectionId: connectionId
+              externalId: externalId
+              mimeType: mimeType
+              title: title
+              excerpt: excerpt
+              contentHash: contentHash
+            candidate:
+              key: ""
+            modifiedAt: 2000-01-23T04:56:07.000+00:00
+            externalId: externalId
+            id: id
+            mimeType: mimeType
+            title: title
+          connectionId: connectionId
+          job:
+            key: ""
+          inbox:
+            accepted: 0
+            deduped: 6
+      properties:
+        sync:
+          $ref: "#/components/schemas/ConnectorSyncResponse_sync"
+    ConnectorWebhookResult:
+      additionalProperties: false
+      example:
+        reason: reason
+        accepted: true
+        event:
+          key: ""
+      properties:
+        accepted:
+          type: boolean
+        reason:
+          type: string
+        event:
+          additionalProperties: true
+          type: object
+    CaptureSource:
+      additionalProperties: false
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        sourceProvider: sourceProvider
+        metadata:
+          key: ""
+        lastError: lastError
+        vaultId: vaultId
+        sourceType: sourceType
+        lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+        id: id
+        sourceRef: sourceRef
+        deviceId: deviceId
+        status: active
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        deviceId:
+          type: string
+        sourceType:
+          type: string
+        sourceProvider:
+          nullable: true
+          type: string
+        sourceRef:
+          nullable: true
+          type: string
+        status:
+          enum:
+          - active
+          - paused
+          - error
+          type: string
+        lastHeartbeatAt:
+          format: date-time
+          type: string
+        lastError:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+    CaptureJob:
+      additionalProperties: false
+      example:
+        vaultId: vaultId
+        lockedAt: 2000-01-23T04:56:07.000+00:00
+        sessionId: sessionId
+        type: type
+        error: error
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        lockedBy: lockedBy
+        payload:
+          key: ""
+        id: id
+        nextRunAt: 2000-01-23T04:56:07.000+00:00
+        status: pending
+        attempts: 0
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        sessionId:
+          type: string
+        type:
+          type: string
+        status:
+          enum:
+          - pending
+          - running
+          - completed
+          - failed
+          type: string
+        attempts:
+          type: integer
+        payload:
+          additionalProperties: true
+          type: object
+        error:
+          nullable: true
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        lockedBy:
+          nullable: true
+          type: string
+        lockedAt:
+          format: date-time
+          nullable: true
+          type: string
+        nextRunAt:
+          format: date-time
+          nullable: true
+          type: string
+    CapturedSession:
+      additionalProperties: {}
+      example:
+        sourceId: sourceId
+        vaultId: vaultId
+        idempotencyKey: idempotencyKey
+        startedAt: 2000-01-23T04:56:07.000+00:00
+        redaction:
+          secretCount: 0
+          privateBlockCount: 0
+          version: version
+        receivedAt: 2000-01-23T04:56:07.000+00:00
+        deviceId: deviceId
+        contentHash: contentHash
+        sourceOriginalId: sourceOriginalId
+        provider: claude_code
+        endedAt: 2000-01-23T04:56:07.000+00:00
+        captureMode: summary_only
+        id: id
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        sourceId:
+          type: string
+        deviceId:
+          nullable: true
+          type: string
+        provider:
+          enum:
+          - claude_code
+          - codex
+          - cursor
+          - opencode
+          type: string
+        sourceOriginalId:
+          type: string
+        contentHash:
+          type: string
+        idempotencyKey:
+          type: string
+        captureMode:
+          enum:
+          - summary_only
+          - raw_archive
+          - private_mode
+          type: string
+        startedAt:
+          format: date-time
+          nullable: true
+          type: string
+        endedAt:
+          format: date-time
+          nullable: true
+          type: string
+        redaction:
+          $ref: "#/components/schemas/CapturedSession_redaction"
+        receivedAt:
+          format: date-time
+          type: string
+    CaptureIngestResponse:
+      additionalProperties: {}
+      example:
+        session:
+          sourceId: sourceId
+          vaultId: vaultId
+          idempotencyKey: idempotencyKey
+          startedAt: 2000-01-23T04:56:07.000+00:00
+          redaction:
+            secretCount: 0
+            privateBlockCount: 0
+            version: version
+          receivedAt: 2000-01-23T04:56:07.000+00:00
+          deviceId: deviceId
+          contentHash: contentHash
+          sourceOriginalId: sourceOriginalId
+          provider: claude_code
+          endedAt: 2000-01-23T04:56:07.000+00:00
+          captureMode: summary_only
+          id: id
+        duplicate: true
+        job:
+          id: id
+          type: type
+          nextRunAt: 2000-01-23T04:56:07.000+00:00
+          status: pending
+          attempts: 1
+      properties:
+        session:
+          $ref: "#/components/schemas/CapturedSession"
+        job:
+          $ref: "#/components/schemas/CaptureIngestResponse_job"
+        duplicate:
+          type: boolean
+    V09Source:
+      additionalProperties: false
+      example:
+        metadata:
+          key: ""
+        lastError: lastError
+        vaultId: vaultId
+        displayName: displayName
+        lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+        pausedAt: 2000-01-23T04:56:07.000+00:00
+        deviceId: deviceId
+        rawArchivePolicy: none
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        sourceProvider: sourceProvider
+        sourceType: sourceType
+        id: id
+        sourceRef: sourceRef
+        status: active
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        deviceId:
+          nullable: true
+          type: string
+        sourceType:
+          type: string
+        sourceProvider:
+          nullable: true
+          type: string
+        sourceRef:
+          nullable: true
+          type: string
+        displayName:
+          nullable: true
+          type: string
+        rawArchivePolicy:
+          enum:
+          - none
+          - metadata_only
+          - summary_only
+          - encrypted_raw
+          - plain_raw_for_beta_debug
+          type: string
+        status:
+          enum:
+          - active
+          - paused
+          - private_mode
+          - revoked
+          - error
+          type: string
+        pausedAt:
+          format: date-time
+          nullable: true
+          type: string
+        lastHeartbeatAt:
+          format: date-time
+          nullable: true
+          type: string
+        lastError:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+    V09SourceRegisterRequest:
+      example:
+        metadata:
+          key: ""
+        permissions:
+        - metadata:
+            key: ""
+          permission_type: permission_type
+          scope: scope
+          value: value
+        - metadata:
+            key: ""
+          permission_type: permission_type
+          scope: scope
+          value: value
+        source_provider: source_provider
+        source_type: source_type
+        source_ref: source_ref
+        source_id: source_id
+        display_name: display_name
+        raw_archive_policy: none
+      properties:
+        source_id:
+          type: string
+        source_type:
+          type: string
+        source_provider:
+          type: string
+        source_ref:
+          type: string
+        display_name:
+          type: string
+        raw_archive_policy:
+          enum:
+          - none
+          - metadata_only
+          - summary_only
+          - encrypted_raw
+          - plain_raw_for_beta_debug
+          type: string
+        permissions:
+          items:
+            $ref: "#/components/schemas/V09SourcePermissionEnvelope"
+          type: array
+        metadata:
+          additionalProperties: true
+          type: object
+      required:
+      - source_provider
+    V09SourceUpdateRequest:
+      example:
+        metadata:
+          key: ""
+        display_name: display_name
+        raw_archive_policy: none
+      properties:
+        display_name:
+          type: string
+        raw_archive_policy:
+          enum:
+          - none
+          - metadata_only
+          - summary_only
+          - encrypted_raw
+          - plain_raw_for_beta_debug
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+    V09SourcePermissionEnvelope:
+      example:
+        metadata:
+          key: ""
+        permission_type: permission_type
+        scope: scope
+        value: value
+      properties:
+        permission_type:
+          type: string
+        scope:
+          type: string
+        value:
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+      required:
+      - permission_type
+      - value
+    V09SourceCheckpoint:
+      additionalProperties: false
+      example:
+        sourceId: sourceId
+        metadata:
+          key: ""
+        vaultId: vaultId
+        offsetValue: offsetValue
+        id: id
+        checkpointKey: checkpointKey
+        contentHash: contentHash
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        sourceId:
+          type: string
+        vaultId:
+          type: string
+        checkpointKey:
+          type: string
+        offsetValue:
+          nullable: true
+          type: string
+        contentHash:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        updatedAt:
+          format: date-time
+          type: string
+    V09SourceCheckpointSaveRequest:
+      example:
+        metadata:
+          key: ""
+        checkpoint_key: checkpoint_key
+        content_hash: content_hash
+        offset_value: offset_value
+      properties:
+        checkpoint_key:
+          type: string
+        offset_value:
+          type: string
+        content_hash:
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+      required:
+      - checkpoint_key
+    V09CaptureEvent:
+      additionalProperties: false
+      example:
+        occurred_at: 2000-01-23T04:56:07.000+00:00
+        actor: actor
+        event_type: event_type
+        payload:
+          key: ""
+        idempotency_key: idempotency_key
+        session_id: session_id
+        redaction_state: redacted
+        content_ref:
+          key: ""
+        external_event_id: external_event_id
+      properties:
+        external_event_id:
+          nullable: true
+          type: string
+        event_type:
+          type: string
+        occurred_at:
+          format: date-time
+          nullable: true
+          type: string
+        actor:
+          nullable: true
+          type: string
+        content_ref:
+          additionalProperties: true
+          type: object
+        redaction_state:
+          enum:
+          - redacted
+          - raw_allowed
+          - metadata_only
+          type: string
+        idempotency_key:
+          nullable: true
+          type: string
+        session_id:
+          nullable: true
+          type: string
+        payload:
+          additionalProperties: true
+          type: object
+    V09CaptureEventBatchRequest:
+      example:
+        batch_idempotency_key: batch_idempotency_key
+        source_id: source_id
+        events:
+        - occurred_at: 2000-01-23T04:56:07.000+00:00
+          actor: actor
+          event_type: event_type
+          payload:
+            key: ""
+          idempotency_key: idempotency_key
+          session_id: session_id
+          redaction_state: redacted
+          content_ref:
+            key: ""
+          external_event_id: external_event_id
+        - occurred_at: 2000-01-23T04:56:07.000+00:00
+          actor: actor
+          event_type: event_type
+          payload:
+            key: ""
+          idempotency_key: idempotency_key
+          session_id: session_id
+          redaction_state: redacted
+          content_ref:
+            key: ""
+          external_event_id: external_event_id
+      properties:
+        source_id:
+          type: string
+        batch_idempotency_key:
+          type: string
+        events:
+          items:
+            $ref: "#/components/schemas/V09CaptureEvent"
+          type: array
+      required:
+      - events
+      - source_id
+    V09CaptureEventBatchResponse:
+      additionalProperties: {}
+      example:
+        batch:
+          sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          bytes: 6
+          idempotencyKey: idempotencyKey
+          batchKind: batchKind
+          eventCount: 0
+          id: id
+          receivedAt: 2000-01-23T04:56:07.000+00:00
+          deviceId: deviceId
+          status: received
+        accepted: 1
+        deduped: 5
+        eventIds:
+        - eventIds
+        - eventIds
+      properties:
+        batch:
+          $ref: "#/components/schemas/V09CaptureEventBatchResponse_batch"
+        accepted:
+          type: integer
+        deduped:
+          type: integer
+        eventIds:
+          items:
+            type: string
+          type: array
+    V09SessionDeltaRequest:
+      example:
+        session_id: session_id
+        source_id: source_id
+        deltas:
+        - occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          idempotency_key: idempotency_key
+        - occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          idempotency_key: idempotency_key
+      properties:
+        source_id:
+          type: string
+        session_id:
+          type: string
+        deltas:
+          items:
+            $ref: "#/components/schemas/V09SessionDeltaRequest_deltas_inner"
+          type: array
+      required:
+      - deltas
+      - session_id
+      - source_id
+    V09UsageLimitSnapshot:
+      additionalProperties: false
+      example:
+        ingestTokenLimit: 6.027456183070403
+        recallUsed: 1.4658129805029452
+        vaultId: vaultId
+        agentLimit: 2
+        observedAt: 2000-01-23T04:56:07.000+00:00
+        ingestTokenUsed: 0.8008281904610115
+        recallLimit: 5.962133916683182
+        accountId: accountId
+        rawArchiveEnabled: true
+        id: id
+        plan: free
+        periodStart: 2000-01-23T04:56:07.000+00:00
+        agentCount: 5
+        periodEnd: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        accountId:
+          nullable: true
+          type: string
+        plan:
+          enum:
+          - free
+          - personal
+          - pro
+          - team_beta
+          type: string
+        periodStart:
+          format: date-time
+          type: string
+        periodEnd:
+          format: date-time
+          type: string
+        ingestTokenUsed:
+          type: number
+        ingestTokenLimit:
+          type: number
+        recallUsed:
+          type: number
+        recallLimit:
+          type: number
+        agentCount:
+          type: integer
+        agentLimit:
+          type: integer
+        rawArchiveEnabled:
+          type: boolean
+        observedAt:
+          format: date-time
+          type: string
+    V09UsageSummary:
+      additionalProperties: false
+      example:
+        plan: free
+        snapshot:
+          ingestTokenLimit: 6.027456183070403
+          recallUsed: 1.4658129805029452
+          vaultId: vaultId
+          agentLimit: 2
+          observedAt: 2000-01-23T04:56:07.000+00:00
+          ingestTokenUsed: 0.8008281904610115
+          recallLimit: 5.962133916683182
+          accountId: accountId
+          rawArchiveEnabled: true
+          id: id
+          plan: free
+          periodStart: 2000-01-23T04:56:07.000+00:00
+          agentCount: 5
+          periodEnd: 2000-01-23T04:56:07.000+00:00
+        events:
+        - occurredAt: 2000-01-23T04:56:07.000+00:00
+          vaultId: vaultId
+          id: id
+          eventType: eventType
+          units: 7.061401241503109
+        - occurredAt: 2000-01-23T04:56:07.000+00:00
+          vaultId: vaultId
+          id: id
+          eventType: eventType
+          units: 7.061401241503109
+      properties:
+        plan:
+          enum:
+          - free
+          - personal
+          - pro
+          - team_beta
+          type: string
+        snapshot:
+          $ref: "#/components/schemas/V09UsageLimitSnapshot"
+        events:
+          items:
+            $ref: "#/components/schemas/V09UsageSummary_events_inner"
+          type: array
+    V09OperatorUsageRow:
+      additionalProperties: false
+      example:
+        accountId: accountId
+        recallUsed: 6.027456183070403
+        vaultId: vaultId
+        lastEventAt: 2000-01-23T04:56:07.000+00:00
+        captureEventCount: 1.4658129805029452
+        ingestTokenUsed: 0.8008281904610115
+        plan: plan
+      properties:
+        vaultId:
+          type: string
+        accountId:
+          nullable: true
+          type: string
+        plan:
+          type: string
+        ingestTokenUsed:
+          type: number
+        recallUsed:
+          type: number
+        captureEventCount:
+          type: number
+        lastEventAt:
+          format: date-time
+          nullable: true
+          type: string
+    V10MemoryCandidate:
+      additionalProperties: false
+      example:
+        sourceId: sourceId
+        metadata:
+          key: ""
+        vaultId: vaultId
+        confidence: 0.8008281904610115
+        memoryType: memoryType
+        sessionId: sessionId
+        content: content
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        riskTags:
+        - riskTags
+        - riskTags
+        externalEventId: externalEventId
+        id: id
+        status: status
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        sourceId:
+          nullable: true
+          type: string
+        sessionId:
+          nullable: true
+          type: string
+        externalEventId:
+          nullable: true
+          type: string
+        content:
+          type: string
+        memoryType:
+          type: string
+        status:
+          type: string
+        riskTags:
+          items:
+            type: string
+          type: array
+        confidence:
+          type: number
+        metadata:
+          additionalProperties: true
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+    V10RecallTrace:
+      additionalProperties: false
+      example:
+        feedback: feedback
+        feedbackAt: 2000-01-23T04:56:07.000+00:00
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        metadata:
+          key: ""
+        routeReason: routeReason
+        vaultId: vaultId
+        query: query
+        tokenBudget: 6.027456183070403
+        id: id
+        latencyMs: 0.8008281904610115
+        tokensUsed: 1.4658129805029452
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        query:
+          type: string
+        routeReason:
+          nullable: true
+          type: string
+        latencyMs:
+          nullable: true
+          type: number
+        tokenBudget:
+          nullable: true
+          type: number
+        tokensUsed:
+          nullable: true
+          type: number
+        feedback:
+          nullable: true
+          type: string
+        feedbackAt:
+          format: date-time
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+    V10RecallTraceItem:
+      additionalProperties: false
+      example:
+        traceId: traceId
+        reason: reason
+        disposition: disposition
+        metadata:
+          key: ""
+        riskTags:
+        - riskTags
+        - riskTags
+        confidence: 0.8008281904610115
+        id: id
+        memoryId: memoryId
+        candidateId: candidateId
+      properties:
+        id:
+          type: string
+        traceId:
+          type: string
+        memoryId:
+          nullable: true
+          type: string
+        candidateId:
+          nullable: true
+          type: string
+        disposition:
+          type: string
+        confidence:
+          nullable: true
+          type: number
+        riskTags:
+          items:
+            type: string
+          type: array
+        reason:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+    V10GoogleAuthStartResponse:
+      additionalProperties: false
+      example:
+        authorizationUrl: authorizationUrl
+        state: state
+        scopes:
+        - scopes
+        - scopes
+      properties:
+        authorizationUrl:
+          type: string
+        state:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+    V10GoogleAuthCallbackRequest:
+      example:
+        id_token: id_token
+        state: state
+      properties:
+        id_token:
+          description: "Google OIDC id_token (JWT). In production the JWT signature\
+            \ is verified against Google's JWKS. In mock mode, accepts a base64url\
+            \ JSON claims blob."
+          type: string
+        state:
+          description: Opaque OAuth state that must match the state cookie.
+          type: string
+      required:
+      - id_token
+      - state
+    V10GoogleAuthCallbackResponse:
+      additionalProperties: {}
+      example:
+        csrfToken: csrfToken
+        identity:
+          provider: ""
+          id: id
+          providerUserId: providerUserId
+          email: email
+        session:
+          tokenId: tokenId
+          expiresAt: 2000-01-23T04:56:07.000+00:00
+        createdNew: true
+        account:
+          displayName: displayName
+          id: id
+          plan: plan
+          email: email
+        vault:
+          rawArchiveEnabled: true
+          privateMode: true
+          name: name
+          id: id
+          plan: plan
+      properties:
+        account:
+          $ref: "#/components/schemas/V10GoogleAuthCallbackResponse_account"
+        vault:
+          $ref: "#/components/schemas/V10GoogleAuthCallbackResponse_vault"
+        identity:
+          $ref: "#/components/schemas/V10GoogleAuthCallbackResponse_identity"
+        session:
+          $ref: "#/components/schemas/V10GoogleAuthCallbackResponse_session"
+        csrfToken:
+          type: string
+        createdNew:
+          type: boolean
+    V10MeResponse:
+      additionalProperties: {}
+      example:
+        identity:
+          key: ""
+        session:
+          tokenKind: tokenKind
+          scopes:
+          - scopes
+          - scopes
+        account:
+          displayName: displayName
+          id: id
+          plan: plan
+          email: email
+        vault:
+          name: name
+          id: id
+          plan: plan
+      properties:
+        account:
+          $ref: "#/components/schemas/V10GoogleAuthCallbackResponse_account"
+        vault:
+          $ref: "#/components/schemas/V10MeResponse_vault"
+        identity:
+          additionalProperties: true
+          nullable: true
+          type: object
+        session:
+          $ref: "#/components/schemas/V10MeResponse_session"
+    V10VaultResponse:
+      additionalProperties: {}
+      example:
+        vault:
+          accountId: accountId
+          rawArchiveEnabled: true
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          privateMode: true
+          name: name
+          id: id
+          plan: plan
+      properties:
+        vault:
+          $ref: "#/components/schemas/V10VaultResponse_vault"
+    memoryGet_200_response:
+      additionalProperties: {}
+      example:
+        memory:
+          metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        memory:
+          $ref: "#/components/schemas/MemoryRecord"
+    memorySupersede_request:
+      properties:
+        content:
+          type: string
+        reason:
+          type: string
+        project_id:
+          type: string
+      required:
+      - content
+      - reason
+    memorySupersede_200_response:
+      additionalProperties: {}
+      example:
+        engineVersion: engineVersion
+        lifecycle:
+          key: ""
+        memory:
+          metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        previous:
+          metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        reviewRequired: true
+      properties:
+        previous:
+          $ref: "#/components/schemas/MemoryRecord"
+        memory:
+          $ref: "#/components/schemas/MemoryRecord"
+        reviewRequired:
+          type: boolean
+        engineVersion:
+          description: v12 when routed through the v1.2 engine
+          type: string
+        lifecycle:
+          additionalProperties: {}
+          description: "v12 lifecycle propagation counts (relationsInvalidated, embeddingsRemoved,\
+            \ wikiPagesMarked)"
+    memorySearch_request:
+      properties:
+        query:
+          type: string
+        project_id:
+          type: string
+        top_k:
+          maximum: 100
+          minimum: 1
+          type: integer
+        asOf:
+          description: "v1.4 bi-temporal: ISO 8601 datetime that sets BOTH asOfSystemTime\
+            \ and asOfValidTime to the same value. Use this for unified point-in-time\
+            \ queries (\"what would Lore have answered at this moment?\"). Mutually\
+            \ exclusive with asOfSystemTime and asOfValidTime."
+          format: date-time
+          type: string
+        asOfSystemTime:
+          description: "v1.4 bi-temporal: ISO 8601 datetime for the system-knowledge\
+            \ axis. Filters to facts that Lore had recorded by this timestamp (t_created\
+            \ <= asOfSystemTime) and had not yet expired (t_expired IS NULL OR t_expired\
+            \ > asOfSystemTime). Must not be in the future beyond 5 minutes. Mutually\
+            \ exclusive with asOf."
+          format: date-time
+          type: string
+        asOfValidTime:
+          description: "v1.4 bi-temporal: ISO 8601 datetime for the business-validity\
+            \ axis. Filters to facts whose validity window covers this timestamp (valid_from\
+            \ <= asOfValidTime AND (valid_until IS NULL OR valid_until > asOfValidTime)).\
+            \ Future values are allowed for forward-looking domain queries. Mutually\
+            \ exclusive with asOf."
+          format: date-time
+          type: string
+      required:
+      - query
+    memorySearch_200_response_asOf:
+      description: Echoed back when bi-temporal parameters were supplied. Null fields
+        mean the axis defaulted to current time.
+      example:
+        validTime: 2000-01-23T04:56:07.000+00:00
+        systemTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        systemTime:
+          format: date-time
+          nullable: true
+          type: string
+        validTime:
+          format: date-time
+          nullable: true
+          type: string
+    memorySearch_200_response_diagnostics_streams_inner:
+      additionalProperties: {}
+      example:
+        kind: kind
+        backend: backend
+        error: error
+        candidateCount: 0
+        latencyMs: 6.027456183070403
+        status: ok
+      properties:
+        kind:
+          description: "Stream kind (e.g. qdrant_dense, postgres_fts)"
+          type: string
+        backend:
+          description: Backend identifier
+          type: string
+        status:
+          description: Stream execution status
+          enum:
+          - ok
+          - failed
+          - timed_out
+          type: string
+        candidateCount:
+          description: Number of candidates returned by this stream
+          type: integer
+        latencyMs:
+          description: Stream latency in milliseconds
+          type: number
+        error:
+          description: Error message if status is failed or timed_out
+          type: string
+    memorySearch_200_response_diagnostics:
+      description: "Per-stream diagnostics data. Only present when the request includes\
+        \ X-Lore-Diagnostics: 1 header or ?diagnostics=1 query param. Does not contain\
+        \ vault_id or customer data."
+      example:
+        streams:
+        - kind: kind
+          backend: backend
+          error: error
+          candidateCount: 0
+          latencyMs: 6.027456183070403
+          status: ok
+        - kind: kind
+          backend: backend
+          error: error
+          candidateCount: 0
+          latencyMs: 6.027456183070403
+          status: ok
+      properties:
+        streams:
+          items:
+            $ref: "#/components/schemas/memorySearch_200_response_diagnostics_streams_inner"
+          type: array
+    memorySearch_200_response:
+      additionalProperties: {}
+      example:
+        hits:
+        - lifecycle:
+            validUntil: 2000-01-23T04:56:07.000+00:00
+            validFrom: 2000-01-23T04:56:07.000+00:00
+            supersededBy: supersededBy
+            status: status
+          score: 1.4658129805029452
+          memory:
+            metadata:
+              key: ""
+            visibility: visibility
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            confidence: 0.8008281904610115
+            memoryType: memoryType
+            content: content
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            riskTags:
+            - riskTags
+            - riskTags
+            scope: scope
+            id: id
+            useCount: 6
+            projectId: projectId
+            status: candidate
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+          highlights:
+          - highlights
+          - highlights
+          provenance:
+            sourceRefs:
+            - ""
+            - ""
+            candidateId: candidateId
+            approvedAt: 2000-01-23T04:56:07.000+00:00
+          streams:
+            sparse:
+              score: 7.061401241503109
+              sparseModel: sparseModel
+              vectorName: vectorName
+              rank: 2
+            graph:
+              score: 3.616076749251911
+              path:
+              - path
+              - path
+              rank: 9
+            dense:
+              score: 5.637376656633329
+              vectorName: vectorName
+              rank: 5
+              embeddingModel: embeddingModel
+          backend: backend
+          explanation: explanation
+        - lifecycle:
+            validUntil: 2000-01-23T04:56:07.000+00:00
+            validFrom: 2000-01-23T04:56:07.000+00:00
+            supersededBy: supersededBy
+            status: status
+          score: 1.4658129805029452
+          memory:
+            metadata:
+              key: ""
+            visibility: visibility
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            confidence: 0.8008281904610115
+            memoryType: memoryType
+            content: content
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            riskTags:
+            - riskTags
+            - riskTags
+            scope: scope
+            id: id
+            useCount: 6
+            projectId: projectId
+            status: candidate
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+          highlights:
+          - highlights
+          - highlights
+          provenance:
+            sourceRefs:
+            - ""
+            - ""
+            candidateId: candidateId
+            approvedAt: 2000-01-23T04:56:07.000+00:00
+          streams:
+            sparse:
+              score: 7.061401241503109
+              sparseModel: sparseModel
+              vectorName: vectorName
+              rank: 2
+            graph:
+              score: 3.616076749251911
+              path:
+              - path
+              - path
+              rank: 9
+            dense:
+              score: 5.637376656633329
+              vectorName: vectorName
+              rank: 5
+              embeddingModel: embeddingModel
+          backend: backend
+          explanation: explanation
+        diagnostics:
+          streams:
+          - kind: kind
+            backend: backend
+            error: error
+            candidateCount: 0
+            latencyMs: 6.027456183070403
+            status: ok
+          - kind: kind
+            backend: backend
+            error: error
+            candidateCount: 0
+            latencyMs: 6.027456183070403
+            status: ok
+        asOf:
+          validTime: 2000-01-23T04:56:07.000+00:00
+          systemTime: 2000-01-23T04:56:07.000+00:00
+        backend: backend
+        degraded: true
+      properties:
+        hits:
+          items:
+            $ref: "#/components/schemas/MemoryHit"
+          type: array
+        backend:
+          type: string
+        degraded:
+          type: boolean
+        asOf:
+          $ref: "#/components/schemas/memorySearch_200_response_asOf"
+        diagnostics:
+          $ref: "#/components/schemas/memorySearch_200_response_diagnostics"
+    memorySearch_400_response_error:
+      example:
+        code: code
+        field: field
+        kind: kind
+        message: message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        field:
+          type: string
+        kind:
+          type: string
+    memorySearch_400_response:
+      additionalProperties: {}
+      example:
+        error:
+          code: code
+          field: field
+          kind: kind
+          message: message
+      properties:
+        error:
+          $ref: "#/components/schemas/memorySearch_400_response_error"
+    memoryList_200_response:
+      additionalProperties: {}
+      example:
+        memories:
+        - metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        - metadata:
+            key: ""
+          visibility: visibility
+          sourceRefs:
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          - path: path
+            id: id
+            type: type
+            excerpt: excerpt
+            url: url
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          scope: scope
+          id: id
+          useCount: 6
+          projectId: projectId
+          status: candidate
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        memories:
+          items:
+            $ref: "#/components/schemas/MemoryRecord"
+          type: array
+    memoryImport_200_response:
+      additionalProperties: {}
+      example:
+        imported: 0
+        memoryIds:
+        - memoryIds
+        - memoryIds
+      properties:
+        imported:
+          type: integer
+        memoryIds:
+          items:
+            type: string
+          type: array
+    memoryForget_request:
+      properties:
+        memory_ids:
+          items:
+            type: string
+          type: array
+        query:
+          type: string
+        project_id:
+          type: string
+        reason:
+          type: string
+        hard_delete:
+          default: false
+          type: boolean
+        action:
+          description: v12 lifecycle action; defaults to delete
+          enum:
+          - delete
+          - redact
+          type: string
+      required:
+      - reason
+    memoryForget_200_response:
+      additionalProperties: {}
+      example:
+        engineVersion: engineVersion
+        lifecycle:
+        - key: ""
+        - key: ""
+        hardDelete: true
+        deleted: 0
+        lifecycleAction: lifecycleAction
+        memoryIds:
+        - memoryIds
+        - memoryIds
+      properties:
+        deleted:
+          type: integer
+        memoryIds:
+          items:
+            type: string
+          type: array
+        hardDelete:
+          type: boolean
+        engineVersion:
+          description: v12 when routed through the v1.2 engine
+          type: string
+        lifecycleAction:
+          description: Resolved lifecycle action (delete or redact)
+          type: string
+        lifecycle:
+          description: Per-item lifecycle propagation results
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+    governanceMemoryApprove_request:
+      properties:
+        reason:
+          type: string
+        reviewer:
+          type: string
+    governanceMemoryReject_request:
+      properties:
+        reason:
+          type: string
+        reviewer:
+          type: string
+      required:
+      - reason
+    auditLogList_200_response:
+      additionalProperties: {}
+      example:
+        auditLogs:
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          resourceId: resourceId
+          metadata:
+            key: ""
+          action: action
+          id: id
+          resourceType: resourceType
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          resourceId: resourceId
+          metadata:
+            key: ""
+          action: action
+          id: id
+          resourceType: resourceType
+      properties:
+        auditLogs:
+          items:
+            $ref: "#/components/schemas/AuditLog"
+          type: array
+    eventsIngest_request:
+      properties:
+        event_type:
+          type: string
+        project_id:
+          type: string
+        payload:
+          additionalProperties: true
+          type: object
+      required:
+      - event_type
+    eventsIngest_200_response:
+      additionalProperties: {}
+      example:
+        eventId: eventId
+      properties:
+        eventId:
+          type: string
+    agentmemorySync_200_response:
+      additionalProperties: {}
+      example:
+        warnings:
+        - warnings
+        - warnings
+        importedMemories: 0
+        status: status
+      properties:
+        status:
+          type: string
+        importedMemories:
+          type: integer
+        warnings:
+          items:
+            type: string
+          type: array
+    traceList_200_response:
+      additionalProperties: {}
+      example:
+        traces:
+        - query: query
+          warnings:
+          - warnings
+          - warnings
+          tokenBudget: 6.027456183070403
+          composedMemoryIds:
+          - composedMemoryIds
+          - composedMemoryIds
+          tokensUsed: 1.4658129805029452
+          feedback: useful
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          route:
+            reason: reason
+            memory: true
+            web: true
+            repo: true
+            toolTraces: true
+          retrievedMemoryIds:
+          - retrievedMemoryIds
+          - retrievedMemoryIds
+          id: id
+          projectId: projectId
+          latencyMs: 0.8008281904610115
+          ignoredMemoryIds:
+          - ignoredMemoryIds
+          - ignoredMemoryIds
+        - query: query
+          warnings:
+          - warnings
+          - warnings
+          tokenBudget: 6.027456183070403
+          composedMemoryIds:
+          - composedMemoryIds
+          - composedMemoryIds
+          tokensUsed: 1.4658129805029452
+          feedback: useful
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          route:
+            reason: reason
+            memory: true
+            web: true
+            repo: true
+            toolTraces: true
+          retrievedMemoryIds:
+          - retrievedMemoryIds
+          - retrievedMemoryIds
+          id: id
+          projectId: projectId
+          latencyMs: 0.8008281904610115
+          ignoredMemoryIds:
+          - ignoredMemoryIds
+          - ignoredMemoryIds
+      properties:
+        traces:
+          items:
+            $ref: "#/components/schemas/ContextTrace"
+          type: array
+    traceFeedback_request:
+      properties:
+        feedback:
+          enum:
+          - useful
+          - wrong
+          - outdated
+          - sensitive
+          type: string
+        note:
+          type: string
+      required:
+      - feedback
+    traceFeedback_200_response:
+      additionalProperties: {}
+      example:
+        trace:
+          query: query
+          warnings:
+          - warnings
+          - warnings
+          tokenBudget: 6.027456183070403
+          composedMemoryIds:
+          - composedMemoryIds
+          - composedMemoryIds
+          tokensUsed: 1.4658129805029452
+          feedback: useful
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          route:
+            reason: reason
+            memory: true
+            web: true
+            repo: true
+            toolTraces: true
+          retrievedMemoryIds:
+          - retrievedMemoryIds
+          - retrievedMemoryIds
+          id: id
+          projectId: projectId
+          latencyMs: 0.8008281904610115
+          ignoredMemoryIds:
+          - ignoredMemoryIds
+          - ignoredMemoryIds
+      properties:
+        trace:
+          $ref: "#/components/schemas/ContextTrace"
+    evidenceLedgerGet_200_response:
+      additionalProperties: {}
+      example:
+        ledger:
+          traceId: traceId
+          summary:
+            ignored: 1
+            composed: 6
+            riskTags:
+            - riskTags
+            - riskTags
+            staleCount: 5
+            warnings: 5
+            retrieved: 0
+            conflictCount: 2
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          route:
+            reason: reason
+            memory: true
+            web: true
+            repo: true
+            toolTraces: true
+          query: query
+          rows:
+          - disposition: used
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            riskTags:
+            - riskTags
+            - riskTags
+            confidence: 7.061401241503109
+            warnings:
+            - warnings
+            - warnings
+            contentPreview: contentPreview
+            memoryId: memoryId
+            status: status
+          - disposition: used
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            riskTags:
+            - riskTags
+            - riskTags
+            confidence: 7.061401241503109
+            warnings:
+            - warnings
+            - warnings
+            contentPreview: contentPreview
+            memoryId: memoryId
+            status: status
+          projectId: projectId
+          actions:
+          - actions
+          - actions
+          traceWarnings:
+          - traceWarnings
+          - traceWarnings
+      properties:
+        ledger:
+          $ref: "#/components/schemas/EvidenceLedger"
+    evidenceLedgerList_200_response:
+      additionalProperties: {}
+      example:
+        ledgers:
+        - traceId: traceId
+          summary:
+            ignored: 1
+            composed: 6
+            riskTags:
+            - riskTags
+            - riskTags
+            staleCount: 5
+            warnings: 5
+            retrieved: 0
+            conflictCount: 2
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          route:
+            reason: reason
+            memory: true
+            web: true
+            repo: true
+            toolTraces: true
+          query: query
+          rows:
+          - disposition: used
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            riskTags:
+            - riskTags
+            - riskTags
+            confidence: 7.061401241503109
+            warnings:
+            - warnings
+            - warnings
+            contentPreview: contentPreview
+            memoryId: memoryId
+            status: status
+          - disposition: used
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            riskTags:
+            - riskTags
+            - riskTags
+            confidence: 7.061401241503109
+            warnings:
+            - warnings
+            - warnings
+            contentPreview: contentPreview
+            memoryId: memoryId
+            status: status
+          projectId: projectId
+          actions:
+          - actions
+          - actions
+          traceWarnings:
+          - traceWarnings
+          - traceWarnings
+        - traceId: traceId
+          summary:
+            ignored: 1
+            composed: 6
+            riskTags:
+            - riskTags
+            - riskTags
+            staleCount: 5
+            warnings: 5
+            retrieved: 0
+            conflictCount: 2
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          route:
+            reason: reason
+            memory: true
+            web: true
+            repo: true
+            toolTraces: true
+          query: query
+          rows:
+          - disposition: used
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            riskTags:
+            - riskTags
+            - riskTags
+            confidence: 7.061401241503109
+            warnings:
+            - warnings
+            - warnings
+            contentPreview: contentPreview
+            memoryId: memoryId
+            status: status
+          - disposition: used
+            sourceRefs:
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            - path: path
+              id: id
+              type: type
+              excerpt: excerpt
+              url: url
+            riskTags:
+            - riskTags
+            - riskTags
+            confidence: 7.061401241503109
+            warnings:
+            - warnings
+            - warnings
+            contentPreview: contentPreview
+            memoryId: memoryId
+            status: status
+          projectId: projectId
+          actions:
+          - actions
+          - actions
+          traceWarnings:
+          - traceWarnings
+          - traceWarnings
+      properties:
+        ledgers:
+          items:
+            $ref: "#/components/schemas/EvidenceLedger"
+          type: array
+    evalProviders_200_response:
+      additionalProperties: {}
+      example:
+        providers:
+        - notes: notes
+          id: id
+          label: label
+          source: source
+        - notes: notes
+          id: id
+          label: label
+          source: source
+      properties:
+        providers:
+          items:
+            $ref: "#/components/schemas/EvalProvider"
+          type: array
+    evalRun_request:
+      properties:
+        provider:
+          default: lore-local
+          type: string
+        project_id:
+          type: string
+        dataset:
+          additionalProperties: true
+          type: object
+      required:
+      - dataset
+    evalRun_200_response:
+      additionalProperties: {}
+      example:
+        evalRunId: evalRunId
+        metrics:
+          precisionAt5: 6.027456183070403
+          recallAt5: 0.8008281904610115
+          staleHitRate: 5.962133916683182
+          mrr: 1.4658129805029452
+          p95LatencyMs: 5.637376656633329
+      properties:
+        evalRunId:
+          type: string
+        metrics:
+          $ref: "#/components/schemas/EvalMetrics"
+    evalRunList_200_response:
+      additionalProperties: {}
+      example:
+        evalRuns:
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          provider: provider
+          id: id
+          metrics:
+            precisionAt5: 6.027456183070403
+            recallAt5: 0.8008281904610115
+            staleHitRate: 5.962133916683182
+            mrr: 1.4658129805029452
+            p95LatencyMs: 5.637376656633329
+          projectId: projectId
+          status: ""
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          provider: provider
+          id: id
+          metrics:
+            precisionAt5: 6.027456183070403
+            recallAt5: 0.8008281904610115
+            staleHitRate: 5.962133916683182
+            mrr: 1.4658129805029452
+            p95LatencyMs: 5.637376656633329
+          projectId: projectId
+          status: ""
+      properties:
+        evalRuns:
+          items:
+            $ref: "#/components/schemas/EvalRunRecord"
+          type: array
+    evalRunGet_200_response:
+      additionalProperties: {}
+      example:
+        evalRun:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          provider: provider
+          id: id
+          metrics:
+            precisionAt5: 6.027456183070403
+            recallAt5: 0.8008281904610115
+            staleHitRate: 5.962133916683182
+            mrr: 1.4658129805029452
+            p95LatencyMs: 5.637376656633329
+          projectId: projectId
+          status: ""
+      properties:
+        evalRun:
+          $ref: "#/components/schemas/EvalRunRecord"
+    evalReport_200_response:
+      additionalProperties: {}
+      properties:
+        evalRun:
+          $ref: "#/components/schemas/EvalRunRecord"
+        publicSafe:
+          type: boolean
+    cloudIssueInstallToken_request:
+      properties:
+        vault_id:
+          type: string
+        account_id:
+          type: string
+    cloudPairDevice_request:
+      properties:
+        install_token:
+          type: string
+        device_label:
+          type: string
+        platform:
+          type: string
+      required:
+      - install_token
+    cloudRevokeToken_request:
+      properties:
+        token:
+          type: string
+    cloudRevokeToken_200_response:
+      additionalProperties: {}
+      example:
+        tokenId: tokenId
+        kind: kind
+        revoked: true
+      properties:
+        revoked:
+          type: boolean
+        tokenId:
+          type: string
+        kind:
+          type: string
+    cloudListVaults_200_response:
+      additionalProperties: {}
+      example:
+        vaults:
+        - accountId: accountId
+          rawArchiveEnabled: true
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          privateMode: true
+          name: name
+          id: id
+          plan: plan
+        - accountId: accountId
+          rawArchiveEnabled: true
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          privateMode: true
+          name: name
+          id: id
+          plan: plan
+      properties:
+        vaults:
+          items:
+            $ref: "#/components/schemas/CloudVault"
+          type: array
+    connectorList_200_response:
+      additionalProperties: {}
+      example:
+        providers:
+        - missingCredentialEnv:
+          - missingCredentialEnv
+          - missingCredentialEnv
+          provider: google_drive
+          auth: ""
+          liveCredentials: true
+          signInScopes:
+          - signInScopes
+          - signInScopes
+          label: label
+          scopes:
+          - scopes
+          - scopes
+          fixtureBacked: true
+          credentialEnv:
+          - credentialEnv
+          - credentialEnv
+          privateBeta: true
+          credentialStatus: configured
+        - missingCredentialEnv:
+          - missingCredentialEnv
+          - missingCredentialEnv
+          provider: google_drive
+          auth: ""
+          liveCredentials: true
+          signInScopes:
+          - signInScopes
+          - signInScopes
+          label: label
+          scopes:
+          - scopes
+          - scopes
+          fixtureBacked: true
+          credentialEnv:
+          - credentialEnv
+          - credentialEnv
+          privateBeta: true
+          credentialStatus: configured
+        connections:
+        - metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          provider: google_drive
+          permissions:
+            key: ""
+          scope:
+            displayName: displayName
+            id: id
+            type: drive
+          id: id
+          revokedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        - metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          provider: google_drive
+          permissions:
+            key: ""
+          scope:
+            displayName: displayName
+            id: id
+            type: drive
+          id: id
+          revokedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        providers:
+          items:
+            $ref: "#/components/schemas/ConnectorProvider"
+          type: array
+        connections:
+          items:
+            $ref: "#/components/schemas/ConnectorConnection"
+          type: array
+    connectorAuthorize_request:
+      properties:
+        redirect_uri:
+          type: string
+        state:
+          type: string
+        folder_id:
+          type: string
+        scope:
+          $ref: "#/components/schemas/ConnectorScope"
+    connectorCallback_request:
+      properties:
+        code:
+          type: string
+        state:
+          type: string
+        redirect_uri:
+          type: string
+        display_name:
+          type: string
+        folder_id:
+          type: string
+        scope:
+          $ref: "#/components/schemas/ConnectorScope"
+      required:
+      - code
+    connectorCallback_201_response:
+      additionalProperties: {}
+      example:
+        connection:
+          metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          provider: google_drive
+          permissions:
+            key: ""
+          scope:
+            displayName: displayName
+            id: id
+            type: drive
+          id: id
+          revokedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        connection:
+          $ref: "#/components/schemas/ConnectorConnection"
+    connectorWebhook_request:
+      additionalProperties: {}
+      properties:
+        connection_id:
+          type: string
+      required:
+      - connection_id
+    connectorStatusGet_200_response:
+      additionalProperties: {}
+      example:
+        checkpoint:
+          key: ""
+        documents:
+        - key: ""
+        - key: ""
+        connection:
+          metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          provider: google_drive
+          permissions:
+            key: ""
+          scope:
+            displayName: displayName
+            id: id
+            type: drive
+          id: id
+          revokedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        connection:
+          $ref: "#/components/schemas/ConnectorConnection"
+        checkpoint:
+          additionalProperties: true
+          type: object
+        documents:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+    connectorDelete_request:
+      properties:
+        delete_source_data:
+          type: boolean
+    connectorDelete_200_response:
+      additionalProperties: {}
+      example:
+        deletedDocuments: 0
+        connection:
+          metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          provider: google_drive
+          permissions:
+            key: ""
+          scope:
+            displayName: displayName
+            id: id
+            type: drive
+          id: id
+          revokedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        connection:
+          $ref: "#/components/schemas/ConnectorConnection"
+        deletedDocuments:
+          type: integer
+    connectorStatusPatch_request:
+      properties:
+        status:
+          enum:
+          - active
+          - paused
+          type: string
+      required:
+      - status
+    connectorStatusPatch_200_response:
+      additionalProperties: false
+      example:
+        connection:
+          metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastSyncedAt: 2000-01-23T04:56:07.000+00:00
+          accountId: accountId
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          provider: google_drive
+          permissions:
+            key: ""
+          scope:
+            displayName: displayName
+            id: id
+            type: drive
+          id: id
+          revokedAt: 2000-01-23T04:56:07.000+00:00
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        connection:
+          $ref: "#/components/schemas/ConnectorConnection"
+    connectorSync_request:
+      properties:
+        mode:
+          enum:
+          - backfill
+          - incremental
+          type: string
+    captureSourceHeartbeat_request:
+      properties:
+        source_type:
+          type: string
+        source_provider:
+          type: string
+        source_ref:
+          type: string
+        status:
+          enum:
+          - active
+          - paused
+          - error
+          type: string
+        error:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+    captureSourceHeartbeat_200_response:
+      additionalProperties: {}
+      example:
+        source:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          sourceProvider: sourceProvider
+          metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          sourceType: sourceType
+          lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          sourceRef: sourceRef
+          deviceId: deviceId
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        source:
+          $ref: "#/components/schemas/CaptureSource"
+    captureJobGet_200_response:
+      additionalProperties: {}
+      example:
+        job:
+          vaultId: vaultId
+          lockedAt: 2000-01-23T04:56:07.000+00:00
+          sessionId: sessionId
+          type: type
+          error: error
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          lockedBy: lockedBy
+          payload:
+            key: ""
+          id: id
+          nextRunAt: 2000-01-23T04:56:07.000+00:00
+          status: pending
+          attempts: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        job:
+          $ref: "#/components/schemas/CaptureJob"
+    captureSessionIngest_request_redaction:
+      properties:
+        version:
+          type: string
+        secret_count:
+          minimum: 0
+          type: integer
+        private_block_count:
+          minimum: 0
+          type: integer
+      required:
+      - private_block_count
+      - secret_count
+      - version
+    captureSessionIngest_request_turn_summary_inner:
+      properties:
+        role:
+          enum:
+          - user
+          - assistant
+          - tool
+          - system
+          type: string
+        text:
+          type: string
+    captureSessionIngest_request:
+      properties:
+        provider:
+          enum:
+          - claude_code
+          - codex
+          - cursor
+          - opencode
+          type: string
+        source_original_id:
+          type: string
+        source_id:
+          type: string
+        content_hash:
+          type: string
+        idempotency_key:
+          type: string
+        capture_mode:
+          enum:
+          - summary_only
+          - raw_archive
+          - private_mode
+          type: string
+        started_at:
+          format: date-time
+          type: string
+        ended_at:
+          format: date-time
+          type: string
+        redaction:
+          $ref: "#/components/schemas/captureSessionIngest_request_redaction"
+        turn_summary:
+          items:
+            $ref: "#/components/schemas/captureSessionIngest_request_turn_summary_inner"
+          type: array
+        raw_turns:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+        metadata:
+          additionalProperties: true
+          type: object
+      required:
+      - content_hash
+      - idempotency_key
+      - provider
+      - redaction
+      - source_id
+      - source_original_id
+    captureSessionGet_200_response:
+      additionalProperties: {}
+      example:
+        session:
+          sourceId: sourceId
+          vaultId: vaultId
+          idempotencyKey: idempotencyKey
+          startedAt: 2000-01-23T04:56:07.000+00:00
+          redaction:
+            secretCount: 0
+            privateBlockCount: 0
+            version: version
+          receivedAt: 2000-01-23T04:56:07.000+00:00
+          deviceId: deviceId
+          contentHash: contentHash
+          sourceOriginalId: sourceOriginalId
+          provider: claude_code
+          endedAt: 2000-01-23T04:56:07.000+00:00
+          captureMode: summary_only
+          id: id
+      properties:
+        session:
+          $ref: "#/components/schemas/CapturedSession"
+    v09SourcesList_200_response:
+      additionalProperties: {}
+      example:
+        sources:
+        - metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+          pausedAt: 2000-01-23T04:56:07.000+00:00
+          deviceId: deviceId
+          rawArchivePolicy: none
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          sourceProvider: sourceProvider
+          sourceType: sourceType
+          id: id
+          sourceRef: sourceRef
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        - metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+          pausedAt: 2000-01-23T04:56:07.000+00:00
+          deviceId: deviceId
+          rawArchivePolicy: none
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          sourceProvider: sourceProvider
+          sourceType: sourceType
+          id: id
+          sourceRef: sourceRef
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        sources:
+          items:
+            $ref: "#/components/schemas/V09Source"
+          type: array
+    v09SourcesRegister_201_response:
+      additionalProperties: {}
+      example:
+        source:
+          metadata:
+            key: ""
+          lastError: lastError
+          vaultId: vaultId
+          displayName: displayName
+          lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+          pausedAt: 2000-01-23T04:56:07.000+00:00
+          deviceId: deviceId
+          rawArchivePolicy: none
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          sourceProvider: sourceProvider
+          sourceType: sourceType
+          id: id
+          sourceRef: sourceRef
+          status: active
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        source:
+          $ref: "#/components/schemas/V09Source"
+    v09SourceCheckpointList_200_response:
+      additionalProperties: {}
+      example:
+        checkpoints:
+        - sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          offsetValue: offsetValue
+          id: id
+          checkpointKey: checkpointKey
+          contentHash: contentHash
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        - sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          offsetValue: offsetValue
+          id: id
+          checkpointKey: checkpointKey
+          contentHash: contentHash
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        checkpoints:
+          items:
+            $ref: "#/components/schemas/V09SourceCheckpoint"
+          type: array
+    v09SourceCheckpointSave_200_response:
+      additionalProperties: {}
+      example:
+        checkpoint:
+          sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          offsetValue: offsetValue
+          id: id
+          checkpointKey: checkpointKey
+          contentHash: contentHash
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        checkpoint:
+          $ref: "#/components/schemas/V09SourceCheckpoint"
+    v09CaptureSessionDeltas_202_response:
+      additionalProperties: false
+      example:
+        accepted: 0
+        deduped: 6
+      properties:
+        accepted:
+          type: integer
+        deduped:
+          type: integer
+    v09OperatorUsage_200_response:
+      additionalProperties: {}
+      example:
+        rows:
+        - accountId: accountId
+          recallUsed: 6.027456183070403
+          vaultId: vaultId
+          lastEventAt: 2000-01-23T04:56:07.000+00:00
+          captureEventCount: 1.4658129805029452
+          ingestTokenUsed: 0.8008281904610115
+          plan: plan
+        - accountId: accountId
+          recallUsed: 6.027456183070403
+          vaultId: vaultId
+          lastEventAt: 2000-01-23T04:56:07.000+00:00
+          captureEventCount: 1.4658129805029452
+          ingestTokenUsed: 0.8008281904610115
+          plan: plan
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/V09OperatorUsageRow"
+          type: array
+    v10MemoryInboxList_200_response:
+      additionalProperties: {}
+      example:
+        candidates:
+        - sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          sessionId: sessionId
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          externalEventId: externalEventId
+          id: id
+          status: status
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        - sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          sessionId: sessionId
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          externalEventId: externalEventId
+          id: id
+          status: status
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        candidates:
+          items:
+            $ref: "#/components/schemas/V10MemoryCandidate"
+          type: array
+    v10MemoryInboxApprove_200_response:
+      additionalProperties: {}
+      example:
+        candidate:
+          sourceId: sourceId
+          metadata:
+            key: ""
+          vaultId: vaultId
+          confidence: 0.8008281904610115
+          memoryType: memoryType
+          sessionId: sessionId
+          content: content
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          riskTags:
+          - riskTags
+          - riskTags
+          externalEventId: externalEventId
+          id: id
+          status: status
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        candidate:
+          $ref: "#/components/schemas/V10MemoryCandidate"
+    v10RecallTraceList_200_response:
+      additionalProperties: {}
+      example:
+        traces:
+        - feedback: feedback
+          feedbackAt: 2000-01-23T04:56:07.000+00:00
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          metadata:
+            key: ""
+          routeReason: routeReason
+          vaultId: vaultId
+          query: query
+          tokenBudget: 6.027456183070403
+          id: id
+          latencyMs: 0.8008281904610115
+          tokensUsed: 1.4658129805029452
+        - feedback: feedback
+          feedbackAt: 2000-01-23T04:56:07.000+00:00
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          metadata:
+            key: ""
+          routeReason: routeReason
+          vaultId: vaultId
+          query: query
+          tokenBudget: 6.027456183070403
+          id: id
+          latencyMs: 0.8008281904610115
+          tokensUsed: 1.4658129805029452
+      properties:
+        traces:
+          items:
+            $ref: "#/components/schemas/V10RecallTrace"
+          type: array
+    v10RecallTraceGet_200_response:
+      additionalProperties: {}
+      example:
+        trace:
+          feedback: feedback
+          feedbackAt: 2000-01-23T04:56:07.000+00:00
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          metadata:
+            key: ""
+          routeReason: routeReason
+          vaultId: vaultId
+          query: query
+          tokenBudget: 6.027456183070403
+          id: id
+          latencyMs: 0.8008281904610115
+          tokensUsed: 1.4658129805029452
+        items:
+        - traceId: traceId
+          reason: reason
+          disposition: disposition
+          metadata:
+            key: ""
+          riskTags:
+          - riskTags
+          - riskTags
+          confidence: 0.8008281904610115
+          id: id
+          memoryId: memoryId
+          candidateId: candidateId
+        - traceId: traceId
+          reason: reason
+          disposition: disposition
+          metadata:
+            key: ""
+          riskTags:
+          - riskTags
+          - riskTags
+          confidence: 0.8008281904610115
+          id: id
+          memoryId: memoryId
+          candidateId: candidateId
+      properties:
+        trace:
+          $ref: "#/components/schemas/V10RecallTrace"
+        items:
+          items:
+            $ref: "#/components/schemas/V10RecallTraceItem"
+          type: array
+    v10RecallTraceFeedback_request:
+      additionalProperties: {}
+      properties:
+        feedback:
+          type: string
+      required:
+      - feedback
+    v10RecallTraceFeedback_200_response:
+      additionalProperties: {}
+      example:
+        success: true
+      properties:
+        success:
+          type: boolean
+    v10AuthLogout_200_response:
+      additionalProperties: {}
+      example:
+        ok: true
+      properties:
+        ok:
+          type: boolean
+    HealthResponse_reranker:
+      additionalProperties: false
+      example:
+        provider: stub
+      properties:
+        provider:
+          enum:
+          - stub
+          - cohere
+          type: string
+    ContextQueryResponse_usage:
+      additionalProperties: false
+      example:
+        webSearches: 7
+        latencyMs: 1
+        memoryReads: 4
+        tokensUsed: 1
+      properties:
+        memoryReads:
+          type: integer
+        webSearches:
+          type: integer
+        tokensUsed:
+          type: integer
+        latencyMs:
+          type: integer
+    MemoryHit_streams_dense:
+      example:
+        score: 5.637376656633329
+        vectorName: vectorName
+        rank: 5
+        embeddingModel: embeddingModel
+      properties:
+        rank:
+          type: integer
+        score:
+          type: number
+        embeddingModel:
+          type: string
+        vectorName:
+          type: string
+    MemoryHit_streams_sparse:
+      example:
+        score: 7.061401241503109
+        sparseModel: sparseModel
+        vectorName: vectorName
+        rank: 2
+      properties:
+        rank:
+          type: integer
+        score:
+          type: number
+        sparseModel:
+          type: string
+        vectorName:
+          type: string
+    MemoryHit_streams_graph:
+      example:
+        score: 3.616076749251911
+        path:
+        - path
+        - path
+        rank: 9
+      properties:
+        rank:
+          type: integer
+        score:
+          type: number
+        path:
+          items:
+            type: string
+          type: array
+    MemoryHit_streams:
+      example:
+        sparse:
+          score: 7.061401241503109
+          sparseModel: sparseModel
+          vectorName: vectorName
+          rank: 2
+        graph:
+          score: 3.616076749251911
+          path:
+          - path
+          - path
+          rank: 9
+        dense:
+          score: 5.637376656633329
+          vectorName: vectorName
+          rank: 5
+          embeddingModel: embeddingModel
+      properties:
+        dense:
+          $ref: "#/components/schemas/MemoryHit_streams_dense"
+        sparse:
+          $ref: "#/components/schemas/MemoryHit_streams_sparse"
+        graph:
+          $ref: "#/components/schemas/MemoryHit_streams_graph"
+    MemoryHit_lifecycle:
+      example:
+        validUntil: 2000-01-23T04:56:07.000+00:00
+        validFrom: 2000-01-23T04:56:07.000+00:00
+        supersededBy: supersededBy
+        status: status
+      properties:
+        status:
+          type: string
+        validFrom:
+          format: date-time
+          type: string
+        validUntil:
+          format: date-time
+          type: string
+        supersededBy:
+          type: string
+    MemoryHit_provenance:
+      example:
+        sourceRefs:
+        - ""
+        - ""
+        candidateId: candidateId
+        approvedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        sourceRefs:
+          items: {}
+          type: array
+        candidateId:
+          type: string
+        approvedAt:
+          format: date-time
+          type: string
+    ErrorResponse_error:
+      additionalProperties: false
+      example:
+        code: code
+        message: message
+        status: 0
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        status:
+          type: integer
+    CloudPairResponse_scopes:
+      additionalProperties: false
+      example:
+        service:
+        - service
+        - service
+        device:
+        - device
+        - device
+      properties:
+        device:
+          items:
+            type: string
+          type: array
+        service:
+          items:
+            type: string
+          type: array
+    ConnectorSyncResponse_sync_documents_inner:
+      additionalProperties: false
+      example:
+        summary:
+          metadata:
+            key: ""
+          schemaVersion: ""
+          sourceRefs:
+          - key: ""
+          - key: ""
+          provider: google_drive
+          connectionId: connectionId
+          externalId: externalId
+          mimeType: mimeType
+          title: title
+          excerpt: excerpt
+          contentHash: contentHash
+        candidate:
+          key: ""
+        modifiedAt: 2000-01-23T04:56:07.000+00:00
+        externalId: externalId
+        id: id
+        mimeType: mimeType
+        title: title
+      properties:
+        id:
+          type: string
+        externalId:
+          type: string
+        title:
+          type: string
+        mimeType:
+          type: string
+        modifiedAt:
+          format: date-time
+          type: string
+        summary:
+          $ref: "#/components/schemas/ConnectorDocumentSummary"
+        candidate:
+          additionalProperties: true
+          type: object
+    ConnectorSyncResponse_sync:
+      additionalProperties: false
+      example:
+        mode: backfill
+        checkpoint:
+          key: ""
+        provider: google_drive
+        documents:
+        - summary:
+            metadata:
+              key: ""
+            schemaVersion: ""
+            sourceRefs:
+            - key: ""
+            - key: ""
+            provider: google_drive
+            connectionId: connectionId
+            externalId: externalId
+            mimeType: mimeType
+            title: title
+            excerpt: excerpt
+            contentHash: contentHash
+          candidate:
+            key: ""
+          modifiedAt: 2000-01-23T04:56:07.000+00:00
+          externalId: externalId
+          id: id
+          mimeType: mimeType
+          title: title
+        - summary:
+            metadata:
+              key: ""
+            schemaVersion: ""
+            sourceRefs:
+            - key: ""
+            - key: ""
+            provider: google_drive
+            connectionId: connectionId
+            externalId: externalId
+            mimeType: mimeType
+            title: title
+            excerpt: excerpt
+            contentHash: contentHash
+          candidate:
+            key: ""
+          modifiedAt: 2000-01-23T04:56:07.000+00:00
+          externalId: externalId
+          id: id
+          mimeType: mimeType
+          title: title
+        connectionId: connectionId
+        job:
+          key: ""
+        inbox:
+          accepted: 0
+          deduped: 6
+      properties:
+        connectionId:
+          type: string
+        provider:
+          enum:
+          - google_drive
+          type: string
+        mode:
+          enum:
+          - backfill
+          - incremental
+          type: string
+        job:
+          additionalProperties: true
+          type: object
+        checkpoint:
+          additionalProperties: true
+          type: object
+        inbox:
+          $ref: "#/components/schemas/v09CaptureSessionDeltas_202_response"
+        documents:
+          items:
+            $ref: "#/components/schemas/ConnectorSyncResponse_sync_documents_inner"
+          type: array
+    CapturedSession_redaction:
+      additionalProperties: false
+      example:
+        secretCount: 0
+        privateBlockCount: 0
+        version: version
+      properties:
+        version:
+          type: string
+        secretCount:
+          minimum: 0
+          type: integer
+        privateBlockCount:
+          minimum: 0
+          type: integer
+    CaptureIngestResponse_job:
+      additionalProperties: false
+      example:
+        id: id
+        type: type
+        nextRunAt: 2000-01-23T04:56:07.000+00:00
+        status: pending
+        attempts: 1
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        status:
+          enum:
+          - pending
+          - running
+          - completed
+          - failed
+          type: string
+        attempts:
+          type: integer
+        nextRunAt:
+          format: date-time
+          nullable: true
+          type: string
+    V09CaptureEventBatchResponse_batch:
+      additionalProperties: false
+      example:
+        sourceId: sourceId
+        metadata:
+          key: ""
+        vaultId: vaultId
+        bytes: 6
+        idempotencyKey: idempotencyKey
+        batchKind: batchKind
+        eventCount: 0
+        id: id
+        receivedAt: 2000-01-23T04:56:07.000+00:00
+        deviceId: deviceId
+        status: received
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        sourceId:
+          nullable: true
+          type: string
+        deviceId:
+          nullable: true
+          type: string
+        batchKind:
+          type: string
+        eventCount:
+          type: integer
+        bytes:
+          type: integer
+        status:
+          enum:
+          - received
+          - processing
+          - applied
+          - rejected
+          type: string
+        idempotencyKey:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        receivedAt:
+          format: date-time
+          type: string
+    V09SessionDeltaRequest_deltas_inner:
+      example:
+        occurred_at: 2000-01-23T04:56:07.000+00:00
+        payload:
+          key: ""
+        idempotency_key: idempotency_key
+      properties:
+        idempotency_key:
+          type: string
+        occurred_at:
+          format: date-time
+          type: string
+        payload:
+          additionalProperties: true
+          type: object
+      required:
+      - idempotency_key
+      - payload
+    V09UsageSummary_events_inner:
+      example:
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        vaultId: vaultId
+        id: id
+        eventType: eventType
+        units: 7.061401241503109
+      properties:
+        id:
+          type: string
+        vaultId:
+          type: string
+        eventType:
+          type: string
+        units:
+          type: number
+        occurredAt:
+          format: date-time
+          type: string
+    V10GoogleAuthCallbackResponse_account:
+      additionalProperties: false
+      example:
+        displayName: displayName
+        id: id
+        plan: plan
+        email: email
+      properties:
+        id:
+          type: string
+        email:
+          nullable: true
+          type: string
+        displayName:
+          nullable: true
+          type: string
+        plan:
+          type: string
+    V10GoogleAuthCallbackResponse_vault:
+      additionalProperties: false
+      example:
+        rawArchiveEnabled: true
+        privateMode: true
+        name: name
+        id: id
+        plan: plan
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+        rawArchiveEnabled:
+          type: boolean
+        privateMode:
+          type: boolean
+    V10GoogleAuthCallbackResponse_identity:
+      additionalProperties: false
+      example:
+        provider: ""
+        id: id
+        providerUserId: providerUserId
+        email: email
+      properties:
+        id:
+          type: string
+        provider: {}
+        providerUserId:
+          type: string
+        email:
+          nullable: true
+          type: string
+    V10GoogleAuthCallbackResponse_session:
+      additionalProperties: false
+      example:
+        tokenId: tokenId
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        tokenId:
+          type: string
+        expiresAt:
+          format: date-time
+          type: string
+    V10MeResponse_vault:
+      additionalProperties: false
+      example:
+        name: name
+        id: id
+        plan: plan
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+    V10MeResponse_session:
+      additionalProperties: false
+      example:
+        tokenKind: tokenKind
+        scopes:
+        - scopes
+        - scopes
+      properties:
+        tokenKind:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+    V10VaultResponse_vault:
+      additionalProperties: false
+      example:
+        accountId: accountId
+        rawArchiveEnabled: true
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        privateMode: true
+        name: name
+        id: id
+        plan: plan
+      properties:
+        id:
+          type: string
+        accountId:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+        rawArchiveEnabled:
+          type: boolean
+        privateMode:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      type: http
+    loreApiKey:
+      in: header
+      name: x-lore-api-key
+      type: apiKey
+    loreSession:
+      in: cookie
+      name: lore_session
+      type: apiKey
+    loreCsrf:
+      in: header
+      name: x-lore-csrf
+      type: apiKey

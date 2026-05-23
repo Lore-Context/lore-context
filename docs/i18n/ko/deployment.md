@@ -118,8 +118,8 @@ docker compose -f docs/deployment/compose.private-demo.yml --env-file .env.priva
 
 ## 재사용할 파일
 
-- Compose 샘플: [compose.private-demo.yml](../../../deployment/compose.private-demo.yml)
-- API 이미지: [apps/api/Dockerfile](../../../../apps/api/Dockerfile)
-- 대시보드 이미지: [apps/dashboard/Dockerfile](../../../../apps/dashboard/Dockerfile)
-- MCP 이미지: [Dockerfile](../../../../Dockerfile)
-- 데모 데이터: [examples/demo-dataset/README.md](../../../../examples/demo-dataset/README.md)
+- Compose 샘플: [compose.private-demo.yml](../../deployment/compose.private-demo.yml)
+- API 이미지: [apps/api/Dockerfile](../../../apps/api/Dockerfile)
+- 대시보드 이미지: [apps/dashboard/Dockerfile](../../../apps/dashboard/Dockerfile)
+- MCP 이미지: [Dockerfile](../../../Dockerfile)
+- 데모 데이터: [examples/demo-dataset/README.md](../../../examples/demo-dataset/README.md)

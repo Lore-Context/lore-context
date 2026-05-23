@@ -95,7 +95,7 @@ printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocol
 - Lore API 및 대시보드는 장기 실행 컨테이너로 실행됩니다.
 - Postgres는 공유 데모를 위한 기본 내구성 저장소입니다.
 - MCP 런처는 클라이언트 가까이에 있는 stdio 프로세스로 유지되거나, 온디맨드로 선택적 `mcp` Compose 서비스로 실행됩니다.
-- 데모 시드는 [examples/demo-dataset/import/lore-demo-memories.json](../../../../examples/demo-dataset/import/lore-demo-memories.json)에서 오고, eval 스모크는 [examples/demo-dataset/eval/lore-demo-eval-request.json](../../../../examples/demo-dataset/eval/lore-demo-eval-request.json)에서 옵니다.
+- 데모 시드는 [examples/demo-dataset/import/lore-demo-memories.json](../../../examples/demo-dataset/import/lore-demo-memories.json)에서 오고, eval 스모크는 [examples/demo-dataset/eval/lore-demo-eval-request.json](../../../examples/demo-dataset/eval/lore-demo-eval-request.json)에서 옵니다.
 
 프라이빗 배포의 경우 클라이언트 런처를 프라이빗 API URL로 지정하고 맞는 최소 역할을 제공하십시오:
 

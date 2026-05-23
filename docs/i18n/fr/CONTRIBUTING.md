@@ -8,7 +8,7 @@ sécurité du déploiement.
 
 ## Code de conduite
 
-Ce projet suit le [Contributor Covenant](../../CODE_OF_CONDUCT.md). En participant,
+Ce projet suit le [Contributor Covenant](../../../CODE_OF_CONDUCT.md). En participant,
 vous acceptez de le respecter.
 
 ## Configuration du développement

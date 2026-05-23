@@ -8,7 +8,7 @@ ve dağıtım güvenliğini korumalıdır.
 
 ## Davranış Kuralları
 
-Bu proje [Contributor Covenant](../../CODE_OF_CONDUCT.md)'ı izlemektedir. Katılarak
+Bu proje [Contributor Covenant](../../../CODE_OF_CONDUCT.md)'ı izlemektedir. Katılarak
 buna uymayı kabul edersiniz.
 
 ## Geliştirme Kurulumu
