@@ -31,6 +31,7 @@
     "eval:v12": "pnpm --filter @lore/eval build && node scripts/run-v12-eval.mjs",
     "eval:v12:ablation": "pnpm --filter @lore/eval build && node scripts/run-v12-eval.mjs --ablation",
     "eval:v12:gate": "pnpm --filter @lore/eval build && node scripts/run-v12-eval.mjs --gate-only",
+    "eval:recipe-shadow": "pnpm --filter @lore/eval build && node scripts/eval/run-recipe-shadow.mjs",
     "bench:v13:gate": "pnpm --filter @lore/eval build && node scripts/run-v13-gate.mjs",
     "bench:code-graph": "node scripts/bench/code-graph-gate.mjs",
     "payload:audit": "node scripts/payload-audit.mjs",

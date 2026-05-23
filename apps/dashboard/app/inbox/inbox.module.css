@@ -1,0 +1,132 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.badge,
+.riskBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 9px;
+  background: #eef2f7;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.candidateList {
+  display: grid;
+  gap: 12px;
+}
+
+.candidateCard {
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHeader h2 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.riskBadge.low {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.riskBadge.medium {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.riskBadge.high {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.metaGrid div {
+  border: 1px solid #e8edf3;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 9px;
+}
+
+.metaGrid dt {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metaGrid dd {
+  margin: 4px 0 0;
+  color: #111827;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  text-transform: capitalize;
+}
+
+.reason {
+  margin: 12px 0 0;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.intentNote {
+  margin-top: 10px;
+  border: 1px solid #c7d7fe;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: #344054;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+@media (max-width: 820px) {
+  .statsGrid,
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+  }
+}

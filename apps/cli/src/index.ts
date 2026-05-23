@@ -364,7 +364,7 @@ export function createMockPairing(runtimeInput: Partial<BridgeRuntime>, cloudUrl
   return {
     deviceId: `dev_mock_${suffix}`,
     vaultId: "vault_dev_mock",
-    accountId: "acct_dev_mock",
+    accountId: "account_dev_mock",
     deviceToken: `lct_device_mock_${suffix}`,
     deviceTokenExpiresAt: expires,
     serviceToken: `lct_service_mock_${suffix}`,

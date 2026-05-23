@@ -96,6 +96,11 @@ benchmark-win claim.
 
 ## Architecture
 
+The diagram below shows the full open-core plus hosted-production shape. In the
+public OSS repo, local file/Postgres deployment is supported directly; hosted
+Google sign-in, AWS SQS workers, private embeddings, billing, and multi-tenant
+operations are commercial hosted-cloud surfaces.
+
 ```text
                        ┌───────────────────────────────────────────────┐
   MCP/REST clients ─► │ apps/api  (auth + rate limit + evidence)       │
@@ -134,43 +139,43 @@ routes, tests, and process hints, exposed through API routes and read-only MCP
 tools so agents ground repository answers in a stable project-context contract
 instead of ad hoc text search.
 
-v2.1.0 is deployed to AWS production and the public website. It builds on the
-hybrid memory engine (RDS truth store, AWS SQS worker fan-out, Qdrant derived
-index, private Qwen3 embedding service, 7-stream `HybridSearchOrchestrator`),
-the dreaming butler memory-consolidation worker, the agent memory
-self-improvement loop, the published SDK middleware packages, and the commercial
-SaaS substrate shipped across the v1.7–v2.0 line.
+v2.1.0 is the current open-core source line. The hosted Lore Cloud production
+line also runs v2.1.0 on the commercial AWS/Qdrant/private-embedding substrate,
+but hosted operations, billing, production release automation, and Secret Vault
+runtime stay in `Lore-Context/lore-cloud`.
 
 | Capability | Status | Where |
 |---|---|---|
-| Repo graph API + MCP tools (`repo.graph_query` / `symbol_context` / `impact` / `detect_changes`) | ✅ Production | `packages/repo-graph`, `apps/api`, `apps/mcp-server` |
-| Code knowledge graph indexer | ✅ Production | `packages/code-indexer`, `packages/code-indexer-python` |
-| Context Query composing memory + web + repo + tool traces | ✅ Production | `apps/api`, `docs/api-reference.md` |
-| 7-stream `HybridSearchOrchestrator` (FTS / pgvector / Qdrant dense+sparse / graph / temporal / wiki) | ✅ Production | `packages/search` |
-| Cross-encoder reranker (post-fusion, opt-in) | ✅ Production | `apps/api/src/rerankers/` |
-| Dreaming butler memory consolidation (prune / merge / resolve / surface) | ✅ Production, flag-gated | `apps/api/src/workers/butler-v18.ts` |
-| Agent memory self-improvement loop + context recipes | ✅ Production, human-gated promotion | `packages/eval`, `packages/search`, `ops/context-recipes/` |
+| Repo graph API + MCP tools (`repo.graph_query` / `symbol_context` / `impact` / `detect_changes`) | ✅ OSS + hosted production | `packages/repo-graph`, `apps/api`, `apps/mcp-server` |
+| Code knowledge graph indexer | ✅ OSS + hosted production | `packages/code-indexer`, `packages/code-indexer-python` |
+| Context Query composing memory + web + repo + tool traces | ✅ OSS + hosted production | `apps/api`, `docs/api-reference.md` |
+| 7-stream `HybridSearchOrchestrator` (FTS / pgvector / Qdrant dense+sparse / graph / temporal / wiki) | ✅ OSS + hosted production | `packages/search` |
+| Cross-encoder reranker (post-fusion, opt-in) | ✅ OSS, provider key required | `apps/api/src/rerankers/` |
+| Dreaming butler memory consolidation (prune / merge / resolve / surface) | ✅ OSS, flag-gated | `apps/api/src/workers/butler-v18.ts` |
+| Agent memory self-improvement loop + context recipes | ✅ OSS, human-gated promotion | `packages/eval`, `packages/search` |
 | SDK middleware (auto-inject + auto-retain for OpenAI / Anthropic clients) | ✅ Published | `packages/sdk-middleware-typescript`, `packages/sdk-middleware-python` |
-| Secret vault for AI agents (MCP-native, three-button authorization) | ✅ Beta, pending crypto audit | `apps/mcp-server`, `apps/api` |
-| Cloud Memory Engine: RDS truth store + SQS worker fan-out + Qdrant index | ✅ Production | `apps/api`, `apps/api/src/worker.ts` |
-| Private Qwen3-Embedding-0.6B 1024-dim vector service | ✅ Production | `apps/api/src/embedding.ts` |
-| Automatic capture ingestion and Memory Inbox exceptions | ✅ Production | `apps/api`, `packages/capture` |
-| Google sign-in + personal vault bootstrap | ✅ Production | `apps/api`, `apps/dashboard` |
-| Commercial SaaS: individual subscriptions, billing, quota gating | ✅ Production | hosted cloud (`Lore-Context/lore-cloud`) |
-| REST API with API-key auth (reader/writer/admin) | ✅ Production | `apps/api` |
-| OpenAPI 3.1 contract at `/openapi.json` (reports `2.1.0`) | ✅ Production | `apps/api/src/openapi.ts` |
-| MCP stdio server (legacy + official SDK transport) | ✅ Production | `apps/mcp-server` |
-| Next.js dashboard with Google session + operator Basic Auth | ✅ Production | `apps/dashboard` |
-| Evidence Ledger API + Dashboard summary | ✅ Production | `apps/api`, `apps/dashboard` |
-| Governance state machine + audit log | ✅ Production | `packages/governance` |
-| Eval runner (Recall@K / Precision@K / MRR / staleHit / p95) | ✅ Production | `packages/eval` |
-| MIF v0.2 import/export with `supersedes` + `contradicts` | ✅ Production | `packages/mif` |
-| Model gateway (multi-provider task→model routing) | ✅ Production | `packages/model-gateway` |
-| `agentmemory` adapter with version probe + degraded mode | ✅ Production | `packages/agentmemory-adapter` |
-| Rate limiting, structured JSON logging with field redaction | ✅ Production | `apps/api` |
-| Docker Compose private deployment | ✅ Production | `docker-compose.yml` |
-| `pnpm quickstart` local adoption helper + activation report | ✅ Production | `scripts/lore-quickstart.mjs` |
-| Official MCP Registry + distribution / launch / design-partner docs | ✅ Production | `server.json`, `docs/distribution/`, `docs/launch/` |
+| Generated SDK source previews | ✅ OSS source preview | `packages/sdk-python`, `packages/sdk-go`, `packages/sdk-java`, `packages/sdk-dotnet` |
+| Browser extension capture scaffold | ✅ OSS scaffold | `apps/browser-extension` |
+| Secret vault for AI agents (MCP-native, three-button authorization) | Hosted beta, pending crypto audit | commercial runtime in `Lore-Context/lore-cloud` |
+| Cloud Memory Engine: RDS truth store + SQS worker fan-out + Qdrant index | Hosted production | commercial hosted cloud |
+| Private Qwen3-Embedding-0.6B 1024-dim vector service | Hosted production | commercial hosted cloud |
+| Automatic capture ingestion and Memory Inbox exceptions | ✅ OSS + hosted production | `apps/api`, `packages/capture`, `apps/dashboard` |
+| Google sign-in + personal vault bootstrap | Hosted production | commercial hosted cloud |
+| Commercial SaaS: individual subscriptions, billing, quota gating | Hosted production | `Lore-Context/lore-cloud` |
+| REST API with API-key auth (reader/writer/admin) | ✅ OSS + hosted production | `apps/api` |
+| OpenAPI 3.1 contract at `/openapi.json` (reports `2.1.0`) | ✅ OSS + hosted production | `apps/api/src/openapi.ts` |
+| MCP stdio server (legacy + official SDK transport) | ✅ OSS + hosted production | `apps/mcp-server` |
+| Next.js dashboard customer workflow scaffold | ✅ OSS scaffold + hosted production | `apps/dashboard` |
+| Evidence Ledger API + Dashboard summary | ✅ OSS + hosted production | `apps/api`, `apps/dashboard` |
+| Governance state machine + audit log | ✅ OSS + hosted production | `packages/governance` |
+| Eval runner (Recall@K / Precision@K / MRR / staleHit / p95) | ✅ OSS + hosted production | `packages/eval` |
+| MIF v0.2 import/export with `supersedes` + `contradicts` | ✅ OSS | `packages/mif` |
+| Model gateway (multi-provider task→model routing) | ✅ OSS | `packages/model-gateway` |
+| `agentmemory` adapter with version probe + degraded mode | ✅ OSS | `packages/agentmemory-adapter` |
+| Rate limiting, structured JSON logging with field redaction | ✅ OSS + hosted production | `apps/api` |
+| Docker Compose private deployment | ✅ OSS self-host | `docker-compose.yml`, `docs/deployment/` |
+| `pnpm quickstart` local adoption helper + activation report | ✅ OSS | `scripts/lore-quickstart.mjs` |
+| Official MCP Registry + distribution / launch / design-partner docs | ✅ OSS docs | `server.json`, `docs/distribution/`, `docs/launch/` |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
@@ -274,7 +279,7 @@ Vulnerability disclosures: [SECURITY.md](SECURITY.md).
 ```text
 apps/
   api/                # REST control plane + Postgres + governance + eval + repo graph
-  dashboard/          # Next.js dashboard with Google session + operator Basic Auth
+  dashboard/          # Next.js dashboard scaffold; hosted Google session stays commercial
   mcp-server/         # MCP stdio server (legacy + official SDK transports)
   cli/                # lore CLI (doctor, wiki-recompile, dataset import/export)
   browser-extension/  # Capture surface scaffold
@@ -302,7 +307,7 @@ packages/
 docs/
   i18n/<lang>/        # Localized README in 17 languages
   integrations/       # Agent-IDE integration guides
-  deployment/         # Local, Docker Compose, and production automation runbooks
+  deployment/         # Local and Docker Compose private deployment docs
   legal/              # Privacy / Terms / Cookies (Singapore law)
 scripts/
   check-env.mjs       # Production-mode env validation

@@ -1,0 +1,51 @@
+{
+  "name": "v2.0.7-request-shape-parity",
+  "cases": [
+    {
+      "name": "contextQuery",
+      "input": {
+        "path": "v1/context/query",
+        "method": "POST",
+        "request": {
+          "query": "Find architecture details",
+          "project_id": "project-123",
+          "token_budget": 256,
+          "include_sources": false,
+          "mode": "web"
+        },
+        "requestOptions": {
+          "queryParams": {
+            "tag": "search",
+            "ids": ["a", "b"],
+            "meta": {
+              "scope": "team",
+              "flags": ["alpha", "beta"]
+            }
+          }
+        }
+      },
+      "expected": {
+        "method": "POST",
+        "path": "v1/context/query",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "query": "Find architecture details",
+          "project_id": "project-123",
+          "token_budget": 256,
+          "include_sources": false,
+          "mode": "web"
+        },
+        "query": [
+          ["tag", "search"],
+          ["ids", "a"],
+          ["ids", "b"],
+          ["meta[scope]", "team"],
+          ["meta[flags]", "alpha"],
+          ["meta[flags]", "beta"]
+        ]
+      }
+    }
+  ]
+}

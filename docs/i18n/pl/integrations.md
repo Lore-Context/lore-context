@@ -90,7 +90,7 @@ Nie uruchamiaj tego przez `pnpm start` z klienta MCP, ponieważ banery menedżer
 
 ## Wyrównanie prywatnego wdrożenia
 
-Prywatne pakowanie demonstracyjne w [docs/deployment/README.md](../deployment.md) zakłada:
+Prywatne pakowanie demonstracyjne w [docs/deployment/README.md](deployment.md) zakłada:
 
 - API Lore i dashboard działają jako długo żyjące kontenery.
 - Postgres jest domyślnym trwałym magazynem dla współdzielonych demonstracji.

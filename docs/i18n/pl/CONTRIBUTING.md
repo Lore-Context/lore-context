@@ -7,7 +7,7 @@ więc zmiany powinny zachować operację local-first, audytowalność i bezpiecz
 
 ## Kodeks postępowania
 
-Ten projekt stosuje się do [Contributor Covenant](../../CODE_OF_CONDUCT.md). Uczestnicząc
+Ten projekt stosuje się do [Contributor Covenant](../../../CODE_OF_CONDUCT.md). Uczestnicząc
 zgadzasz się go przestrzegać.
 
 ## Konfiguracja środowiska deweloperskiego

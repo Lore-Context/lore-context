@@ -204,7 +204,7 @@ function emitCostTrackerDropMetric(): void {
         Timestamp: Date.now(),
         CloudWatchMetrics: [
           {
-            Namespace: "lore-prod",
+            Namespace: "[redacted]",
             Dimensions: [["service"]],
             Metrics: [{ Name: "[redacted]cost-tracker-drop", Unit: "Count" }],
           },

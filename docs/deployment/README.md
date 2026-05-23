@@ -1,8 +1,13 @@
-# Private Deployment
+# OSS Private Deployment
 
 > **Generate keys with `openssl rand -hex 32` — never use the placeholders below in production.**
 
-This slice packages Lore for a private demo or internal team rollout without changing the application code paths. The deployment bundle consists of:
+This guide packages Lore for a local, private demo, or internal team rollout
+from the public open-core repository without using hosted Lore Cloud production
+automation. Hosted AWS/Cloudflare release automation, billing, multi-region,
+and operator runbooks remain in `Lore-Context/lore-cloud`.
+
+The public deployment bundle consists of:
 
 - `apps/api/Dockerfile`: REST API image.
 - `apps/dashboard/Dockerfile`: standalone Next.js dashboard image.
@@ -115,13 +120,16 @@ The containerized launcher is useful for reproducible workstation setup, but it 
 - Leave `LORE_AGENTMEMORY_REQUIRED=0` unless the private deployment really depends on a live agentmemory runtime.
 - Keep `LORE_POSTGRES_AUTO_SCHEMA=true` only for controlled internal environments. Once schema bootstrapping is part of your release process, you can pin it to `false`.
 
-## v0.6 Private Alpha Direction
+## v2.1 OSS Direction
 
-The `v0.6.0-alpha` public release remains local/private-deployment focused. Hosted
-multi-tenant cloud sync is not part of this release.
+The `v2.1.0` public release remains local/private-deployment focused. It
+includes the open-core memory/search/eval/repo-graph substrate, SDK middleware,
+generated SDK source previews, Browser extension capture scaffold, and a
+dashboard customer workflow scaffold. Hosted multi-tenant SaaS operations are
+not part of the OSS deployment bundle.
 
-Use the v0.6 public release to validate private alpha readiness before adding
-cloud-only features:
+Use the v2.1 public release to validate private deployment readiness before
+adding cloud-only features:
 
 ```bash
 pnpm quickstart -- --dry-run --activation-report
@@ -135,22 +143,23 @@ After a real `context.query`, inspect `GET /v1/evidence/ledger/:trace_id` or the
 Dashboard Recent Traces evidence summary before exposing the workflow to a design
 partner.
 
-Private alpha work belongs outside the public open-core release and should focus on:
+Private deployment work outside the public open-core release should focus on:
 
 - tenant model: organization, project, user, API key scope;
 - auth boundary: dashboard access, API-key lifecycle, admin invite policy;
-- Cloudflare Access + AWS single-host Compose runbook;
+- authenticated network boundary for the chosen host;
 - backup and restore drill for Postgres-backed deployments;
 - basic health checks, structured logs, and alert checklist;
 - customer data policy for memories, traces, eval datasets, support access, and deletion.
 
-Do not add billing, self-serve signup, enterprise SSO, or public hosted dashboard
-until design partners have validated the private alpha workflow.
+Do not add billing, self-serve signup, enterprise SSO, public hosted dashboard,
+or production release automation to the OSS deployment bundle. Those remain
+commercial hosted-cloud surfaces.
 
 ## Files To Reuse
 
-- Compose sample: [compose.private-demo.yml](/Users/shuanbaozhu/Desktop/Lore/docs/deployment/compose.private-demo.yml)
-- API image: [apps/api/Dockerfile](/Users/shuanbaozhu/Desktop/Lore/apps/api/Dockerfile)
-- Dashboard image: [apps/dashboard/Dockerfile](/Users/shuanbaozhu/Desktop/Lore/apps/dashboard/Dockerfile)
-- MCP image: [Dockerfile](/Users/shuanbaozhu/Desktop/Lore/Dockerfile)
-- Demo data: [examples/demo-dataset/README.md](/Users/shuanbaozhu/Desktop/Lore/examples/demo-dataset/README.md)
+- Compose sample: [compose.private-demo.yml](compose.private-demo.yml)
+- API image: [apps/api/Dockerfile](../../apps/api/Dockerfile)
+- Dashboard image: [apps/dashboard/Dockerfile](../../apps/dashboard/Dockerfile)
+- MCP image: [Dockerfile](../../Dockerfile)
+- Demo data: [examples/demo-dataset/README.md](../../examples/demo-dataset/README.md)

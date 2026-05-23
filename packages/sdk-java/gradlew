@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if command -v gradle >/dev/null 2>&1; then
+  exec gradle "$@"
+fi
+
+if command -v docker >/dev/null 2>&1; then
+  if docker ps >/dev/null 2>&1; then
+    exec docker run --rm -v "$PWD":/work -w /work gradle:8.6-jdk17 gradle "$@"
+  else
+    echo 'Gradle command not available and Docker daemon is unavailable.' >&2
+    echo 'Please install Gradle locally or start Docker and run again.' >&2
+    exit 1
+  fi
+fi
+
+echo 'Gradle command not found. Please install Gradle or provide Docker with daemon running.' >&2
+exit 1

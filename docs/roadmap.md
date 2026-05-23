@@ -65,8 +65,8 @@ the following releases shipped to `Lore-Context/lore-cloud`:
 ## Previous production focus: `v1.3 Search-Completeness Beta` (private cloud, superseded)
 
 The v1.3 line ran on AWS production from 2026-05-05 until the v2.x upgrade
-cycle. The full plan lives in
-[`docs/v1.3-search-completeness-plan.md`](v1.3-search-completeness-plan.md).
+cycle. The full plan lives in the private planning archive as
+`docs/v1.3-search-completeness-plan.md`.
 
 Theme: close the v1.2 read-path debt. Every retrieval stream Lore advertises
 is mounted in the RRF fusion, populated by a real provider, and validated
@@ -96,8 +96,8 @@ What `v1.3` shipped:
 The v1.2 source/package metadata moved to `1.2.0-beta` on 2026-05-04 and ran
 in production on AWS Singapore until the v1.3 traffic swap on 2026-05-05.
 The formal GitHub pre-release for this line is `v1.2.0-beta`. The
-v1.2 production plan lives in
-[`.omx/plans/lore-v1.2-graph-augmented-hybrid-memory-engine-plan.md`](../.omx/plans/lore-v1.2-graph-augmented-hybrid-memory-engine-plan.md).
+v1.2 production plan lives in the private planning archive as
+`.omx/plans/lore-v1.2-graph-augmented-hybrid-memory-engine-plan.md`.
 
 Theme: make the hosted memory engine credible for ordinary users. Users should
 sign in, connect one assistant, let Lore capture safely by default, and later get
@@ -136,8 +136,8 @@ v12 eval gate and preflight confirming v12 runtime exports.
 Theme: make recall accurate and explainable by adding a proper Postgres FTS + pgvector
 path, a temporal knowledge graph, and an eval gate that drives all weight decisions.
 
-The canonical plan is
-[`.omx/plans/lore-v1.2-graph-augmented-hybrid-memory-engine-plan.md`](../.omx/plans/lore-v1.2-graph-augmented-hybrid-memory-engine-plan.md).
+The canonical plan lives in the private planning archive as
+`.omx/plans/lore-v1.2-graph-augmented-hybrid-memory-engine-plan.md`.
 
 What v1.2 fixes versus v1.1:
 
@@ -246,8 +246,8 @@ Post-deploy beta validation:
 
 `v1.1` turned the v1.0 capture-and-approve loop into an autonomous cloud memory
 engine that ordinary users can trust without operating any of it. The
-lane-by-lane plan lives in
-[`.omx/plans/lore-v1.1-cloud-memory-engine-production-plan.md`](../.omx/plans/lore-v1.1-cloud-memory-engine-production-plan.md).
+lane-by-lane plan lives in the private planning archive as
+`.omx/plans/lore-v1.1-cloud-memory-engine-production-plan.md`.
 
 What changed versus v1.0 in production:
 
@@ -373,8 +373,8 @@ Theme:
 `v0.9` has shipped the Auto-Capture Beta runtime. The current work is to turn
 the deployed beta into user evidence:
 
-See [adoption-validation.md](adoption-validation.md) for the live evidence
-matrix.
+The live evidence matrix was tracked in the private planning archive as
+`adoption-validation.md`.
 
 1. **Beta onboarding**: account/invite -> install token -> `lore connect` -> first source connected.
 2. **Capture proof**: first real Claude Code/Codex session captured after explicit authorization.
@@ -410,8 +410,8 @@ Success metrics:
 
 ## Shipped `v0.9`: Auto-Capture Beta
 
-The v0.9 lane is documented in
-[v0.9-auto-capture-beta-plan.md](v0.9-auto-capture-beta-plan.md).
+The v0.9 lane is documented in the private planning archive as
+`v0.9-auto-capture-beta-plan.md`.
 
 Theme:
 

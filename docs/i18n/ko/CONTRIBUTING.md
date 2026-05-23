@@ -6,7 +6,7 @@ Lore Context를 개선해 주셔서 감사합니다. 이 프로젝트는 알파 
 
 ## 행동 강령
 
-이 프로젝트는 [Contributor Covenant](../../CODE_OF_CONDUCT.md)를 따릅니다. 참여함으로써 이를 준수하는 데 동의합니다.
+이 프로젝트는 [Contributor Covenant](../../../CODE_OF_CONDUCT.md)를 따릅니다. 참여함으로써 이를 준수하는 데 동의합니다.
 
 ## 개발 환경 설정
 

@@ -141,7 +141,7 @@ Uruchom ponownie Claude Code. Narzędzia MCP Lore Context (`context_query`, `mem
 stają się dostępne.
 
 Dla innych środowisk IDE agentów (Cursor, Qwen, Dify, FastGPT itp.), zobacz macierz integracji w
-[docs/integrations/README.md](../integrations.md).
+[docs/integrations/README.md](integrations.md).
 
 ## 8. (Opcjonalnie) Przełącz na Postgres + pgvector
 
@@ -175,13 +175,13 @@ Raport eval ląduje w `output/eval-reports/` jako Markdown i JSON.
 
 ## Następne kroki
 
-- **Wdrożenie produkcyjne** — [docs/deployment/README.md](../deployment.md)
-- **Dokumentacja API** — [docs/api-reference.md](../api-reference.md)
-- **Szczegóły architektury** — [docs/architecture.md](../architecture.md)
+- **Wdrożenie produkcyjne** — [docs/deployment/README.md](deployment.md)
+- **Dokumentacja API** — [docs/api-reference.md](api-reference.md)
+- **Szczegóły architektury** — [docs/architecture.md](architecture.md)
 - **Przepływ przeglądu zarządzania** — zobacz sekcję `Przepływ zarządzania` w
-  [docs/architecture.md](../architecture.md)
+  [docs/architecture.md](architecture.md)
 - **Przenośność pamięci (MIF)** — `pnpm --filter @lore/mif test` pokazuje przykłady round-trip
-- **Współtworzenie** — [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Współtworzenie** — [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Typowe problemy
 
@@ -198,5 +198,5 @@ Raport eval ląduje w `output/eval-reports/` jako Markdown i JSON.
 ## Uzyskiwanie pomocy
 
 - Zgłoś błąd: https://github.com/Lore-Context/lore-context/issues
-- Zgłoszenie bezpieczeństwa: zobacz [SECURITY.md](../SECURITY.md)
-- Współtwórz dokumentację: zobacz [CONTRIBUTING.md](../CONTRIBUTING.md)
+- Zgłoszenie bezpieczeństwa: zobacz [SECURITY.md](SECURITY.md)
+- Współtwórz dokumentację: zobacz [CONTRIBUTING.md](CONTRIBUTING.md)

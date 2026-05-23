@@ -6,7 +6,7 @@ Lore Context の改善にご協力いただきありがとうございます。�
 
 ## 行動規範
 
-このプロジェクトは [Contributor Covenant](../../CODE_OF_CONDUCT.md) に従います。参加することで、それを支持することに同意したことになります。
+このプロジェクトは [Contributor Covenant](../../../CODE_OF_CONDUCT.md) に従います。参加することで、それを支持することに同意したことになります。
 
 ## 開発セットアップ
 

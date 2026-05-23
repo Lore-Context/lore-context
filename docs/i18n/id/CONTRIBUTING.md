@@ -6,7 +6,7 @@ Terima kasih telah meningkatkan Lore Context. Proyek ini adalah panel kontrol ko
 
 ## Kode Etik
 
-Proyek ini mengikuti [Contributor Covenant](../../CODE_OF_CONDUCT.md). Dengan berpartisipasi
+Proyek ini mengikuti [Contributor Covenant](../../../CODE_OF_CONDUCT.md). Dengan berpartisipasi
 Anda setuju untuk mematuhinya.
 
 ## Pengaturan Pengembangan

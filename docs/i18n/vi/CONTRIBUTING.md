@@ -6,7 +6,7 @@ Cảm ơn bạn đã cải thiện Lore Context. Dự án này là mặt phẳng
 
 ## Quy tắc ứng xử
 
-Dự án này tuân theo [Contributor Covenant](../../CODE_OF_CONDUCT.md). Khi tham gia,
+Dự án này tuân theo [Contributor Covenant](../../../CODE_OF_CONDUCT.md). Khi tham gia,
 bạn đồng ý tuân thủ nó.
 
 ## Thiết lập phát triển

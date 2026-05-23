@@ -16,7 +16,7 @@ Translations are **machine-translated** as a baseline and clearly labeled at the
 of each file:
 
 > 🤖 This document was machine-translated from English. Improvements via PR are welcome
-> — see the [translation contributor guide](../README.md).
+> — see the [translation contributor guide](../../README.md).
 
 The English version (`/README.md`) is the canonical source of truth. When the English
 source changes, translations drift until a contributor updates them.

@@ -185,11 +185,11 @@ flowchart LR
 
 ## Powiązane dokumenty
 
-- [Pierwsze kroki](../getting-started.md) — 5-minutowy szybki start dla deweloperów.
-- [Dokumentacja API](../api-reference.md) — powierzchnia REST i MCP.
-- [Wdrożenie](../deployment.md) — lokalnie, Postgres, Docker Compose.
-- [Integracje](../integrations.md) — macierz konfiguracji agent-IDE.
-- [Polityka bezpieczeństwa](../SECURITY.md) — ujawnianie i wbudowane zabezpieczenia.
-- [Współtworzenie](../CONTRIBUTING.md) — przepływ pracy deweloperskiej i format commita.
-- [Changelog](../CHANGELOG.md) — co zostało dostarczone i kiedy.
+- [Pierwsze kroki](getting-started.md) — 5-minutowy szybki start dla deweloperów.
+- [Dokumentacja API](api-reference.md) — powierzchnia REST i MCP.
+- [Wdrożenie](deployment.md) — lokalnie, Postgres, Docker Compose.
+- [Integracje](integrations.md) — macierz konfiguracji agent-IDE.
+- [Polityka bezpieczeństwa](SECURITY.md) — ujawnianie i wbudowane zabezpieczenia.
+- [Współtworzenie](CONTRIBUTING.md) — przepływ pracy deweloperskiej i format commita.
+- [Changelog](CHANGELOG.md) — co zostało dostarczone i kiedy.
 - [Przewodnik dla tłumaczy i18n](../../i18n/README.md) — tłumaczenia dokumentacji.
