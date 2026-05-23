@@ -158,5 +158,5 @@ Pour les problèmes de gravité moindre, attendez une résolution dans la procha
   analyse statique CodeQL, et dependabot.
 - **v0.6** : images de conteneurs signées Sigstore, provenance SLSA, publication npm via
   GitHub OIDC au lieu de jetons de longue durée.
-- **v0.7** : chiffrement au repos pour le contenu de mémoire marqué `risk_tags` via le chiffrement
+- **Future hosted hardening**: chiffrement au repos pour le contenu de mémoire marqué `risk_tags` via le chiffrement
   d'enveloppe KMS.

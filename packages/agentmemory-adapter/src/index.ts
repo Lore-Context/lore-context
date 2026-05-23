@@ -64,6 +64,8 @@ export interface RememberInput {
 export interface RememberResult {
   memory: MemoryRecord;
   backendId?: string;
+  /** AgentMemory imports always land in Memory Inbox as candidates, never as approved memories. */
+  candidate: true;
 }
 
 export interface ForgetInput {
@@ -81,6 +83,39 @@ export interface ImportResult {
   imported: number;
   skipped: number;
   warnings: string[];
+  /** Imported records always land in Memory Inbox as candidates, never as approved memories. */
+  candidate: true;
+}
+
+export interface ConfigFlags {
+  flags: Record<string, boolean | string | number>;
+  raw: unknown;
+}
+
+export interface ReplayInput {
+  sessions?: unknown[];
+  jsonl?: string;
+  projectId?: string;
+}
+
+export interface ReplayResult {
+  replayed: number;
+  skipped: number;
+  warnings: string[];
+  /** Replayed sessions always land in Memory Inbox as candidates. */
+  candidate: true;
+}
+
+export interface SessionInfo {
+  id: string;
+  projectId?: string;
+  createdAt?: string;
+  raw: unknown;
+}
+
+export interface ProfileResult {
+  profile: Record<string, unknown>;
+  raw: unknown;
 }
 
 export interface AgentMemoryExport {
@@ -217,7 +252,7 @@ export class AgentMemoryAdapter {
         sourceProvider: "agentmemory",
         sourceRefs: input.sourceRefs
       });
-      return { memory };
+      return { memory, candidate: true };
     }
 
     const payload = await this.request("POST", "/agentmemory/remember", {
@@ -242,7 +277,7 @@ export class AgentMemoryAdapter {
       sourceRefs: input.sourceRefs
     });
 
-    return { memory, backendId };
+    return { memory, backendId, candidate: true };
   }
 
   async forget(input: ForgetInput): Promise<ForgetResult> {
@@ -298,15 +333,85 @@ export class AgentMemoryAdapter {
 
   async importAll(input: unknown): Promise<ImportResult> {
     if (this.silentMode) {
-      return { imported: 0, skipped: 0, warnings: ["agentmemory disabled via LORE_AGENTMEMORY_REQUIRED=0"] };
+      return { imported: 0, skipped: 0, warnings: ["agentmemory disabled via LORE_AGENTMEMORY_REQUIRED=0"], candidate: true };
     }
 
     const payload = await this.request("POST", "/agentmemory/import", input);
     return {
       imported: readNumber(payload, ["imported", "created", "count"]) ?? 0,
       skipped: readNumber(payload, ["skipped"]) ?? 0,
-      warnings: extractStringArray(payload, ["warnings"])
+      warnings: extractStringArray(payload, ["warnings"]),
+      candidate: true
     };
+  }
+
+  async getConfigFlags(): Promise<ConfigFlags> {
+    if (this.silentMode) {
+      return { flags: {}, raw: {} };
+    }
+
+    const raw = await this.request("GET", "/agentmemory/config/flags");
+    const flagsRaw = extractRecord(raw, ["flags", "config", "data"]);
+    const flags: Record<string, boolean | string | number> = {};
+    for (const [key, value] of Object.entries(flagsRaw)) {
+      if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
+        flags[key] = value;
+      }
+    }
+    return { flags, raw };
+  }
+
+  async replaySession(input: ReplayInput): Promise<ReplayResult> {
+    if (this.silentMode) {
+      return { replayed: 0, skipped: 0, warnings: ["agentmemory disabled via LORE_AGENTMEMORY_REQUIRED=0"], candidate: true };
+    }
+
+    const body: Record<string, unknown> = {};
+    if (input.sessions !== undefined) body.sessions = input.sessions;
+    if (input.jsonl !== undefined) body.jsonl = input.jsonl;
+    if (input.projectId !== undefined) body.project_id = input.projectId;
+
+    const payload = await this.request("POST", "/agentmemory/sessions/load", body);
+    return {
+      replayed: readNumber(payload, ["replayed", "loaded", "imported", "count"]) ?? 0,
+      skipped: readNumber(payload, ["skipped"]) ?? 0,
+      warnings: extractStringArray(payload, ["warnings"]),
+      candidate: true
+    };
+  }
+
+  async getSessions(input: { projectId?: string; limit?: number } = {}): Promise<SessionInfo[]> {
+    if (this.silentMode) {
+      return [];
+    }
+
+    const params = new URLSearchParams();
+    if (input.projectId) params.set("project_id", input.projectId);
+    if (input.limit !== undefined) params.set("limit", String(input.limit));
+    const query = params.toString();
+
+    const payload = await this.request("GET", `/agentmemory/sessions${query ? `?${query}` : ""}`);
+    return extractArray(payload, ["sessions", "data", "results"]).map((item) => ({
+      id: readString(item, ["id", "session_id"]) ?? "unknown",
+      projectId: readString(item, ["project_id", "projectId"]),
+      createdAt: readString(item, ["created_at", "createdAt"]),
+      raw: item
+    }));
+  }
+
+  async getProfile(input: { projectId?: string; sessionId?: string } = {}): Promise<ProfileResult> {
+    if (this.silentMode) {
+      return { profile: {}, raw: {} };
+    }
+
+    const params = new URLSearchParams();
+    if (input.projectId) params.set("project_id", input.projectId);
+    if (input.sessionId) params.set("session_id", input.sessionId);
+    const query = params.toString();
+
+    const raw = await this.request("GET", `/agentmemory/sessions/profile${query ? `?${query}` : ""}`);
+    const profile = extractRecord(raw, ["profile", "data", "summary"]);
+    return { profile, raw };
   }
 
   async getAudit(input: AuditQuery = {}): Promise<AuditEntry[]> {
@@ -455,6 +560,16 @@ function extractArray(value: unknown, paths: string[]): unknown[] {
 function extractStringArray(value: unknown, paths: string[]): string[] {
   const items = extractArray(value, paths);
   return items.filter((item): item is string => typeof item === "string");
+}
+
+function extractRecord(value: unknown, paths: string[]): Record<string, unknown> {
+  for (const path of paths) {
+    const found = getPath(value, path);
+    if (found && typeof found === "object" && !Array.isArray(found)) {
+      return found as Record<string, unknown>;
+    }
+  }
+  return {};
 }
 
 function getPath(value: unknown, path: string): unknown {

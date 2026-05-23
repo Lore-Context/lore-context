@@ -37,7 +37,7 @@ Paket bazlı çalışma için:
 
 ```bash
 pnpm --filter @lore/api test
-pnpm --filter @lore/mcp-server test
+pnpm --filter @lore-context/server test
 pnpm --filter @lore/eval test
 pnpm --filter @lore/governance test
 pnpm --filter @lore/mif test

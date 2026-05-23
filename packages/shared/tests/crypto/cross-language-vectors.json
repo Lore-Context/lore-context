@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "description": "Lore v2.0.5 cross-language crypto parity vectors. TS emits, Python verifies via cryptography lib (RFC 5869 HKDF-SHA256 + AES-256-GCM with deterministic 4|8 nonce + immutable secret_id as AAD).",
+  "generatedAt": "2026-05-13T08:19:40.220Z",
+  "inputs": {
+    "accountKeyHex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "secretKeyHex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "secretIdHex": "01020304050607080910111213141516",
+    "vaultIdPrefixHex": "deadbeef",
+    "aadHex": "01020304050607080910111213141516",
+    "plaintextUtf8": "hunter2-github-token-example"
+  },
+  "expected": {
+    "vaultMasterKeyHex": "09eb2b9e29d2ef5821b1feaff31290bfa689189ae712884cf7c2a68db9cd6100",
+    "perSecretKeyHex": "0c758d0ba82251c98b6d98177c36a9f33e0428de92f5aa9ea124748637839417",
+    "auditChainKeyHex": "bcaf6264235e3b01b188b7164635d016e074b0cb69d9ad9336ec6ee0cb363bff",
+    "encryptCounter0": {
+      "nonceCounter": 0,
+      "plaintextUtf8": "hunter2-github-token-example",
+      "ciphertextHex": "ea77841b122b3d96281534c9f428f2100210510d6a4deebd0e2d400e",
+      "authTagHex": "45f6ecde69c62cd9348c7b69c3e58074"
+    },
+    "encryptCounter1": {
+      "nonceCounter": 1,
+      "plaintextUtf8": "hunter2-github-token-example",
+      "ciphertextHex": "442f4bfc94c465255ec304c257b22301d67583c1a0e5e42912120a33",
+      "authTagHex": "0ed8a8ab0aa0197793facc279bacac47"
+    },
+    "encryptCounter42": {
+      "nonceCounter": 42,
+      "plaintextUtf8": "hunter2-github-token-example",
+      "ciphertextHex": "0efc36a5ae4c9a241b636b4a71ee4d7561c81a1dc68c3a874ec60b2a",
+      "authTagHex": "108fa61e47e0fd37e0a9c32824035560"
+    },
+    "encryptCounterHigh": {
+      "nonceCounter": "18446744073709551614",
+      "plaintextUtf8": "hunter2-github-token-example",
+      "ciphertextHex": "5da71303715774f83e94cd5f3921cb7924784ac17ab938fcd017bc36",
+      "authTagHex": "05e05a16d82c5c289e913d6c1581c74c"
+    },
+    "encryptShortPlaintext": {
+      "nonceCounter": 1,
+      "plaintextHex": "78",
+      "ciphertextHex": "54",
+      "authTagHex": "0f2a7ee12d0b064c2f4092752321ca57"
+    },
+    "encryptLongPlaintext": {
+      "nonceCounter": 1,
+      "plaintextHex": "0726456483a2c1e0ff1e3d5c7b9ab9d8f71635547392b1d0ef0e2d4c6b8aa9c8e70625446382a1c0dffe1d3c5b7a99b8d7f61534537291b0cfee0d2c4b6a89a8c7e60524436281a0bfdefd1c3b5a7998b7d6f51433527190afceed0c2b4a6988a7c6e504234261809fbeddfc1b3a597897b6d5f4133251708faecdec0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f8eadcceb0a29486786a5c4e30221405f7e9dbcdbfa1938577695b4d3f211304f6e8daccbea0928476685a4c3e201203f5e7d9cbbdaf91837567594b3d2f1102f4e6d8cabcae90827466584a3c2e1001f3e5d7c9bbad9f81736557493b2d1f00f2e4d6c8baac9e8",
+      "ciphertextHex": "2b7c60ec721496e8c6b44df6594ab7ad4e08d3fbfe122d98906c4b1acaf9ac662ff3b97254b71ad92c6ce6dabfb2432fe703c0620362873f0a16f20b50ecb96917f419cb9c402ea59ef28f0242e1f75ef733ca1f550b30fab9411dcae388602ded1a6ff3e212606af7f139acae27f0edafcb990a9ce04d1266bfa6989497f894d132bcf83f5216109abe95020c6348f21a3c96fc959bef39537946920baef495ff38c1ac292e3c4b20315243c62567b3cde0486e48926bed61e23a390ff8b80a96866647c8c020fd6f2b63976954a1910641289b3f0e226fc5e86a1271a7095272017968c4c3dbd9e185e55ec286cfb0cf80fe08ab0b7866b8eecbcfac9f746b",
+      "authTagHex": "81ee18437dfb97a2e6549ea7cb86bff5"
+    }
+  }
+}

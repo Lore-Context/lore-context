@@ -161,5 +161,5 @@ Elementos planificados para versiones posteriores:
   análisis estático CodeQL y dependabot.
 - **v0.6**: imágenes de contenedor firmadas con Sigstore, procedencia SLSA, publicación npm
   via GitHub OIDC en lugar de tokens de larga duración.
-- **v0.7**: cifrado en reposo para contenido de memoria marcado con `risk_tags` mediante
+- **Future hosted hardening**: cifrado en reposo para contenido de memoria marcado con `risk_tags` mediante
   cifrado de sobre KMS.

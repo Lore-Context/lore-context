@@ -111,6 +111,12 @@ export interface ContextQueryResponse {
     tokensUsed: number;
     latencyMs: number;
   };
+  // v1.2 backend annotation — present when memory recall ran through a hybrid
+  // backend (v12 or v1.1 hybrid). Absent for the v1.1 local fallback to keep
+  // the legacy response shape stable.
+  engineVersion?: "v11" | "v12";
+  backend?: "lore-v12-hybrid" | "lore-hybrid" | "lore-local";
+  vaultId?: string;
 }
 
 export interface ContextTrace {

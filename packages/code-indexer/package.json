@@ -1,0 +1,41 @@
+{
+  "name": "@lore-context/code-indexer",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Lore Context code knowledge graph indexer — Tree-sitter–powered structural skeleton extractor",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "lore-index": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lore-context/sdk": "workspace:*",
+    "chokidar": "^3.6.0",
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-go": "^0.21.0",
+    "tree-sitter-python": "^0.21.0",
+    "tree-sitter-typescript": "^0.21.2",
+    "xxhash-wasm": "^1.0.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

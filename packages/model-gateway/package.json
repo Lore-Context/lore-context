@@ -1,0 +1,29 @@
+{
+  "name": "@lore/model-gateway",
+  "version": "0.1.0-rc.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./providers/noop": {
+      "types": "./dist/providers/noop.d.ts",
+      "default": "./dist/providers/noop.js"
+    },
+    "./providers/mock": {
+      "types": "./dist/providers/mock.d.ts",
+      "default": "./dist/providers/mock.js"
+    },
+    "./providers/cloud": {
+      "types": "./dist/providers/cloud.d.ts",
+      "default": "./dist/providers/cloud.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}

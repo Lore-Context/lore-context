@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/Lore-Context/lore-context/discussions
+    about: Ask questions, share ideas, and discuss design with the community.
+
+  - name: Documentation
+    url: https://github.com/Lore-Context/lore-context/blob/main/README.md
+    about: Read the README, architecture overview, and getting-started guide.
+
+  - name: Security disclosures
+    url: https://github.com/Lore-Context/lore-context/blob/main/SECURITY.md
+    about: Report a security vulnerability — do not file a public issue.

@@ -1,0 +1,25 @@
+{
+  "file": "sample.go",
+  "language": "go",
+  "description": "Hand-labeled expected symbols for Lane M Go recall measurement. 15 symbols.",
+  "symbols": [
+    { "name": "Symbol", "qualified_name": "Symbol", "kind": "type", "is_exported": true },
+    { "name": "Relation", "qualified_name": "Relation", "kind": "type", "is_exported": true },
+    { "name": "Walker", "qualified_name": "Walker", "kind": "interface", "is_exported": true },
+    { "name": "IndexResult", "qualified_name": "IndexResult", "kind": "type", "is_exported": true },
+    { "name": "ComputeHash", "qualified_name": "ComputeHash", "kind": "function", "is_exported": true },
+    { "name": "FormatQualifiedName", "qualified_name": "FormatQualifiedName", "kind": "function", "is_exported": true },
+    { "name": "Indexer", "qualified_name": "Indexer", "kind": "type", "is_exported": true },
+    { "name": "NewIndexer", "qualified_name": "NewIndexer", "kind": "function", "is_exported": true },
+    { "name": "Indexer.Register", "qualified_name": "Indexer.Register", "kind": "method", "is_exported": true },
+    { "name": "Indexer.Index", "qualified_name": "Indexer.Index", "kind": "method", "is_exported": true },
+    { "name": "Indexer.Serialize", "qualified_name": "Indexer.Serialize", "kind": "method", "is_exported": true }
+  ],
+  "notes": [
+    "Go walker uses receiver type to build qualified name: (idx *Indexer) Index → 'Indexer.Index'",
+    "Unexported fields are not extracted (they are struct fields, not type declarations)",
+    "Methods with pointer receivers are extracted with the base type name: *Indexer → Indexer.MethodName",
+    "Walker interface method 'Walk' is inside the interface_type body — walker may or may not extract it (acceptable miss)",
+    "Minimum expected recall: 9/11 symbols = 82%. Full recall = 11/11 = 100%"
+  ]
+}

@@ -1,0 +1,113 @@
+name: Release Invariants
+
+# Enforces .omc/policies/release-invariants.md §1 hard invariants on every PR
+# and on every tag push. Complements pr-policy.yml (which checks PR body
+# 9-marker policy).
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+  push:
+    tags:
+      - "v*"
+      - "rc/**"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  version-consistency:
+    name: version-consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run version-consistency-check
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          node scripts/lint/version-consistency-check.mjs
+        continue-on-error: false
+
+  plan-frontmatter:
+    name: plan-frontmatter
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Find changed plan files
+        id: changed-plans
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          changed=$(git diff --name-only "$base" "$head" | grep -E '^\.omc/plans/v[0-9]+\.[0-9]+-plan\.md$' || true)
+          if [ -z "$changed" ]; then
+            echo "no plan files changed; skipping"
+            echo "files=" >> "$GITHUB_OUTPUT"
+          else
+            echo "files=$(echo $changed | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Lint changed plan files
+        if: steps.changed-plans.outputs.files != ''
+        run: |
+          for f in ${{ steps.changed-plans.outputs.files }}; do
+            echo "Linting $f"
+            node scripts/lint/plan-frontmatter-check.mjs "$f"
+          done
+
+  schema-files-in-prod-mjs:
+    name: schema-files-in-prod-mjs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check schema files in prod.mjs apply list
+        run: |
+          set -euo pipefail
+          if [ ! -f scripts/release/prod.mjs ] || [ ! -d apps/api/src/db ]; then
+            echo "[skip] prod.mjs or schema dir missing"
+            exit 0
+          fi
+          missing=()
+          for f in apps/api/src/db/schema-*.sql; do
+            base=$(basename "$f")
+            if ! grep -q "$base" scripts/release/prod.mjs; then
+              # exempt files with explicit not-in-prod-mjs comment
+              if ! head -3 "$f" | grep -q "not-in-prod-mjs"; then
+                missing+=("$base")
+              fi
+            fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ERROR: schema files missing from scripts/release/prod.mjs apply list:" >&2
+            for m in "${missing[@]}"; do echo "  - $m" >&2; done
+            echo "" >&2
+            echo "Per .omc/policies/release-invariants.md §1.3, every apps/api/src/db/schema-*.sql must" >&2
+            echo "either be in prod.mjs apply list, or have a /* not-in-prod-mjs: <reason> */ header." >&2
+            exit 1
+          fi
+          echo "[ok] all schema files referenced in prod.mjs"

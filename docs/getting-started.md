@@ -8,7 +8,7 @@ core path.
 
 - **Node.js** `>=22` (use `nvm`, `mise`, or your distro's package manager)
 - **pnpm** `10.30.1` (`corepack enable && corepack prepare pnpm@10.30.1 --activate`)
-- (Optional) **Docker + Docker Compose** for the Postgres+pgvector path
+- (Optional) **Docker + Docker Compose** for the local Postgres+pgvector fallback path
 - (Optional) **psql** if you prefer to apply the schema yourself
 
 ## 1. Clone and install
@@ -21,7 +21,7 @@ pnpm install --frozen-lockfile
 
 ## 2. Fast local quickstart
 
-`v0.6.0-alpha` includes a non-destructive quickstart helper. It checks Node/pnpm,
+Lore Context ships a non-destructive local quickstart helper. It checks Node/pnpm,
 generates random local API keys, writes `data/quickstart.env`, and prints the first
 `context.query` curl plus Claude Code, Cursor, and Qwen Code MCP snippets.
 
@@ -123,7 +123,7 @@ curl -s -H "Authorization: Bearer $LORE_API_KEY" \
   -H "Content-Type: application/json" \
   -X POST http://127.0.0.1:3000/v1/memory/write \
   -d '{
-    "content": "Use Postgres pgvector for Lore Context production storage.",
+    "content": "Use RDS as truth store and Qdrant as the derived recall index for Lore Context production.",
     "memory_type": "project_rule",
     "project_id": "demo",
     "scope": "project"
@@ -198,9 +198,9 @@ become available.
 For other agent IDEs (Cursor, Qwen, Dify, FastGPT, etc.), see the integration matrix in
 [docs/integrations/README.md](integrations/README.md).
 
-## 9. (Optional) Switch to Postgres + pgvector
+## 9. (Optional) Switch to local Postgres + pgvector
 
-When you outgrow JSON-file storage:
+When you outgrow JSON-file storage in a local or self-hosted environment:
 
 ```bash
 docker compose up -d postgres
@@ -218,6 +218,21 @@ PORT=3000 \
 ```
 
 Run `pnpm smoke:postgres` to verify a write-restart-read round trip survives.
+
+For the hosted production path (private cloud only), RDS PostgreSQL
+remains the truth store and Qdrant remains the derived dense+sparse recall
+index. The v12 schema family is preserved; production runs the seven-stream
+`HybridSearchOrchestrator` (Postgres FTS, pgvector, Qdrant dense, Qdrant
+sparse, graph, temporal, and wiki) concurrently, plus the
+`LocalCrossEncoderReranker` post-fusion replacer (off by default;
+`LORE_RERANKER_ENABLED`). The wiki provider also queries
+`memory_wiki_pages.wiki_embedding` when an embedding function is supplied.
+v2.1 adds the additive repo graph schema
+(`apps/api/src/db/schema-v21-repo-graph.sql`) applied during production schema
+setup. AWS SQS plus `memory-worker` handle asynchronous capture / embedding /
+indexing / wiki-compile / graph work, backed by the private Qwen3 embedding
+service. See [deployment/README.md](deployment/README.md) before configuring a
+hosted environment.
 
 ## 10. (Optional) Seed the demo dataset and run an eval
 

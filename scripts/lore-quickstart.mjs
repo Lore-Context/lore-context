@@ -11,6 +11,7 @@ const dryRun = process.argv.includes("--dry-run");
 const skipBuild = process.argv.includes("--skip-build");
 const skipSeed = process.argv.includes("--skip-seed");
 const activationReportRequested = process.argv.includes("--activation-report");
+const demoRequested = process.argv.includes("--demo");
 const apiUrl = trimTrailingSlash(process.env.LORE_API_URL ?? "http://127.0.0.1:3000");
 const parsedApiUrl = new URL(apiUrl);
 const apiHost = parsedApiUrl.hostname;
@@ -86,6 +87,17 @@ if (!skipSeed && !dryRun) {
 
 if (activationReportRequested && !dryRun) {
   checks.push(...(await runActivationProof(portCheck)));
+}
+
+if (demoRequested && !dryRun) {
+  checks.push(...(await runDemoProof(portCheck)));
+} else if (demoRequested && dryRun) {
+  checks.push({
+    name: "Demo proof",
+    status: "ok",
+    required: false,
+    detail: "Dry run: would write one auto-save memory, one exception candidate, then prove recall via context.query"
+  });
 }
 
 const firstQueryCurl = [
@@ -459,4 +471,108 @@ function parseJson(value) {
 
 function trimTrailingSlash(value) {
   return value.replace(/\/+$/, "");
+}
+
+// Demo proof: creates one auto-save memory, one exception candidate, proves recall.
+// Uses mock/local mode (starts a temporary API) so it works without external credentials.
+async function runDemoProof(portAvailability) {
+  const proofChecks = [];
+
+  if (portAvailability.status !== "ok") {
+    proofChecks.push(trackStep("demo-proof", {
+      name: "Demo proof",
+      status: "fail",
+      required: false,
+      detail: `Port ${apiPort} is in use. Set LORE_API_URL to an available local port and rerun.`
+    }, Date.now()));
+    return proofChecks;
+  }
+
+  if (!existsSync(serverEntry)) {
+    proofChecks.push(trackStep("demo-proof", {
+      name: "Demo proof",
+      status: "warn",
+      required: false,
+      detail: "API build artifact missing. Run pnpm build first, then pnpm quickstart -- --demo"
+    }, Date.now()));
+    return proofChecks;
+  }
+
+  const demoStorePath = join(dirname(activationStorePath), `demo-${process.pid}-${randomBytes(4).toString("hex")}.json`);
+  const server = startDemoServer(demoStorePath);
+  try {
+    const health = await activationMilestone("demo-api-health", "Demo API health", async () => {
+      await waitForHealth(apiUrl, server);
+      return "healthy";
+    });
+    proofChecks.push(health);
+    if (health.status !== "ok") return proofChecks;
+
+    // Step 1: auto-save path — high-confidence, low-risk project rule
+    const autoSave = await activationMilestone("demo-auto-save", "Demo: auto-save memory", async () => {
+      const body = await postJson("/v1/memory/write", {
+        content: "Lore demo: this project uses pnpm workspaces and requires Node 22.",
+        memory_type: "project_rule",
+        project_id: "demo-private",
+        scope: "project"
+      });
+      if (!body.memory?.id) throw new Error("memory.write did not return a memory id");
+      return `auto-saved memory=${body.memory.id}; status=${body.memory.status}`;
+    });
+    proofChecks.push(autoSave);
+
+    // Step 2: exception path — sensitive content that routes to inbox/candidate review
+    const exception = await activationMilestone("demo-exception-candidate", "Demo: exception candidate (sensitive)", async () => {
+      const body = await postJson("/v1/memory/write", {
+        content: "Lore demo: a sensitive credential-style fact that should go to review before reuse.",
+        memory_type: "credential_pointer",
+        project_id: "demo-private",
+        scope: "project",
+        risk_tags: ["needs_review"]
+      });
+      if (!body.memory?.id) throw new Error("exception write did not return a memory id");
+      const status = body.memory.status ?? "unknown";
+      return `exception candidate=${body.memory.id}; status=${status} (expected candidate or active with risk tag)`;
+    });
+    proofChecks.push(exception);
+
+    // Step 3: recall proof — query should return the auto-saved memory
+    const recall = await activationMilestone("demo-recall-proof", "Demo: recall proves auto-saved memory is searchable", async () => {
+      const body = await postJson("/v1/context/query", {
+        query: "Node version and package manager for this project",
+        project_id: "demo-private",
+        token_budget: 800
+      });
+      if (!body.traceId) throw new Error("context.query did not return a traceId");
+      const contextBlock = String(body.contextBlock ?? "");
+      if (!contextBlock.includes("pnpm") && !contextBlock.includes("Node")) {
+        throw new Error("recall did not surface the auto-saved memory about pnpm/Node");
+      }
+      return `trace=${body.traceId}; recall confirmed: auto-saved memory is searchable`;
+    });
+    proofChecks.push(recall);
+  } finally {
+    await stopActivationServer(server);
+    rmSync(demoStorePath, { force: true });
+  }
+
+  return proofChecks;
+}
+
+function startDemoServer(storePath) {
+  const child = spawn(process.execPath, [serverEntry], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      PORT: String(apiPort),
+      LORE_STORE_PATH: storePath,
+      LORE_API_KEY: keys.admin,
+      LORE_API_KEYS: JSON.stringify(apiKeyRules)
+    },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  let output = "";
+  child.stdout.on("data", (chunk) => { output += String(chunk); });
+  child.stderr.on("data", (chunk) => { output += String(chunk); });
+  return { child, output: () => output };
 }

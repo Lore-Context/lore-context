@@ -1,3 +1,45 @@
 Lore Context
+Copyright 2026 Lore Inc
 
-This scaffold does not bundle third-party runtime binaries or upstream memory-server source code.
+This product includes software developed at Lore Inc (https://lorecontext.com).
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+----------------------------------------------------------------------
+
+This product bundles or depends on the following third-party libraries.
+Each retains its original license; consult that library's documentation for
+the full text of its license.
+
+- @aws-sdk/client-secrets-manager — Apache License 2.0 — https://github.com/aws/aws-sdk-js-v3
+- @aws-sdk/client-sqs — Apache License 2.0 — https://github.com/aws/aws-sdk-js-v3
+- @aws-sdk/client-sesv2 — Apache License 2.0 — https://github.com/aws/aws-sdk-js-v3
+- cohere-ai (Cohere SDK for TypeScript) — MIT License — https://github.com/cohere-ai/cohere-typescript
+- ioredis — MIT License — https://github.com/redis/ioredis
+- pg (node-postgres) — MIT License — https://github.com/brianc/node-postgres
+- @opentelemetry/api / sdk-metrics / exporter-metrics-otlp-http / resources / semantic-conventions — Apache License 2.0 — https://github.com/open-telemetry/opentelemetry-js
+- bullmq — MIT License — https://github.com/taskforcesh/bullmq
+- vitest — MIT License — https://github.com/vitest-dev/vitest
+- typescript — Apache License 2.0 — https://github.com/microsoft/TypeScript
+- turbo — MPL 2.0 — https://github.com/vercel/turborepo
+- playwright — Apache License 2.0 — https://github.com/microsoft/playwright
+
+External services accessed via SDK at runtime (not bundled, attribution
+included for transparency):
+
+- OpenRouter (multi-model LLM gateway) — https://openrouter.ai
+- Anthropic Claude — https://www.anthropic.com
+- Cohere Rerank — https://cohere.com
+- AWS S3 / RDS / Secrets Manager / SQS — https://aws.amazon.com
+- Stripe (billing) — https://stripe.com
+- Auth0 (authentication) — https://auth0.com
+- Cloudflare (CDN, DNS, Tunnel) — https://www.cloudflare.com
+
+----------------------------------------------------------------------
+
+For a complete dependency license matrix, see docs/dependency-licenses.md.
+
+For trademark, branding, and project naming rights, the Lore Context name
+and visual identity are NOT covered by Apache License 2.0. Derivative
+products may use the OSS code under Apache 2.0 but must not represent
+themselves as "Lore" or use the Lore marks without written permission.

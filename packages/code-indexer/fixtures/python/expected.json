@@ -1,0 +1,26 @@
+{
+  "file": "sample.py",
+  "language": "python",
+  "description": "Hand-labeled expected symbols for Lane M Python recall measurement. 14 symbols.",
+  "symbols": [
+    { "name": "MemoryRecord", "qualified_name": "MemoryRecord", "kind": "class", "is_exported": true },
+    { "name": "__init__", "qualified_name": "MemoryRecord.__init__", "kind": "function", "is_exported": false, "note": "Python convention: _ prefix = private" },
+    { "name": "to_dict", "qualified_name": "MemoryRecord.to_dict", "kind": "function", "is_exported": true },
+    { "name": "content_hash", "qualified_name": "MemoryRecord.content_hash", "kind": "function", "is_exported": true },
+    { "name": "__repr__", "qualified_name": "MemoryRecord.__repr__", "kind": "function", "is_exported": false },
+    { "name": "MemoryStore", "qualified_name": "MemoryStore", "kind": "class", "is_exported": true },
+    { "name": "__init__", "qualified_name": "MemoryStore.__init__", "kind": "function", "is_exported": false },
+    { "name": "add", "qualified_name": "MemoryStore.add", "kind": "function", "is_exported": true },
+    { "name": "get", "qualified_name": "MemoryStore.get", "kind": "function", "is_exported": true },
+    { "name": "list_all", "qualified_name": "MemoryStore.list_all", "kind": "function", "is_exported": true },
+    { "name": "remove", "qualified_name": "MemoryStore.remove", "kind": "function", "is_exported": true },
+    { "name": "create_memory", "qualified_name": "create_memory", "kind": "function", "is_exported": true },
+    { "name": "serialize_records", "qualified_name": "serialize_records", "kind": "function", "is_exported": true },
+    { "name": "load_records", "qualified_name": "load_records", "kind": "function", "is_exported": true }
+  ],
+  "notes": [
+    "walker.ts walkPython distinguishes method vs function based on scopeStack context — methods inside a class get kind='method' if the heuristic matches.",
+    "The walker checks if the immediate parent scope is a class. Expected kinds may show 'function' or 'method' depending on walker implementation.",
+    "For recall measurement: match on (name, qualified_name) only; kind mismatch between 'function' and 'method' does NOT count as a miss."
+  ]
+}

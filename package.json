@@ -1,6 +1,7 @@
 {
   "name": "lore-context",
-  "version": "0.6.0-alpha.0",
+  "version": "2.1.0",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.30.1",
@@ -10,14 +11,15 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "dev:api": "pnpm --filter @lore/api build && node apps/api/dist/index.js",
+    "dev:api": "pnpm --filter @lore-context/server build && pnpm --filter @lore/api build && node apps/api/dist/index.js",
     "start:api": "node apps/api/dist/index.js",
     "dev:dashboard": "pnpm --filter @lore/dashboard dev",
     "start:dashboard": "pnpm --filter @lore/dashboard start",
     "dev:website": "pnpm --filter @lore/website dev",
-    "smoke:api": "pnpm build && node scripts/smoke-api.mjs",
-    "smoke:mcp": "pnpm build && node scripts/smoke-mcp.mjs",
-    "smoke:dashboard": "pnpm build && node scripts/smoke-dashboard.mjs",
+    "smoke:api": "node scripts/smoke-api.mjs",
+    "smoke:mcp": "node scripts/smoke-mcp.mjs",
+    "smoke:dashboard": "node scripts/smoke-dashboard.mjs",
+    "smoke:dashboard:routes": "pnpm --filter @lore/dashboard smoke:routes",
     "smoke:postgres": "pnpm --filter @lore/api build && node scripts/smoke-postgres.mjs",
     "smoke:agentmemory": "pnpm --filter @lore/agentmemory-adapter build && node scripts/smoke-agentmemory.mjs",
     "seed:demo": "node scripts/seed-demo.mjs",
@@ -26,11 +28,23 @@
     "openapi:check": "node scripts/verify-openapi.mjs",
     "config:integrations": "node scripts/generate-integration-config.mjs",
     "eval:report": "node scripts/export-eval-report.mjs",
+    "eval:v12": "pnpm --filter @lore/eval build && node scripts/run-v12-eval.mjs",
+    "eval:v12:ablation": "pnpm --filter @lore/eval build && node scripts/run-v12-eval.mjs --ablation",
+    "eval:v12:gate": "pnpm --filter @lore/eval build && node scripts/run-v12-eval.mjs --gate-only",
+    "bench:v13:gate": "pnpm --filter @lore/eval build && node scripts/run-v13-gate.mjs",
+    "bench:code-graph": "node scripts/bench/code-graph-gate.mjs",
+    "payload:audit": "node scripts/payload-audit.mjs",
+    "code-graph:privacy-audit": "node scripts/code-graph-privacy-audit.mjs",
+    "bench:longmemeval": "pnpm --filter @lore/search build && node scripts/bench-longmemeval-lore.mjs",
+    "bench:longmemeval:fts": "pnpm --filter @lore/search build && node scripts/bench-longmemeval-lore.mjs --mode fts",
+    "bench:longmemeval:dense": "pnpm --filter @lore/search build && node scripts/bench-longmemeval-lore.mjs --mode dense",
+    "test:lane-d": "pnpm --filter @lore/eval test",
     "db:schema": "node scripts/apply-postgres-schema.mjs",
     "db:schema:dry-run": "node scripts/apply-postgres-schema.mjs --dry-run",
     "clean": "pnpm -r exec rm -rf dist .turbo coverage"
   },
   "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.1044.0",
     "@types/node": "^25.6.0",
     "playwright": "^1.59.1",
     "turbo": "^2.9.6",
@@ -39,7 +53,21 @@
   },
   "pnpm": {
     "overrides": {
+      "fast-uri": "3.1.2",
+      "fast-xml-builder": "1.2.0",
+      "hono": "4.12.18",
+      "ip-address": "10.2.0",
       "postcss": "8.5.12"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "msgpackr-extract",
+      "protobufjs",
+      "sharp",
+      "tree-sitter",
+      "tree-sitter-go",
+      "tree-sitter-python",
+      "tree-sitter-typescript"
+    ]
   }
 }

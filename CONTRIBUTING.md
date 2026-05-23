@@ -1,8 +1,34 @@
 # Contributing To Lore Context
 
-Thanks for improving Lore Context. This project is an alpha-stage AI-agent context
-control plane, so changes should preserve local-first operation, auditability, and
-deployment safety.
+Thanks for improving Lore Context. This project is an open-core AI-agent context
+control plane (Apache License 2.0), so changes should preserve local-first
+operation, auditability, and deployment safety.
+
+## DCO (Developer Certificate of Origin)
+
+Every commit in every pull request **must** include a `Signed-off-by:` line
+asserting that you wrote the patch (or have the right to submit it under the
+project's Apache 2.0 license). This is enforced automatically by the
+`.github/workflows/dco-check.yml` GitHub Action — a PR with any unsigned
+commit cannot merge.
+
+Add the sign-off when committing:
+
+```bash
+git commit --signoff -m "your message"
+# or amend an existing commit:
+git commit --amend --signoff
+```
+
+To sign off all commits on a feature branch at once:
+
+```bash
+git rebase --signoff main
+```
+
+The full DCO text is at <https://developercertificate.org/>. Lore Context uses
+DCO instead of a Contributor License Agreement (CLA) — it is lightweight,
+git-native, and covers our Apache 2.0 distribution needs.
 
 ## Code of Conduct
 
@@ -35,7 +61,7 @@ For per-package work:
 
 ```bash
 pnpm --filter @lore/api test
-pnpm --filter @lore/mcp-server test
+pnpm --filter @lore-context/server test
 pnpm --filter @lore/eval test
 pnpm --filter @lore/governance test
 pnpm --filter @lore/mif test
@@ -55,9 +81,27 @@ pnpm --filter @lore/agentmemory-adapter test
   if you create new artifacts, make sure they are excluded.
 - **Stay within the scope of your PR.** Don't refactor unrelated code drive-by.
 
+## CI Workflows
+
+### Release Artifacts Workflow
+
+`.github/workflows/release-artifacts.yml` is intentionally release-ref driven. It
+runs automatically when a tag matching `v*` or `rc/**` is pushed, and it can also
+be started manually with `workflow_dispatch` by providing the commit SHA or ref
+to publish. It does not run on ordinary pushes to `main`.
+
+The workflow builds and pushes the API and dashboard container images to GHCR.
+Each image is tagged with the resolved commit SHA, a short SHA tag, the release
+or RC tag when the run came from a tag push, and `latest-rc` for `rc/**` tags.
+
+To smoke test the trigger without cutting a release, push a temporary test tag
+that matches the release pattern from a feature branch, confirm the Release
+Artifacts workflow starts for that tag, then delete the temporary tag locally and
+on origin. Do not use a production release tag for smoke testing.
+
 ## Architectural Guardrails
 
-These are non-negotiable for v0.4.x. If a PR violates one, expect a request to
+These are non-negotiable. If a PR violates one, expect a request to
 split or rework:
 
 - **Local-first remains primary.** A new feature must work without a hosted

@@ -1,0 +1,16 @@
+{
+  "mode": "context",
+  "client_type": "openai",
+  "events": [
+    {
+      "kind": "inject",
+      "skipped": false,
+      "reason": null
+    },
+    {
+      "kind": "retain",
+      "skipped": false,
+      "reason": null
+    }
+  ]
+}

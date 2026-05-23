@@ -158,4 +158,4 @@ Các mục được lên kế hoạch cho các bản phát hành tiếp theo:
   phân tích tĩnh CodeQL và dependabot.
 - **v0.6**: Image container được ký bởi Sigstore, nguồn gốc SLSA, npm publish qua
   GitHub OIDC thay vì token tồn tại lâu dài.
-- **v0.7**: Mã hóa lúc nghỉ cho nội dung bộ nhớ được gắn cờ `risk_tags` qua mã hóa phong bì KMS.
+- **Future hosted hardening**: Mã hóa lúc nghỉ cho nội dung bộ nhớ được gắn cờ `risk_tags` qua mã hóa phong bì KMS.

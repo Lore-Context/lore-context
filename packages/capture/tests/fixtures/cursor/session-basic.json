@@ -1,0 +1,32 @@
+{
+  "id": "cursor-comp-42",
+  "workspacePath": "/Users/me/cursor-proj",
+  "startedAt": "2026-04-30T14:00:00.000Z",
+  "endedAt": "2026-04-30T14:01:30.000Z",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Refactor handleClick to use useCallback. Token: sk-cursor_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "timestamp": "2026-04-30T14:00:00.000Z"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        { "type": "text", "text": "Reading src/handlers.ts to inspect handleClick before suggesting a refactor." },
+        { "type": "tool_use", "name": "Read", "input": { "path": "src/handlers.ts" } }
+      ],
+      "timestamp": "2026-04-30T14:00:05.000Z"
+    },
+    {
+      "role": "tool",
+      "toolName": "Read",
+      "toolResult": { "output": "// handler source", "isError": false },
+      "timestamp": "2026-04-30T14:00:06.000Z"
+    },
+    {
+      "role": "assistant",
+      "text": "Wrapped handleClick with useCallback and added an effect dependency list. <private>credit_card=4111111111111111</private>",
+      "timestamp": "2026-04-30T14:01:30.000Z"
+    }
+  ]
+}
