@@ -1,0 +1,20 @@
+[
+  {
+    "id": "fixture_drive_prd",
+    "name": "Fixture Drive PRD",
+    "mimeType": "application/vnd.google-apps.document",
+    "parents": ["fld_lore_beta"],
+    "modifiedTime": "2026-05-01T01:00:00.000Z",
+    "changeId": "100001",
+    "text": "Connector fixtures should exercise folder scope, metadata extraction, and summary envelopes without live Google credentials."
+  },
+  {
+    "id": "fixture_drive_delta",
+    "name": "Fixture Drive Delta",
+    "mimeType": "application/vnd.google-apps.document",
+    "parents": ["fld_lore_beta"],
+    "modifiedTime": "2026-05-01T05:00:00.000Z",
+    "changeId": "100002",
+    "text": "Incremental sync should only process documents newer than the saved checkpoint cursor."
+  }
+]

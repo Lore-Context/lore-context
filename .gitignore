@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.*.template
 
 node_modules/
 dist/
@@ -9,6 +10,11 @@ dist/
 .turbo/
 coverage/
 output/
+.release/
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
 
 .omx/
 .omc/
@@ -16,6 +22,16 @@ output/
 *.log
 pnpm-debug.log*
 *.tsbuildinfo
+
+# Python build / runtime artifacts (added v2.0.3)
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.egg-info/
+**/.venv/
+**/.pytest_cache/
+packages/sdk-middleware-python/build/
+packages/sdk-middleware-python/dist/
 
 data/postgres/
 data/*.json
@@ -26,3 +42,13 @@ memvid-integration-assessment.md
 memvid-repo/
 playwright-mcp-analysis.md
 playwright-mcp/
+data/bench/longmemeval/longmemeval_s_cleaned.json
+.gitnexus
+.claude/
+
+# Python ephemeral artifacts (sdk-python tests)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+*.egg-info/

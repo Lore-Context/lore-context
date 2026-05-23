@@ -158,5 +158,5 @@ Item yang direncanakan untuk rilis berikutnya:
   analisis statis CodeQL, dan dependabot.
 - **v0.6**: Image container bertanda tangan Sigstore, provenance SLSA, penerbitan npm melalui
   GitHub OIDC alih-alih token berumur panjang.
-- **v0.7**: Enkripsi saat istirahat untuk konten memori yang diberi flag `risk_tags` melalui enkripsi
+- **Future hosted hardening**: Enkripsi saat istirahat untuk konten memori yang diberi flag `risk_tags` melalui enkripsi
   envelope KMS.

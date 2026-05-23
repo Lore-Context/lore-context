@@ -1,0 +1,43 @@
+{
+  "name": "@lore-context/sdk-middleware",
+  "version": "0.1.0",
+  "description": "SDK middleware for Lore Context — auto-inject memory pre-LLM-call and auto-retain post-LLM-call across OpenAI/Anthropic/OpenRouter SDKs.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:types": "tsc -p tsconfig.types-test.json --noEmit"
+  },
+  "peerDependencies": {
+    "@lore-context/sdk": "workspace:*",
+    "openai": ">=4.0.0",
+    "@anthropic-ai/sdk": ">=0.27.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": { "optional": true },
+    "@anthropic-ai/sdk": { "optional": true }
+  },
+  "devDependencies": {
+    "@lore-context/sdk": "workspace:*",
+    "@types/node": "^20.0.0",
+    "openai": "^4.83.0",
+    "@anthropic-ai/sdk": "^0.32.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": ["lore", "memory", "context", "middleware", "openai", "anthropic", "agent"]
+}

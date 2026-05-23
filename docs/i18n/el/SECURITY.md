@@ -160,5 +160,5 @@
   στατική ανάλυση CodeQL, και dependabot.
 - **v0.6**: Container images υπογεγραμμένα Sigstore, SLSA provenance, npm publish μέσω
   GitHub OIDC αντί long-lived tokens.
-- **v0.7**: Κρυπτογράφηση at-rest για περιεχόμενο μνήμης με `risk_tags` μέσω
+- **Future hosted hardening**: Κρυπτογράφηση at-rest για περιεχόμενο μνήμης με `risk_tags` μέσω
   KMS envelope encryption.

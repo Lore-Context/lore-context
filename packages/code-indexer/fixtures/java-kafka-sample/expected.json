@@ -1,0 +1,28 @@
+{
+  "files": ["KafkaProducerExample.java", "KafkaConsumerExample.java"],
+  "language": "java",
+  "description": "Hand-labeled expected symbols for Lane M Tier-2 Java/Kafka recall. 12 class-level symbols across 2 files.",
+  "symbols": [
+    { "file": "KafkaProducerExample.java", "name": "KafkaProducerExample", "qualified_name": "KafkaProducerExample", "kind": "class", "is_exported": true },
+    { "file": "KafkaProducerExample.java", "name": "KafkaProducerExample", "qualified_name": "KafkaProducerExample.KafkaProducerExample", "kind": "method", "is_exported": true, "note": "constructor" },
+    { "file": "KafkaProducerExample.java", "name": "run", "qualified_name": "KafkaProducerExample.run", "kind": "method", "is_exported": true },
+    { "file": "KafkaProducerExample.java", "name": "close", "qualified_name": "KafkaProducerExample.close", "kind": "method", "is_exported": true },
+    { "file": "KafkaProducerExample.java", "name": "DemoCallback", "qualified_name": "DemoCallback", "kind": "class", "is_exported": false, "note": "package-private" },
+    { "file": "KafkaProducerExample.java", "name": "DemoCallback", "qualified_name": "DemoCallback.DemoCallback", "kind": "method", "is_exported": true, "note": "constructor" },
+    { "file": "KafkaProducerExample.java", "name": "onCompletion", "qualified_name": "DemoCallback.onCompletion", "kind": "method", "is_exported": true },
+    { "file": "KafkaConsumerExample.java", "name": "KafkaConsumerExample", "qualified_name": "KafkaConsumerExample", "kind": "class", "is_exported": true },
+    { "file": "KafkaConsumerExample.java", "name": "KafkaConsumerExample", "qualified_name": "KafkaConsumerExample.KafkaConsumerExample", "kind": "method", "is_exported": true, "note": "constructor" },
+    { "file": "KafkaConsumerExample.java", "name": "run", "qualified_name": "KafkaConsumerExample.run", "kind": "method", "is_exported": true },
+    { "file": "KafkaConsumerExample.java", "name": "processRecord", "qualified_name": "KafkaConsumerExample.processRecord", "kind": "method", "is_exported": false, "note": "protected" },
+    { "file": "KafkaConsumerExample.java", "name": "seekToBeginning", "qualified_name": "KafkaConsumerExample.seekToBeginning", "kind": "method", "is_exported": true },
+    { "file": "KafkaConsumerExample.java", "name": "wakeup", "qualified_name": "KafkaConsumerExample.wakeup", "kind": "method", "is_exported": true },
+    { "file": "KafkaConsumerExample.java", "name": "close", "qualified_name": "KafkaConsumerExample.close", "kind": "method", "is_exported": true }
+  ],
+  "recall_target": "≥90% (Tier-2)",
+  "notes": [
+    "Tier-2 target: ≥90% symbol recall (13+ of 14 symbols found).",
+    "Grammar binary tree-sitter-java is NOT bundled — test will skip with warning if unavailable.",
+    "If grammar is available: expected recall ≥90%. If unavailable: test logs warning and marks as ⏸ DEFERRED.",
+    "'processRecord' has protected modifier — is_exported=false; 'hasModifier(node, public)' returns false for protected."
+  ]
+}

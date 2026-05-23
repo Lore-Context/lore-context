@@ -1,0 +1,10 @@
+[
+  {"id": "health", "method": "GET", "path": "health", "tsMethod": "getHealth", "pyMethod": "get_health"},
+  {"id": "openapi", "method": "GET", "path": "openapi.json", "tsMethod": "getOpenApiDocument", "pyMethod": "get_open_api_document"},
+  {"id": "context-query", "method": "POST", "path": "v1/context/query", "tsMethod": "contextQuery", "pyMethod": "context_query"},
+  {"id": "memory-write", "method": "POST", "path": "v1/memory/write", "tsMethod": "memoryWrite", "pyMethod": "memory_write"},
+  {"id": "memory-search", "method": "POST", "path": "v1/memory/search", "tsMethod": "memorySearch", "pyMethod": "memory_search"},
+  {"id": "memory-list", "method": "GET", "path": "v1/memory/list", "tsMethod": "memoryList", "pyMethod": "memory_list"},
+  {"id": "memory-import", "method": "POST", "path": "v1/memory/import", "tsMethod": "memoryImport", "pyMethod": "memory_import"},
+  {"id": "memory-forget", "method": "POST", "path": "v1/memory/forget", "tsMethod": "memoryForget", "pyMethod": "memory_forget"}
+]

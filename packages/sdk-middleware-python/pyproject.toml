@@ -1,0 +1,45 @@
+[project]
+name = "lore-context-middleware"
+version = "0.1.0"
+description = "SDK middleware for Lore Context — auto-inject memory pre-LLM-call and auto-retain post-LLM-call across OpenAI/Anthropic SDKs."
+readme = "README.md"
+requires-python = ">=3.9"
+# Runtime is duck-typed against the lore-context SDK; declaring it as a peer
+# (under [project.optional-dependencies].lore-sdk) keeps the package installable
+# in dev environments without pulling the SDK transitively.
+dependencies = []
+authors = [{ name = "Lore Context", email = "hello@lore-context.dev" }]
+license = { text = "MIT" }
+keywords = ["lore", "memory", "context", "middleware", "openai", "anthropic", "agent"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.0.0"]
+anthropic = ["anthropic>=0.27.0"]
+lore-sdk = ["lore-context>=0.1.0"]
+dev = [
+  "pytest>=7.0.0",
+  "pytest-asyncio>=0.21.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"
+
+[tool.uv]
+package = true

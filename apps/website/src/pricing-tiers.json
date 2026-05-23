@@ -1,0 +1,77 @@
+{
+  "_comment": "Lore pricing tiers data — v1.9 Lane F US-020. This file is the canonical data source for the public pricing page. The site.mjs build integrates this JSON into the /pricing page per docs/v1.9-pricing-policy.md.",
+  "tiers": [
+    {
+      "id": "free",
+      "name": "Start",
+      "price_monthly_usd": 0,
+      "price_display": "$0",
+      "tagline": "Try shared memory across assistants with source receipts.",
+      "stripe_lookup_key": null,
+      "features": [
+        { "key": "memory_basic",      "label": "Basic memory storage and recall",            "included": true  },
+        { "key": "source_sync",       "label": "Source sync across assistants",               "included": false },
+        { "key": "reranker",          "label": "Cohere reranker (higher precision recall)",   "included": false },
+        { "key": "temporal_graph",    "label": "Temporal graph queries",                      "included": false },
+        { "key": "eval_runs",         "label": "Eval runs and audit logs",                    "included": false },
+        { "key": "dreaming_butler",   "label": "Dreaming butler (async consolidation)",       "included": false },
+        { "key": "long_history",      "label": "Extended 90-day+ recall window",              "included": false },
+        { "key": "high_recall_quota", "label": "High recall quota (1000+ queries/day)",       "included": false }
+      ]
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "price_monthly_usd": 9.99,
+      "price_display": "$9.99/mo",
+      "tagline": "For one person using Lore across daily AI assistants.",
+      "stripe_lookup_key": "lore_go_monthly_v1_9",
+      "features": [
+        { "key": "memory_basic",      "label": "Basic memory storage and recall",            "included": true  },
+        { "key": "source_sync",       "label": "Source sync across assistants",               "included": true  },
+        { "key": "reranker",          "label": "Cohere reranker (higher precision recall)",   "included": false },
+        { "key": "temporal_graph",    "label": "Temporal graph queries",                      "included": false },
+        { "key": "eval_runs",         "label": "Eval runs and audit logs",                    "included": false },
+        { "key": "dreaming_butler",   "label": "Dreaming butler (async consolidation)",       "included": false },
+        { "key": "long_history",      "label": "Extended 90-day+ recall window",              "included": false },
+        { "key": "high_recall_quota", "label": "High recall quota (1000+ queries/day)",       "included": false }
+      ]
+    },
+    {
+      "id": "plus",
+      "name": "Plus",
+      "price_monthly_usd": 19.99,
+      "price_display": "$19.99/mo",
+      "tagline": "For heavy personal workflows, temporal graph, and reports.",
+      "stripe_lookup_key": "lore_plus_monthly_v1_9",
+      "features": [
+        { "key": "memory_basic",      "label": "Basic memory storage and recall",            "included": true  },
+        { "key": "source_sync",       "label": "Source sync across assistants",               "included": true  },
+        { "key": "reranker",          "label": "Cohere reranker (higher precision recall)",   "included": true  },
+        { "key": "temporal_graph",    "label": "Temporal graph queries",                      "included": true  },
+        { "key": "eval_runs",         "label": "Eval runs and audit logs",                    "included": true  },
+        { "key": "dreaming_butler",   "label": "Dreaming butler (async consolidation)",       "included": false },
+        { "key": "long_history",      "label": "Extended 90-day+ recall window",              "included": false },
+        { "key": "high_recall_quota", "label": "High recall quota (1000+ queries/day)",       "included": false }
+      ]
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "price_monthly_usd": 99.99,
+      "price_display": "$99.99/mo",
+      "tagline": "For high-volume personal agent workflows and long history.",
+      "stripe_lookup_key": "lore_pro_monthly_v1_9",
+      "features": [
+        { "key": "memory_basic",      "label": "Basic memory storage and recall",            "included": true  },
+        { "key": "source_sync",       "label": "Source sync across assistants",               "included": true  },
+        { "key": "reranker",          "label": "Cohere reranker (higher precision recall)",   "included": true  },
+        { "key": "temporal_graph",    "label": "Temporal graph queries",                      "included": true  },
+        { "key": "eval_runs",         "label": "Eval runs and audit logs",                    "included": true  },
+        { "key": "dreaming_butler",   "label": "Dreaming butler (async consolidation)",       "included": true  },
+        { "key": "long_history",      "label": "Extended 90-day+ recall window",              "included": true  },
+        { "key": "high_recall_quota", "label": "High recall quota (1000+ queries/day)",       "included": true  }
+      ]
+    }
+  ]
+}

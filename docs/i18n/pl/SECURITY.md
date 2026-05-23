@@ -159,5 +159,5 @@ Pozycje planowane na kolejne wydania:
   statyczna analiza CodeQL i dependabot.
 - **v0.6**: obrazy kontenerów podpisane przez Sigstore, proweniencja SLSA, publikacja npm przez
   GitHub OIDC zamiast długo żyjących tokenów.
-- **v0.7**: Szyfrowanie w spoczynku dla zawartości pamięci oznaczonej `risk_tags` przez szyfrowanie
+- **Future hosted hardening**: Szyfrowanie w spoczynku dla zawartości pamięci oznaczonej `risk_tags` przez szyfrowanie
   kopertowe KMS.

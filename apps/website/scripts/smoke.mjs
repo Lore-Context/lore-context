@@ -35,8 +35,10 @@ try {
   browser = await chromium.launch({ headless: true });
   await verifyDesktop(browser);
   await verifyMobile(browser);
+  await verifyV10TopLevel(browser);
+  await verifyV10Mobile(browser);
 
-  console.log(JSON.stringify({ ok: true, baseUrl, localesVerified: localeCodes.length, viewports: ["desktop", "mobile"] }, null, 2));
+  console.log(JSON.stringify({ ok: true, baseUrl, localesVerified: localeCodes.length, viewports: ["desktop", "mobile", "v10-desktop", "v10-mobile"] }, null, 2));
 } finally {
   if (browser) await browser.close();
   await stop(server);
@@ -44,9 +46,11 @@ try {
 
 async function verifyLanguageChooser() {
   const html = await fetchHtml(`${baseUrl}/`);
-  assert.match(html, /Choose your language\./, "Root language chooser should render.");
+  assert.match(html, /data-locale-switcher/, "Root should render the top language switcher.");
+  assert.doesNotMatch(html, /Language and docs/i, "Root should not render the removed language docs section.");
+  assert.doesNotMatch(html, /Choose your language\./, "Root should not render the removed language chooser section.");
   assert.match(html, /redland2024@gmail\.com/, "Root language chooser should keep the REDLAND contact email.");
-  assert.equal((html.match(/<div class="language-grid">/g) ?? []).length, 1, "Root language chooser should render the locale grid.");
+  assert.equal((html.match(/data-v10-languages/g) ?? []).length, 0, "Root should not include the removed language section marker.");
   assert.equal((html.match(/hreflang=/g) ?? []).length, localeCodes.length * 2 + 1, "Root language chooser should publish every locale link plus alternates.");
 }
 
@@ -82,7 +86,7 @@ async function verifyReleaseAssets() {
 async function verifyDesktop(browser) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   await page.goto(`${baseUrl}/en/`, { waitUntil: "networkidle" });
-  await page.getByRole("heading", { name: "Lore Context." }).waitFor();
+  await page.getByRole("heading", { name: "Audit, govern, and migrate your AI agent's memory." }).waitFor();
   await page.getByText("Agents remember. Teams need proof.", { exact: true }).waitFor();
   await page.locator(".surface .ledger-row").first().waitFor();
   await page.locator(".system-board").waitFor();
@@ -103,7 +107,7 @@ async function verifyMobile(browser) {
   try {
     const page = await context.newPage();
     await page.goto(`${baseUrl}/en/`, { waitUntil: "networkidle" });
-    await page.getByRole("heading", { name: "Lore Context." }).waitFor();
+    await page.getByRole("heading", { name: "Audit, govern, and migrate your AI agent's memory." }).waitFor();
     await assertNoHorizontalOverflow(page, "mobile /en/");
 
     await page.locator(".lang-menu summary").click();
@@ -111,6 +115,58 @@ async function verifyMobile(browser) {
     await page.waitForURL(/\/id\/$/);
     await page.getByText("Agen mengingat. Tim membutuhkan bukti.", { exact: true }).waitFor();
     await assertNoHorizontalOverflow(page, "mobile /id/");
+  } finally {
+    await context.close();
+  }
+}
+
+async function verifyV10TopLevel(browser) {
+  const requiredPages = [
+    ["/", "All your AI agents. One shared memory."],
+    ["/pricing.html", "Simple, transparent pricing."],
+    ["/privacy.html", "Capture from sources you connect. Nothing else."],
+    ["/download.html", "Sign in, then connect your first source."],
+    ["/docs.html", "Connect, capture, recall — in plain language."],
+    ["/status.html", "Hosted beta scope is documented, with public claims kept narrow."],
+    ["/changelog.html", "v1.2.0-beta introduces the Graph-Augmented Hybrid Memory Engine."],
+    ["/compare.html", "Lore vs Supermemory, Mem0, Zep, Letta."],
+    ["/company.html", "REDLAND PTE. LTD."],
+    ["/contact.html", "Get in touch."],
+    ["/terms.html", "Terms of Service"],
+    ["/cookies.html", "Cookie Notice"],
+    ["/sitemap.html", "Site map and implementation audit."]
+  ];
+
+  const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
+  try {
+    for (const [path, heading] of requiredPages) {
+      await page.goto(`${baseUrl}${path}`, { waitUntil: "networkidle" });
+      await page.getByRole("heading", { name: heading }).waitFor();
+      await page.getByText("REDLAND PTE. LTD.", { exact: false }).first().waitFor();
+      await assertNoHorizontalOverflow(page, `desktop ${path}`);
+    }
+
+    await page.goto(`${baseUrl}/sitemap.html`, { waitUntil: "networkidle" });
+    for (const [path] of requiredPages.slice(1)) {
+      await page.locator(`a[href="${path}"]`).first().waitFor();
+    }
+  } finally {
+    await page.close();
+  }
+}
+
+async function verifyV10Mobile(browser) {
+  const device = devices["iPhone 13"] ?? { viewport: { width: 390, height: 844 }, userAgent: "LoreSmokeMobileV10" };
+  const context = await browser.newContext(device);
+  try {
+    const page = await context.newPage();
+    for (const path of ["/", "/pricing.html", "/company.html", "/contact.html", "/terms.html", "/cookies.html", "/sitemap.html"]) {
+      await page.goto(`${baseUrl}${path}`, { waitUntil: "networkidle" });
+      await assertNoHorizontalOverflow(page, `mobile ${path}`);
+    }
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.getByRole("link", { name: "Continue with Google" }).first().waitFor();
+    await page.getByText("Simple, transparent pricing.", { exact: false }).first().waitFor();
   } finally {
     await context.close();
   }

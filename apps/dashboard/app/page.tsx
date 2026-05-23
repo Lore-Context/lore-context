@@ -1,875 +1,452 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CustomerConsole } from "../components/customer-console";
+import { DataCard, EmptyState, PageHeader, StatCard } from "../components/dashboard-shell";
+import { createBrowserDashboardApiClient, fetchCustomerOverview, routeResultMessage } from "../lib/api-client";
+import type { CustomerOverviewData, DashboardData, RouteResult, UserSession } from "../lib/contracts";
+import { demoProjectId } from "../lib/demo-fixtures";
+import { errorMessage } from "../lib/route-error";
 
-type MemoryStatus = "candidate" | "active" | "confirmed" | "superseded" | "expired" | "deleted";
-type TraceFeedback = "useful" | "wrong" | "outdated" | "sensitive";
-type MemoryActionMode = "edit" | "supersede" | "reject" | "forget";
-
-interface MemoryRecord {
+type OverviewState = RouteResult<CustomerOverviewData> | { state: "loading" };
+type ActivityItem = {
   id: string;
-  content: string;
-  memoryType: string;
-  scope: string;
-  status: MemoryStatus;
-  projectId?: string;
-  riskTags: string[];
-  useCount: number;
-  confidence: number;
-  supersededBy?: string | null;
-  lastUsedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ContextTrace {
-  id: string;
-  projectId?: string;
-  query: string;
-  route: { reason: string };
-  latencyMs: number;
-  tokenBudget: number;
-  tokensUsed: number;
-  warnings: string[];
-  feedback?: TraceFeedback;
-  feedbackAt?: string;
-  feedbackNote?: string;
-  createdAt: string;
-}
-
-interface EvidenceLedgerSummary {
-  retrieved: number;
-  composed: number;
-  ignored: number;
-  warnings: number;
-  riskTags: string[];
-  staleCount: number;
-  conflictCount: number;
-}
-
-interface EvidenceLedger {
-  traceId: string;
-  summary: EvidenceLedgerSummary;
-  rows: Array<{
-    memoryId: string;
-    contentPreview: string;
-    disposition: "used" | "ignored" | "blocked" | "missing";
-    status: string;
-    riskTags: string[];
-    warnings: string[];
-  }>;
-}
-
-interface EvalMetrics {
-  recallAt5: number;
-  precisionAt5: number;
-  mrr: number;
-  staleHitRate: number;
-  p95LatencyMs: number;
-}
-
-interface EvalRun {
-  id: string;
-  provider: string;
-  projectId?: string;
-  metrics: EvalMetrics;
-  createdAt: string;
-}
-
-interface AuditLog {
-  id: string;
-  action: string;
-  resourceType: string;
-  resourceId?: string;
-  metadata: Record<string, unknown>;
-  createdAt: string;
-}
-
-interface DashboardData {
-  health: "ok" | "error";
-  agentmemory: string;
-  memories: MemoryRecord[];
-  traces: ContextTrace[];
-  ledgers: EvidenceLedger[];
-  evalRuns: EvalRun[];
-  auditLogs: AuditLog[];
-}
-
-interface MemoryActionDraft {
-  mode: MemoryActionMode;
-  memoryId: string;
-  originalContent: string;
-  content: string;
-  reason: string;
-}
-
-const demoProjectId = "demo-private";
-const demoQuery = "继续 Lore 项目开发";
-const demoMemorySeed = "Lore should keep governed project memory auditable.";
-const defaultProviders = ["lore-local", "agentmemory-export"];
-
-const defaultDataset = JSON.stringify(
-  {
-    sessions: [
-      {
-        sessionId: "s1",
-        messages: [{ role: "user", content: "Lore should keep governed project memory auditable." }]
-      },
-      {
-        sessionId: "s2",
-        messages: [{ role: "user", content: "The MCP server should use official SDK stdio transport." }]
-      }
-    ],
-    questions: [
-      { question: "What project memory should Lore keep auditable?", goldSessionIds: ["s1"] },
-      { question: "Which transport should the MCP server use?", goldSessionIds: ["s2"] }
-    ]
-  },
-  null,
-  2
-);
-
-const evalProviders = ["lore-local", "agentmemory-export", "external-mock"];
-const traceFeedbackOptions: Array<{ value: TraceFeedback; label: string; tone: "ok" | "muted" | "warn" | "risk" }> = [
-  { value: "useful", label: "Useful", tone: "ok" },
-  { value: "wrong", label: "Wrong", tone: "risk" },
-  { value: "outdated", label: "Outdated", tone: "warn" },
-  { value: "sensitive", label: "Sensitive", tone: "risk" }
-];
+  label: string;
+  detail: string;
+  meta: string;
+  tone: "neutral" | "ok" | "warn" | "risk";
+};
 
 export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData>({
-    health: "error",
-    agentmemory: "unknown",
-    memories: [],
-    traces: [],
-    ledgers: [],
-    evalRuns: [],
-    auditLogs: []
-  });
-  const [projectId, setProjectId] = useState(demoProjectId);
-  const [apiKey, setApiKey] = useState("");
-  const [query, setQuery] = useState(demoQuery);
-  const [contextResult, setContextResult] = useState("");
-  const [memoryContent, setMemoryContent] = useState("");
-  const [dataset, setDataset] = useState(defaultDataset);
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(defaultProviders);
-  const [memoryActionDraft, setMemoryActionDraft] = useState<MemoryActionDraft | null>(null);
+  const [overview, setOverview] = useState<OverviewState>({ state: "loading" });
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
 
-  const summary = useMemo(() => {
-    const active = data.memories.filter((memory) => memory.status === "active" || memory.status === "confirmed").length;
-    const review = data.memories.filter((memory) => memory.status === "candidate").length;
-    const risk = data.memories.filter((memory) => memory.riskTags.length > 0).length;
-    const recall = data.evalRuns[0]?.metrics.recallAt5;
-    return { active, review, risk, recall };
-  }, [data]);
-
-  const demoState = useMemo(() => {
-    const sameProviders = selectedProviders.length === defaultProviders.length
-      && defaultProviders.every((provider) => selectedProviders.includes(provider));
-    if (projectId === demoProjectId && query === demoQuery && dataset === defaultDataset && sameProviders) {
-      return { label: "Demo preset loaded", tone: "ok" as const };
-    }
-    if (projectId === demoProjectId) {
-      return { label: "Demo project active", tone: "warn" as const };
-    }
-    return { label: "Custom workspace", tone: "muted" as const };
-  }, [dataset, projectId, query, selectedProviders]);
-
-  const evalLeaderboard = useMemo(
+  const client = useMemo(
     () =>
-      [...data.evalRuns].sort((left, right) => {
-        const qualityGap = scoreEval(right) - scoreEval(left);
-        if (qualityGap !== 0) {
-          return qualityGap;
-        }
-        return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+      createBrowserDashboardApiClient({
+        getCsrfToken: () => readCookie("lore_csrf")
       }),
-    [data.evalRuns]
+    []
   );
 
-  const ledgerByTraceId = useMemo(
-    () => new Map(data.ledgers.map((ledger) => [ledger.traceId, ledger])),
-    [data.ledgers]
-  );
+  const refresh = useCallback(async () => {
+    setActionError("");
+    try {
+      setOverview(await fetchCustomerOverview(client, demoProjectId));
+    } catch (error) {
+      setOverview({
+        state: "error",
+        error: errorMessage(error, "Customer overview request failed")
+      });
+    }
+  }, [client]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("auth_error");
+    if (authError) {
+      setActionError(`Google sign-in failed with status ${authError}`);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
     void refresh();
-  }, []);
+  }, [refresh]);
 
-  async function refresh(nextProjectId = projectId) {
-    setError("");
-    try {
-      const [health, agentmemory, memories, traces, ledgers, evalRuns, auditLogs] = await Promise.all([
-        requestJson("/health", { allowError: true }),
-        requestJson("/v1/integrations/agentmemory/health", { allowError: true }),
-        requestJson(`/v1/memory/list?project_id=${encodeURIComponent(nextProjectId)}&limit=100`, { allowError: true }),
-        requestJson(`/v1/traces?project_id=${encodeURIComponent(nextProjectId)}&limit=12`, { allowError: true }),
-        requestJson(`/v1/evidence/ledgers?project_id=${encodeURIComponent(nextProjectId)}&limit=12`, { allowError: true }),
-        requestJson(`/v1/eval/runs?project_id=${encodeURIComponent(nextProjectId)}&limit=20`, { allowError: true }),
-        requestJson("/v1/audit-logs?limit=20", { allowError: true })
-      ]);
-
-      setData({
-        health: health.status === "ok" ? "ok" : "error",
-        agentmemory: typeof agentmemory.status === "string" ? agentmemory.status : "unknown",
-        memories: Array.isArray(memories.memories) ? memories.memories : [],
-        traces: Array.isArray(traces.traces) ? traces.traces : [],
-        ledgers: Array.isArray(ledgers.ledgers) ? ledgers.ledgers : [],
-        evalRuns: Array.isArray(evalRuns.evalRuns) ? evalRuns.evalRuns : [],
-        auditLogs: Array.isArray(auditLogs.auditLogs) ? auditLogs.auditLogs : []
-      });
-    } catch (refreshError) {
-      setError(errorMessage(refreshError));
-    }
-  }
-
-  async function requestJson(path: string, options: { method?: string; body?: unknown; allowError?: boolean } = {}) {
-    const headers = new Headers({ accept: "application/json" });
-    if (apiKey.trim()) {
-      headers.set("authorization", `Bearer ${apiKey.trim()}`);
-    }
-    if (options.body !== undefined) {
-      headers.set("content-type", "application/json");
-    }
-
-    const response = await fetch(`/api/lore${path}`, {
-      method: options.method ?? "GET",
-      headers,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body)
-    });
-    const text = await response.text();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let payload: any;
-    try {
-      payload = text ? JSON.parse(text) : {};
-    } catch {
-      if (!options.allowError) {
-        setError("Invalid JSON response from server");
-        throw new Error("Invalid JSON response from server");
-      }
-      payload = {};
-    }
-    if (!response.ok && !options.allowError) {
-      throw payload;
-    }
-    return payload;
-  }
-
-  async function runContext(event: FormEvent) {
-    event.preventDefault();
-    await runBusy(async () => {
-      const payload = await requestJson("/v1/context/query", {
-        method: "POST",
-        body: {
-          query,
-          project_id: projectId,
-          token_budget: 1400,
-          include_sources: true
-        }
-      });
-      setContextResult(payload.contextBlock ?? JSON.stringify(payload, null, 2));
-      await refresh();
-    });
-  }
-
-  async function saveMemory(event: FormEvent) {
-    event.preventDefault();
-    await runBusy(async () => {
-      await requestJson("/v1/memory/write", {
-        method: "POST",
-        body: {
-          content: memoryContent,
-          memory_type: "project_rule",
-          scope: "project",
-          project_id: projectId
-        }
-      });
-      setMemoryContent("");
-      await refresh();
-    });
-  }
-
-  async function runEvalComparison(event: FormEvent) {
-    event.preventDefault();
-    await runBusy(async () => {
-      const parsedDataset = JSON.parse(dataset);
-      const results = [];
-      for (const provider of selectedProviders) {
-        results.push(
-          await requestJson("/v1/eval/run", {
-            method: "POST",
-            body: { provider, project_id: projectId, dataset: parsedDataset }
-          })
-        );
-      }
-      setContextResult(JSON.stringify(results, null, 2));
-      await refresh();
-    });
-  }
-
-  async function approveMemory(id: string) {
-    await runBusy(async () => {
-      await requestJson(`/v1/governance/memory/${encodeURIComponent(id)}/approve`, {
-        method: "POST",
-        body: { reason: "dashboard approval", reviewer: "next-dashboard" }
-      });
-      await refresh();
-    });
-  }
-
-  async function submitMemoryAction(event: FormEvent) {
-    event.preventDefault();
-    if (!memoryActionDraft) {
-      return;
-    }
-
-    await runBusy(async () => {
-      if (memoryActionDraft.mode === "edit") {
-        await requestJson(`/v1/memory/${encodeURIComponent(memoryActionDraft.memoryId)}`, {
-          method: "PATCH",
-          body: { content: memoryActionDraft.content }
-        });
-      } else if (memoryActionDraft.mode === "supersede") {
-        await requestJson(`/v1/memory/${encodeURIComponent(memoryActionDraft.memoryId)}/supersede`, {
-          method: "POST",
-          body: { content: memoryActionDraft.content, reason: memoryActionDraft.reason || "dashboard supersede" }
-        });
-      } else if (memoryActionDraft.mode === "reject") {
-        await requestJson(`/v1/governance/memory/${encodeURIComponent(memoryActionDraft.memoryId)}/reject`, {
-          method: "POST",
-          body: { reason: memoryActionDraft.reason, reviewer: "next-dashboard" }
-        });
-      } else {
-        await requestJson("/v1/memory/forget", {
-          method: "POST",
-          body: {
-            memory_ids: [memoryActionDraft.memoryId],
-            reason: memoryActionDraft.reason,
-            hard_delete: false
-          }
-        });
-      }
-      setMemoryActionDraft(null);
-      await refresh();
-    });
-  }
-
-  async function sendTraceFeedback(id: string, feedback: TraceFeedback) {
-    await runBusy(async () => {
-      await requestJson(`/v1/traces/${encodeURIComponent(id)}/feedback`, {
-        method: "POST",
-        body: { feedback, note: "next-dashboard feedback" }
-      });
-      await refresh();
-    });
-  }
-
-  async function loadDemo() {
-    await runBusy(async () => {
-      setProjectId(demoProjectId);
-      setQuery(demoQuery);
-      setMemoryContent(demoMemorySeed);
-      setDataset(defaultDataset);
-      setSelectedProviders(defaultProviders);
-      setMemoryActionDraft(null);
-      setContextResult("Demo preset loaded. Run Query, Save Memory, or Compare Providers to exercise the dashboard loop.");
-      await refresh(demoProjectId);
-    });
-  }
-
-  async function runBusy(work: () => Promise<void>) {
+  async function runAction(work: () => Promise<void>) {
     setBusy(true);
-    setError("");
+    setActionError("");
     try {
       await work();
-    } catch (workError) {
-      setError(errorMessage(workError));
+    } catch (error) {
+      setActionError(errorMessage(error));
     } finally {
       setBusy(false);
     }
   }
 
-  function openMemoryAction(mode: MemoryActionMode, memory: MemoryRecord) {
-    setMemoryActionDraft({
-      mode,
-      memoryId: memory.id,
-      originalContent: memory.content,
-      content: memory.content,
-      reason:
-        mode === "supersede"
-          ? "newer project context"
-          : mode === "reject"
-            ? "not durable context"
-            : mode === "forget"
-              ? "no longer durable context"
-              : ""
-    });
+  async function signInWithGoogle() {
+    const started = await client.requestJson<{ authorizationUrl?: string }>("/auth/google/start");
+    if (typeof started.authorizationUrl !== "string") {
+      throw new Error("Google authorization URL missing");
+    }
+    window.location.assign(started.authorizationUrl);
   }
 
-  function toggleProvider(provider: string) {
-    setSelectedProviders((current) =>
-      current.includes(provider) ? current.filter((item) => item !== provider) : [...current, provider]
+  async function signOut() {
+    await client.requestJson("/auth/logout", { method: "POST", body: {} });
+    await refresh();
+  }
+
+  const data = overview.state === "success" || overview.state === "empty" ? overview.data : null;
+  const session = data?.session ?? null;
+  const dashboard = data?.dashboard ?? emptyDashboard;
+  const serviceTone = dashboard.health === "ok" ? "ok" : "warn";
+  const serviceLabel = dashboard.health === "ok" ? "Service ready" : "Service degraded";
+  const routeMessage = overview.state === "unauthorized" || overview.state === "config-missing" || overview.state === "error"
+    ? routeResultMessage(overview)
+    : "";
+
+  return (
+    <CustomerConsole
+      activeRoute="overview"
+      session={session}
+      serviceLabel={serviceLabel}
+      serviceTone={serviceTone}
+      actions={
+        <button type="button" className="muted" onClick={() => void refresh()} disabled={busy || overview.state === "loading"}>
+          Refresh
+        </button>
+      }
+    >
+      <PageHeader
+        eyebrow="Overview"
+        title={session ? "Your Lore workspace" : "Start your Lore workspace"}
+        description={
+          session
+            ? "Account state, service posture, and the next customer action in one place."
+            : "Sign in to create a private vault before connecting AI apps or reviewing memory."
+        }
+        meta={
+          <>
+            <span className={`statusBadge ${session ? "ok" : "muted"}`}>{session ? "Signed in" : "Sign-in required"}</span>
+            <span className={`statusBadge ${overview.state === "config-missing" ? "warn" : "muted"}`}>{overviewLabel(overview.state)}</span>
+          </>
+        }
+        actions={<SessionActions session={session} busy={busy} onSignIn={() => void runAction(signInWithGoogle)} onSignOut={() => void runAction(signOut)} />}
+      />
+
+      {actionError ? <pre className="error">{actionError}</pre> : null}
+
+      {overview.state === "loading" ? (
+        <EmptyState title="Loading dashboard state" description="Checking your session and Lore service health through the dashboard proxy." />
+      ) : null}
+
+      {routeMessage ? (
+        <DataCard className="overviewAlert" title={overview.state === "unauthorized" ? "Sign in required" : "Dashboard not ready"}>
+          <p>{routeMessage}</p>
+        </DataCard>
+      ) : null}
+
+      {data ? (
+        <OverviewContent data={data} signedIn={Boolean(session)} />
+      ) : (
+        <SignedOutHome />
+      )}
+    </CustomerConsole>
+  );
+}
+
+function SessionActions({
+  session,
+  busy,
+  onSignIn,
+  onSignOut
+}: {
+  session: UserSession | null;
+  busy: boolean;
+  onSignIn: () => void;
+  onSignOut: () => void;
+}) {
+  if (session) {
+    return (
+      <button type="button" className="danger" onClick={onSignOut} disabled={busy}>
+        Sign out
+      </button>
     );
   }
+  return (
+    <button type="button" onClick={onSignIn} disabled={busy}>
+      Continue with Google
+    </button>
+  );
+}
 
-  const memoryActionMeta = memoryActionDraft ? describeMemoryAction(memoryActionDraft.mode) : null;
-  const memoryActionNeedsContent = memoryActionDraft ? memoryActionDraft.mode === "edit" || memoryActionDraft.mode === "supersede" : false;
-  const memoryActionNeedsReason = memoryActionDraft ? memoryActionDraft.mode === "reject" || memoryActionDraft.mode === "forget" : false;
-  const memoryActionDisabled = busy
-    || !memoryActionDraft
-    || (memoryActionNeedsContent && !memoryActionDraft.content.trim())
-    || (memoryActionNeedsReason && !memoryActionDraft.reason.trim());
+function OverviewContent({ data, signedIn }: { data: CustomerOverviewData; signedIn: boolean }) {
+  const metrics = overviewMetrics(data.dashboard);
+  const steps = onboardingSteps(data, signedIn);
+  const nextStep = steps.find((step) => step.state !== "done") ?? steps[steps.length - 1];
+  const activity = recentActivity(data.dashboard);
 
   return (
-    <main className="shell">
-      <header className="topbar">
-        <div>
-          <h1>Lore Context</h1>
-          <p>Memory, retrieval, evaluation, and governance control plane.</p>
-          <div className="topbarMeta">
-            <span className={`statusBadge ${demoState.tone}`}>{demoState.label}</span>
-            <span className="inlineNote">Load the demo preset to exercise query, write, review, trace, and eval actions against project <code>{demoProjectId}</code>.</span>
+    <div className="overviewStack">
+      <section className="overviewStats" aria-label="Workspace metrics">
+        {metrics.map((metric) => (
+          <StatCard
+            key={metric.label}
+            label={metric.label}
+            value={metric.value}
+            detail={metric.detail}
+            trend={metric.trend}
+            tone={metric.tone}
+          />
+        ))}
+      </section>
+
+      <section className="overviewGrid">
+        <DataCard
+          title="Account and service"
+          description="Current session, vault, and backend posture."
+          meta={<span className={`statusBadge ${data.dashboard.health === "ok" ? "ok" : "warn"}`}>{data.dashboard.health === "ok" ? "Healthy" : "Degraded"}</span>}
+        >
+          <div className="overviewRows">
+            <OverviewRow label="Account" value={accountLabel(data.session)} meta={data.session?.account.id ?? "No signed-in account"} />
+            <OverviewRow label="Vault" value={data.session?.vault.name ?? "Not created"} meta={data.session?.vault.id ?? "Created after sign-in"} />
+            <OverviewRow label="Agent memory" value={data.dashboard.agentmemory} meta="Integration health" />
+            <OverviewRow label="Capture worker" value={data.systemStatus.captureWorker} meta="New-memory intake" />
           </div>
-        </div>
-        <div className="connection">
-          <span className={data.health === "ok" ? "dot ok" : "dot"} />
-          API {data.health}
-          <span className="divider" />
-          agentmemory {data.agentmemory}
-        </div>
-      </header>
+        </DataCard>
 
-      <section className="toolbar">
-        <label>
-          Project
-          <input value={projectId} onChange={(event) => setProjectId(event.currentTarget.value)} />
-        </label>
-        <label>
-          API key
-          <input value={apiKey} onChange={(event) => setApiKey(event.currentTarget.value)} placeholder="optional local key" />
-        </label>
-        <div className="toolbarActions">
-          <button type="button" className="muted" onClick={loadDemo} disabled={busy}>Load Demo</button>
-          <button type="button" onClick={() => void refresh()} disabled={busy}>Refresh</button>
-        </div>
+        <DataCard
+          title="Next action"
+          description="The shortest path to a useful customer setup."
+          actions={nextStep?.href ? <a className="buttonLink" href={nextStep.href}>{nextStep.action}</a> : null}
+        >
+          {nextStep ? (
+            <div className={`nextAction tone-${nextStep.tone}`}>
+              <span>{stepLabel(nextStep.state)}</span>
+              <strong>{nextStep.title}</strong>
+              <p>{nextStep.detail}</p>
+            </div>
+          ) : null}
+        </DataCard>
       </section>
 
-      {error ? <pre className="error">{error}</pre> : null}
+      <section className="overviewGrid">
+        <DataCard title="First steps" description="Customer onboarding status without developer controls.">
+          <ol className="overviewChecklist">
+            {steps.map((step) => (
+              <li key={step.id}>
+                <span className={`stepMarker ${step.tone}`}>{stepLabel(step.state)}</span>
+                <div>
+                  <strong>{step.title}</strong>
+                  <small>{step.detail}</small>
+                </div>
+                {step.href ? <a href={step.href}>{step.action}</a> : null}
+              </li>
+            ))}
+          </ol>
+        </DataCard>
 
-      <section className="metrics">
-        <Metric label="Memories" value={data.memories.length} />
-        <Metric label="Active" value={summary.active} />
-        <Metric label="Review" value={summary.review} />
-        <Metric label="Risk" value={summary.risk} />
-        <Metric label="Traces" value={data.traces.length} />
-        <Metric label="Recall@5" value={summary.recall === undefined ? "n/a" : percent(summary.recall)} />
-      </section>
-
-      <section className="grid">
-        <div className="leftRail">
-          <form className="panel stack" onSubmit={runContext}>
-            <h2>Context Query</h2>
-            <textarea value={query} onChange={(event) => setQuery(event.currentTarget.value)} />
-            <button type="submit" disabled={busy}>Run Query</button>
-            <pre className="result">{contextResult || "Context output appears here."}</pre>
-          </form>
-
-          <form className="panel stack" onSubmit={saveMemory}>
-            <h2>Memory Write</h2>
-            <textarea value={memoryContent} onChange={(event) => setMemoryContent(event.currentTarget.value)} placeholder="Durable project fact" />
-            <button type="submit" disabled={busy || !memoryContent.trim()}>Save Memory</button>
-          </form>
-
-          <form className="panel stack" onSubmit={runEvalComparison}>
-            <h2>Eval Playground</h2>
-            <div className="segments">
-              {evalProviders.map((provider) => (
-                <button
-                  className={selectedProviders.includes(provider) ? "segment selected" : "segment"}
-                  key={provider}
-                  type="button"
-                  onClick={() => toggleProvider(provider)}
-                >
-                  {provider}
-                </button>
+        <DataCard title="Recent activity" description="Latest customer memory and recall signals.">
+          {activity.length ? (
+            <div className="overviewActivity">
+              {activity.map((item) => (
+                <article key={item.id} className={`activityItem tone-${item.tone}`}>
+                  <div>
+                    <strong>{item.label}</strong>
+                    <p>{item.detail}</p>
+                  </div>
+                  <small>{item.meta}</small>
+                </article>
               ))}
             </div>
-            <textarea className="dataset" value={dataset} onChange={(event) => setDataset(event.currentTarget.value)} />
-            <button type="submit" disabled={busy || selectedProviders.length === 0}>Compare Providers</button>
-          </form>
-        </div>
-
-        <div className="mainRail">
-          <section className="panel">
-            <div className="sectionHeader">
-              <div>
-                <h2>Memory Inventory</h2>
-                <p>Patch text in place for small fixes, supersede changing facts, reject review items, or soft forget stale memory.</p>
-              </div>
-            </div>
-
-            {memoryActionDraft && memoryActionMeta ? (
-              <form className="memoryWorkbench" onSubmit={submitMemoryAction}>
-                <div className="workbenchHeader">
-                  <div>
-                    <h3>{memoryActionMeta.title}</h3>
-                    <p>{memoryActionMeta.hint}</p>
-                  </div>
-                  <button type="button" className="muted" onClick={() => setMemoryActionDraft(null)} disabled={busy}>Cancel</button>
-                </div>
-
-                <small className="monoLabel">{memoryActionDraft.memoryId}</small>
-
-                {memoryActionNeedsContent ? (
-                  <textarea
-                    value={memoryActionDraft.content}
-                    onChange={(event) => setMemoryActionDraft((current) => current ? { ...current, content: event.currentTarget.value } : current)}
-                  />
-                ) : (
-                  <pre className="memoryPreview">{memoryActionDraft.originalContent}</pre>
-                )}
-
-                {memoryActionDraft.mode !== "edit" ? (
-                  <label className="stackLabel">
-                    Reason
-                    <input
-                      value={memoryActionDraft.reason}
-                      onChange={(event) => setMemoryActionDraft((current) => current ? { ...current, reason: event.currentTarget.value } : current)}
-                      placeholder={memoryActionMeta.reasonPlaceholder}
-                    />
-                  </label>
-                ) : null}
-
-                <div className="buttonRow">
-                  <button type="submit" disabled={memoryActionDisabled}>{memoryActionMeta.submitLabel}</button>
-                  <button type="button" className="muted" onClick={() => setMemoryActionDraft(null)} disabled={busy}>Close</button>
-                </div>
-              </form>
-            ) : null}
-
-            <table>
-              <thead>
-                <tr><th>Memory</th><th>Lifecycle</th><th>Use</th><th>Action</th></tr>
-              </thead>
-              <tbody>
-                {data.memories.length === 0 ? <EmptyRow span={4} label="No memories for this project" /> : data.memories.slice(0, 30).map((memory) => (
-                  <tr key={memory.id}>
-                    <td>
-                      <div>{memory.content}</div>
-                      <small>{memory.id}</small>
-                    </td>
-                    <td>
-                      <div className="metaStack">
-                        <div className="strongLine">{memory.memoryType}</div>
-                        <small>{memory.scope} · confidence {percent(memory.confidence)}</small>
-                        <Status status={memory.status} risks={memory.riskTags} />
-                        {memory.supersededBy ? <small>superseded by {memory.supersededBy}</small> : null}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="strongLine">{memory.useCount}</div>
-                      <small>{memory.lastUsedAt ? `last used ${formatDate(memory.lastUsedAt)}` : `updated ${formatDate(memory.updatedAt)}`}</small>
-                    </td>
-                    <td className="actions">
-                      {memory.status === "candidate" ? (
-                        <button type="button" onClick={() => approveMemory(memory.id)} disabled={busy}>Approve</button>
-                      ) : null}
-                      {memory.status === "candidate" ? (
-                        <button type="button" className="danger" onClick={() => openMemoryAction("reject", memory)} disabled={busy}>Reject</button>
-                      ) : null}
-                      {memory.status !== "superseded" && memory.status !== "deleted" ? (
-                        <button type="button" className="muted" onClick={() => openMemoryAction("edit", memory)} disabled={busy}>Edit</button>
-                      ) : null}
-                      {memory.status !== "superseded" && memory.status !== "deleted" ? (
-                        <button type="button" className="muted" onClick={() => openMemoryAction("supersede", memory)} disabled={busy}>Supersede</button>
-                      ) : null}
-                      {memory.status !== "deleted" ? (
-                        <button type="button" className="warn" onClick={() => openMemoryAction("forget", memory)} disabled={busy}>Soft Forget</button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-
-          <section className="panel">
-            <div className="sectionHeader">
-              <div>
-                <h2>Recent Traces</h2>
-                <p>Mark context output useful, wrong, outdated, or sensitive to feed review and audit loops.</p>
-              </div>
-            </div>
-            <table>
-              <thead>
-                <tr><th>Query</th><th>Route</th><th>Evidence</th><th>Budget</th><th>Feedback</th></tr>
-              </thead>
-              <tbody>
-                {data.traces.length === 0 ? <EmptyRow span={5} label="No traces yet" /> : data.traces.slice(0, 12).map((trace) => (
-                  <tr key={trace.id}>
-                    <td>
-                      <div>{trace.query}</div>
-                      <small>{trace.id}</small>
-                    </td>
-                    <td>
-                      <div>{trace.route.reason}</div>
-                      {trace.warnings.length ? <small>{trace.warnings.join(", ")}</small> : <small>No warnings</small>}
-                    </td>
-                    <td>
-                      <LedgerSummary ledger={ledgerByTraceId.get(trace.id)} />
-                    </td>
-                    <td>
-                      <div className="strongLine">{trace.latencyMs}ms</div>
-                      <small>{trace.tokensUsed}/{trace.tokenBudget} tokens · {formatDate(trace.createdAt)}</small>
-                    </td>
-                    <td className="feedbackCell">
-                      <div className="statusCell">
-                        <span className={trace.feedback ? `pill ${feedbackToneClass(trace.feedback)}` : "pill neutral"}>
-                          {trace.feedback ?? "unreviewed"}
-                        </span>
-                      </div>
-                      {trace.feedbackAt ? <small>{formatDate(trace.feedbackAt)}</small> : null}
-                      <div className="actions">
-                        {traceFeedbackOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            className={trace.feedback === option.value ? `feedbackButton active ${option.tone}` : `feedbackButton ${option.tone}`}
-                            onClick={() => sendTraceFeedback(trace.id, option.value)}
-                            disabled={busy}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-
-          <section className="split">
-            <div className="panel">
-              <div className="sectionHeader">
-                <div>
-                  <h2>Eval Runs</h2>
-                  <p>Runs are ranked by retrieval quality first, then stale-hit penalty and p95 latency.</p>
-                </div>
-              </div>
-              <table>
-                <thead>
-                  <tr><th>Rank</th><th>Provider</th><th>Retrieval</th><th>Stale</th><th>Latency</th><th>Run</th></tr>
-                </thead>
-                <tbody>
-                  {evalLeaderboard.length === 0 ? <EmptyRow span={6} label="No eval runs" /> : evalLeaderboard.slice(0, 12).map((run, index) => (
-                    <tr key={run.id}>
-                      <td><span className="rankBadge">#{index + 1}</span></td>
-                      <td>
-                        <div>{run.provider}</div>
-                        <small>{evalVerdict(run)}</small>
-                      </td>
-                      <td>
-                        <div className="evalMetrics">
-                          <MetricPill label="R@5" value={percent(run.metrics.recallAt5)} tone={qualityTone(run.metrics.recallAt5)} />
-                          <MetricPill label="P@5" value={percent(run.metrics.precisionAt5)} tone={qualityTone(run.metrics.precisionAt5)} />
-                          <MetricPill label="MRR" value={percent(run.metrics.mrr)} tone={qualityTone(run.metrics.mrr)} />
-                        </div>
-                      </td>
-                      <td><span className={`pill ${staleTone(run.metrics.staleHitRate)}`}>{percent(run.metrics.staleHitRate)}</span></td>
-                      <td><span className={`pill ${latencyTone(run.metrics.p95LatencyMs)}`}>{Math.round(run.metrics.p95LatencyMs)}ms</span></td>
-                      <td>
-                        <small>{formatDate(run.createdAt)}</small>
-                        <small>{run.id}</small>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="panel">
-              <h2>Audit Log</h2>
-              <table>
-                <thead>
-                  <tr><th>Action</th><th>Resource</th></tr>
-                </thead>
-                <tbody>
-                  {data.auditLogs.length === 0 ? <EmptyRow span={2} label="No audit events" /> : data.auditLogs.slice(0, 12).map((audit) => (
-                    <tr key={audit.id}>
-                      <td>{audit.action}<small>{audit.createdAt}</small></td>
-                      <td>{audit.resourceType}{audit.resourceId ? <small>{audit.resourceId}</small> : null}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
+          ) : (
+            <EmptyState
+              title="No customer activity yet"
+              description="Connect an AI app, approve memory, or run recall to populate this feed."
+              action={<a className="buttonLink muted" href="/apps">Go to Apps</a>}
+            />
+          )}
+        </DataCard>
       </section>
-    </main>
+
+      <DataCard title="Workspace shortcuts" description="Open the main customer workflows from one place.">
+        <div className="handoffGrid">
+          <HandoffLink href="/apps" title="Apps" detail="Connection token, connected AI apps, and install flow." />
+          <HandoffLink href="/sources" title="Sources" detail="Source pause/resume, sync state, and capture controls." />
+          <HandoffLink href="/inbox" title="Inbox" detail="Suggested memory review and approve/reject loop." />
+          <HandoffLink href="/memories" title="Memories" detail="Saved memory feed, profile summary, and correction entry points." />
+          <HandoffLink href="/evidence" title="Evidence" detail="Recall tester, traces, and evidence ledger." />
+          <HandoffLink href="/privacy" title="Privacy" detail="Export, private mode, and deletion request controls." />
+          <HandoffLink href="/developer" title="Developer" detail="Project selector, API-key test path, and eval comparison controls." />
+          <HandoffLink href="/billing" title="Billing" detail="Usage meters, beta plan state, and no-surprise-billing copy." />
+          <HandoffLink href="/settings" title="Settings" detail="Session controls, vault settings, and preferences shell." />
+        </div>
+      </DataCard>
+    </div>
   );
 }
 
-function Metric({ label, value }: { label: string; value: number | string }) {
+function SignedOutHome() {
   return (
-    <div className="metric">
+    <div className="overviewGrid">
+      <DataCard title="Before setup" description="Lore needs a signed-in account and private vault before customer workflows are available.">
+        <div className="overviewRows">
+          <OverviewRow label="Session" value="Not signed in" meta="Use Google sign-in to create or load your vault." />
+          <OverviewRow label="Data boundary" value="Preview data gated" meta="Production hides preview data unless explicitly enabled." />
+          <OverviewRow label="Proxy" value="/api/lore/*" meta="Session cookies and CSRF continue through the dashboard proxy." />
+        </div>
+      </DataCard>
+      <EmptyState
+        title="Connect after sign-in"
+        description="Apps, sources, inbox, memories, evidence, privacy, billing, and settings remain separate customer routes."
+      />
+    </div>
+  );
+}
+
+function OverviewRow({ label, value, meta }: { label: string; value: string; meta: string }) {
+  return (
+    <div className="overviewRow">
       <span>{label}</span>
       <strong>{value}</strong>
+      <small>{meta}</small>
     </div>
   );
 }
 
-function MetricPill({ label, value, tone }: { label: string; value: string; tone: "ok" | "warn" | "risk" }) {
+function HandoffLink({ href, title, detail }: { href: string; title: string; detail: string }) {
   return (
-    <span className={`metricPill ${tone}`}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </span>
+    <a className="handoffLink" href={href}>
+      <strong>{title}</strong>
+      <span>{detail}</span>
+    </a>
   );
 }
 
-function Status({ status, risks }: { status: string; risks: string[] }) {
-  return (
-    <div className="statusCell">
-      <span className={status === "active" || status === "confirmed" ? "pill ok" : "pill"}>{status}</span>
-      {risks.map((risk) => <span className="pill risk" key={risk}>{risk}</span>)}
-    </div>
-  );
+function overviewMetrics(dashboard: DashboardData) {
+  const activeMemories = dashboard.memories.filter((memory) => memory.status === "active" || memory.status === "confirmed").length;
+  const reviewMemories = dashboard.memories.filter((memory) => memory.status === "candidate").length;
+  const warningCount = dashboard.traces.reduce((total, trace) => total + trace.warnings.length, 0);
+  const recall = dashboard.evalRuns[0]?.metrics.recallAt5;
+
+  return [
+    {
+      label: "Saved memories",
+      value: activeMemories,
+      detail: `${dashboard.memories.length} total in this project`,
+      trend: activeMemories > 0 ? "Ready" : "Empty",
+      tone: activeMemories > 0 ? "ok" as const : "neutral" as const
+    },
+    {
+      label: "Needs review",
+      value: reviewMemories,
+      detail: "Candidate memories awaiting a decision",
+      trend: reviewMemories > 0 ? "Action" : "Clear",
+      tone: reviewMemories > 0 ? "warn" as const : "ok" as const
+    },
+    {
+      label: "Recent traces",
+      value: dashboard.traces.length,
+      detail: `${warningCount} warning${warningCount === 1 ? "" : "s"} across recent recalls`,
+      trend: warningCount > 0 ? "Review" : "Stable",
+      tone: warningCount > 0 ? "warn" as const : "neutral" as const
+    },
+    {
+      label: "Recall@5",
+      value: recall === undefined ? "n/a" : percent(recall),
+      detail: "Latest retrieval eval signal",
+      trend: recall === undefined ? "No runs" : "Measured",
+      tone: recall === undefined ? "neutral" as const : recall >= 0.8 ? "ok" as const : "warn" as const
+    }
+  ];
 }
 
-function LedgerSummary({ ledger }: { ledger?: EvidenceLedger }) {
-  if (!ledger) {
-    return <small>No ledger yet</small>;
-  }
+function onboardingSteps(data: CustomerOverviewData, signedIn: boolean) {
+  const hasMemories = data.dashboard.memories.length > 0;
+  const hasReview = data.dashboard.memories.some((memory) => memory.status === "candidate");
+  const hasTrace = data.dashboard.traces.length > 0;
+  const serviceReady = data.dashboard.health === "ok";
 
-  const riskyRows = ledger.rows.filter((row) => row.riskTags.length > 0 || row.disposition === "blocked" || row.disposition === "missing").length;
-  return (
-    <div className="evidenceSummary">
-      <span className="metricPill ok"><span>used</span><strong>{ledger.summary.composed}</strong></span>
-      <span className={ledger.summary.ignored > 0 ? "metricPill warn" : "metricPill ok"}><span>ignored</span><strong>{ledger.summary.ignored}</strong></span>
-      <span className={ledger.summary.warnings > 0 || riskyRows > 0 ? "metricPill risk" : "metricPill ok"}><span>risk</span><strong>{ledger.summary.warnings + riskyRows}</strong></span>
-      {ledger.rows.slice(0, 2).map((row) => (
-        <small key={`${row.memoryId}-${row.disposition}`}>{row.disposition}: {row.contentPreview}</small>
-      ))}
-    </div>
-  );
+  return [
+    {
+      id: "signin",
+      title: "Sign in and create a private vault",
+      detail: signedIn ? `${accountLabel(data.session)} is connected to ${data.session?.vault.name}.` : "Google sign-in is required before Lore can create a private vault.",
+      state: signedIn ? "done" as const : "current" as const,
+      tone: signedIn ? "ok" as const : "warn" as const,
+      action: "Sign in"
+    },
+    {
+      id: "connect",
+      title: "Connect an AI app",
+      detail: hasMemories || hasTrace ? "At least one app has produced memory or recall activity." : "Use the Apps route to pair an AI app without exposing admin credentials.",
+      state: hasMemories || hasTrace ? "done" as const : signedIn ? "current" as const : "queued" as const,
+      tone: hasMemories || hasTrace ? "ok" as const : "warn" as const,
+      href: "/apps",
+      action: "Open Apps"
+    },
+    {
+      id: "review",
+      title: "Review suggested memory",
+      detail: hasReview ? "Candidate memory is waiting in the review workflow." : hasMemories ? "Memory exists. Use Inbox or Memories for detailed review." : "Approve, edit, or reject suggested memory before relying on it.",
+      state: hasMemories ? "done" as const : signedIn ? "queued" as const : "queued" as const,
+      tone: hasReview ? "warn" as const : hasMemories ? "ok" as const : "neutral" as const,
+      href: hasReview ? "/inbox" : "/memories",
+      action: hasReview ? "Open Inbox" : "Open Memories"
+    },
+    {
+      id: "recall",
+      title: "Verify recall with evidence",
+      detail: hasTrace ? "Recent recall traces are available for evidence review." : "Use Evidence to inspect why memory was or was not used.",
+      state: hasTrace ? "done" as const : hasMemories ? "current" as const : "queued" as const,
+      tone: hasTrace ? "ok" as const : serviceReady ? "neutral" as const : "warn" as const,
+      href: "/evidence",
+      action: "Open Evidence"
+    }
+  ];
 }
 
-function EmptyRow({ span, label }: { span: number; label: string }) {
-  return <tr><td className="empty" colSpan={span}>{label}</td></tr>;
+function recentActivity(dashboard: DashboardData): ActivityItem[] {
+  const memoryItems = dashboard.memories.slice(0, 2).map((memory) => ({
+    id: `memory-${memory.id}`,
+    label: "Memory updated",
+    detail: memory.content,
+    meta: `${memory.status} · ${formatDate(memory.updatedAt)}`,
+    tone: memory.riskTags.length > 0 ? "warn" as const : "ok" as const
+  }));
+  const traceItems = dashboard.traces.slice(0, 2).map((trace) => ({
+    id: `trace-${trace.id}`,
+    label: "Recall trace",
+    detail: trace.query,
+    meta: `${trace.tokensUsed}/${trace.tokenBudget} tokens · ${formatDate(trace.createdAt)}`,
+    tone: trace.warnings.length > 0 ? "warn" as const : "neutral" as const
+  }));
+  return [...memoryItems, ...traceItems].slice(0, 5);
+}
+
+const emptyDashboard: DashboardData = {
+  health: "error",
+  agentmemory: "unknown",
+  memories: [],
+  traces: [],
+  ledgers: [],
+  evalRuns: [],
+  auditLogs: []
+};
+
+function accountLabel(session: UserSession | null) {
+  return session?.account.displayName ?? session?.account.email ?? "No account";
+}
+
+function overviewLabel(state: OverviewState["state"]) {
+  if (state === "loading") return "Loading";
+  if (state === "success") return "Live data";
+  if (state === "empty") return "No activity";
+  if (state === "unauthorized") return "Unauthorized";
+  if (state === "config-missing") return "Config missing";
+  return "Error";
+}
+
+function stepLabel(state: "done" | "current" | "queued") {
+  if (state === "done") return "Done";
+  if (state === "current") return "Now";
+  return "Queued";
 }
 
 function percent(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
-function qualityTone(value: number): "ok" | "warn" | "risk" {
-  if (value >= 0.8) {
-    return "ok";
-  }
-  if (value >= 0.5) {
-    return "warn";
-  }
-  return "risk";
-}
-
-function staleTone(value: number): "risk" | "warn" | "ok" {
-  if (value >= 0.3) {
-    return "risk";
-  }
-  if (value >= 0.15) {
-    return "warn";
-  }
-  return "ok";
-}
-
-function latencyTone(value: number): "risk" | "warn" | "ok" {
-  if (value > 120) {
-    return "risk";
-  }
-  if (value > 60) {
-    return "warn";
-  }
-  return "ok";
-}
-
-function feedbackToneClass(feedback: TraceFeedback): "ok" | "warn" | "risk" {
-  if (feedback === "useful") {
-    return "ok";
-  }
-  if (feedback === "outdated") {
-    return "warn";
-  }
-  return "risk";
-}
-
-function evalVerdict(run: EvalRun) {
-  const score = scoreEval(run);
-  if (score >= 230) {
-    return "strong retrieval fit";
-  }
-  if (score >= 170) {
-    return "usable with review";
-  }
-  return "needs tuning";
-}
-
-function scoreEval(run: EvalRun) {
-  return Math.round(
-    run.metrics.recallAt5 * 100
-      + run.metrics.precisionAt5 * 80
-      + run.metrics.mrr * 70
-      - run.metrics.staleHitRate * 90
-      - run.metrics.p95LatencyMs / 6
-  );
-}
-
-function describeMemoryAction(mode: MemoryActionMode) {
-  if (mode === "edit") {
-    return {
-      title: "Edit memory text",
-      hint: "Use in-place edits for small factual corrections without changing the memory lineage.",
-      submitLabel: "Save Edit",
-      reasonPlaceholder: ""
-    };
-  }
-  if (mode === "supersede") {
-    return {
-      title: "Supersede with a new version",
-      hint: "Create a new durable record when the fact changed and keep the previous memory as historical context.",
-      submitLabel: "Create Successor",
-      reasonPlaceholder: "why this memory changed"
-    };
-  }
-  if (mode === "reject") {
-    return {
-      title: "Reject review item",
-      hint: "Candidate memories are soft-deleted on rejection, so capture why they should not become durable context.",
-      submitLabel: "Reject Memory",
-      reasonPlaceholder: "why this should not be kept"
-    };
-  }
-  return {
-    title: "Soft forget memory",
-    hint: "Soft forget marks the memory deleted without hard-removing it from the audit trail.",
-    submitLabel: "Soft Forget",
-    reasonPlaceholder: "why this should be retired"
-  };
-}
-
 function formatDate(value?: string | null) {
-  if (!value) {
-    return "n/a";
-  }
-  return new Date(value).toLocaleString();
+  if (!value) return "not recorded";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-function errorMessage(value: unknown) {
-  if (value instanceof Error) {
-    return value.message;
-  }
-  return JSON.stringify(value, null, 2);
+function readCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const prefix = `${name}=`;
+  return document.cookie.split("; ").find((item) => item.startsWith(prefix))?.slice(prefix.length);
 }

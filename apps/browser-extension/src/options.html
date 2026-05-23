@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Lore Settings</title>
+  <style>
+    body { padding: 20px; font-family: sans-serif; max-width: 640px; margin: 0 auto; color: #111827; }
+    h1 { color: #2563eb; }
+    .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .field { margin-bottom: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input[type="text"] { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+    .hint { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    button { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; background: #fff; cursor: pointer; }
+    button.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    button.danger { color: #b91c1c; border-color: #fecaca; }
+    code { background: #f3f4f6; padding: 2px 4px; border-radius: 3px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Lore Settings</h1>
+
+  <div class="section">
+    <h2>Connection</h2>
+    <div class="field">
+      <label>Vault ID</label>
+      <input type="text" id="vault-id" placeholder="vault_...">
+      <div class="hint">The vault where captured memories will be stored.</div>
+    </div>
+    <div class="field">
+      <label>API Endpoint</label>
+      <input type="text" id="api-endpoint" placeholder="https://api.lorecontext.com">
+      <div class="hint">Cloud ingestion endpoint. Defaults to <code>https://api.lorecontext.com</code>.</div>
+    </div>
+    <div class="field">
+      <label>Device Token</label>
+      <div class="row">
+        <code id="device-token-status">Not paired</code>
+        <button id="clear-token-btn" class="danger">Forget Token</button>
+      </div>
+      <div class="hint">Tokens are stored locally and never logged. Re-pair from the dashboard if you forget.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Privacy</h2>
+    <div class="field">
+      <label>
+        <input type="checkbox" id="private-mode-default"> Enable Private Mode globally
+      </label>
+      <div class="hint">When private, no captures are persisted regardless of per-domain authorization.</div>
+    </div>
+    <div class="field">
+      <label>
+        <input type="checkbox" id="raw-archive"> Enable Raw Archive (opt-in)
+      </label>
+      <div class="hint">By default Lore uploads only summaries. Enabling this allows full transcripts. Use only when your vault plan permits raw archive.</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="save-btn" class="primary">Save Settings</button>
+    <button id="reset-btn" class="danger">Reset Extension</button>
+    <span id="save-status"></span>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+{
+  "sum(rate(lore_middleware_inject_skip_total{vault=\"internal-default\",reason!=\"mode_disabled\"}[24h])) / sum(rate(lore_middleware_inject_total{vault=\"internal-default\"}[24h]))": 0.024,
+  "max_over_time(histogram_quantile(0.99, sum(rate(lore_middleware_inject_latency_ms_bucket{vault=\"internal-default\"}[5m])) by (le))[24h:5m])": 312
+}

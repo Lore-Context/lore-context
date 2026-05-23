@@ -1,15 +1,17 @@
 {
   "name": "@lore/dashboard",
-  "version": "0.6.0-alpha.0",
+  "version": "1.5.0-beta",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "smoke:routes": "node scripts/route-smoke.mjs",
+    "test": "vitest run tests",
     "start": "next start"
   },
   "dependencies": {
-    "next": "^16.2.4",
+    "next": "^16.2.6",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },

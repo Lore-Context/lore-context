@@ -1,0 +1,12 @@
+title = "Lore Context public repository gitleaks config"
+
+[allowlist]
+description = "Public OSS fixtures and release metadata with documented false positives"
+paths = [
+  '''(^|/)tests?/.*''',
+  '''(^|/)__tests__/.*''',
+  '''^packages/.*/tests?/.*''',
+  '''^CHANGELOG\.md$''',
+  '''^apps/website/src/pricing-tiers\.json$''',
+  '''^docs/i18n/.*/integrations\.md$''',
+]

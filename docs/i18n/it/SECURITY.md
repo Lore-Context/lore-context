@@ -160,5 +160,5 @@ Elementi pianificati per i rilasci successivi:
   analisi statica CodeQL e dependabot.
 - **v0.6**: immagini container firmate con Sigstore, provenienza SLSA, pubblicazione npm tramite
   GitHub OIDC invece di token di lunga durata.
-- **v0.7**: crittografia at-rest per il contenuto della memoria con flag `risk_tags` tramite
+- **Future hosted hardening**: crittografia at-rest per il contenuto della memoria con flag `risk_tags` tramite
   crittografia a busta KMS.

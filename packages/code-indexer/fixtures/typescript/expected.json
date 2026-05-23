@@ -1,0 +1,34 @@
+{
+  "file": "sample.ts",
+  "language": "typescript",
+  "description": "Hand-labeled expected symbols for Lane M recall measurement. 17 symbols, 3 call_sites.",
+  "symbols": [
+    { "name": "Vault", "qualified_name": "Vault", "kind": "interface", "is_exported": true },
+    { "name": "SymbolKind", "qualified_name": "SymbolKind", "kind": "type", "is_exported": true },
+    { "name": "LogLevel", "qualified_name": "LogLevel", "kind": "enum", "is_exported": true },
+    { "name": "DEFAULT_PAGE_SIZE", "qualified_name": "DEFAULT_PAGE_SIZE", "kind": "const", "is_exported": false, "note": "walker.ts marks module-level consts as not-exported; acceptable" },
+    { "name": "BaseRepository", "qualified_name": "BaseRepository", "kind": "interface", "is_exported": true },
+    { "name": "VaultRepository", "qualified_name": "VaultRepository", "kind": "class", "is_exported": true },
+    { "name": "findById", "qualified_name": "VaultRepository.findById", "kind": "method", "is_exported": false },
+    { "name": "findAll", "qualified_name": "VaultRepository.findAll", "kind": "method", "is_exported": false },
+    { "name": "save", "qualified_name": "VaultRepository.save", "kind": "method", "is_exported": false },
+    { "name": "delete", "qualified_name": "VaultRepository.delete", "kind": "method", "is_exported": false },
+    { "name": "VaultService", "qualified_name": "VaultService", "kind": "class", "is_exported": true },
+    { "name": "getVault", "qualified_name": "VaultService.getVault", "kind": "method", "is_exported": false },
+    { "name": "listVaults", "qualified_name": "VaultService.listVaults", "kind": "method", "is_exported": false },
+    { "name": "createVault", "qualified_name": "VaultService.createVault", "kind": "method", "is_exported": false },
+    { "name": "removeVault", "qualified_name": "VaultService.removeVault", "kind": "method", "is_exported": false },
+    { "name": "paginate", "qualified_name": "paginate", "kind": "function", "is_exported": true },
+    { "name": "formatVaultName", "qualified_name": "formatVaultName", "kind": "function", "is_exported": true }
+  ],
+  "call_sites": [
+    { "src": "VaultService.getVault", "dst": "VaultRepository.findById", "kind": "calls", "note": "same-file resolution: repo.findById → VaultRepository.findById" },
+    { "src": "VaultService.listVaults", "dst": "VaultRepository.findAll", "kind": "calls", "note": "same-file resolution" },
+    { "src": "VaultService.createVault", "dst": "VaultRepository.save", "kind": "calls", "note": "same-file resolution" }
+  ],
+  "notes": [
+    "constructor is NOT extracted as a named symbol by walker.ts (it uses childForFieldName('name') which returns null for constructors in class bodies)",
+    "DEFAULT_PAGE_SIZE is_exported=false is an acceptable limitation per walker.ts design",
+    "Call resolution precision: same-file method calls on 'this.repo' should resolve to VaultRepository.method"
+  ]
+}
