@@ -1658,15 +1658,6 @@ function notFoundPage() {
 `;
 }
 
-function cleanUrlRedirects(files) {
-  const lines = [];
-  for (const path of [...files.keys()].sort()) {
-    if (!path.endsWith(".html") || path === "index.html" || path === "404.html" || path.endsWith("/index.html")) continue;
-    lines.push(`/${path.slice(0, -".html".length)} /${path} 200`);
-  }
-  return `${lines.join("\n")}\n`;
-}
-
 function cloudflareHeaders() {
   return `/*
   X-Content-Type-Options: nosniff
@@ -2353,7 +2344,6 @@ export function generateSiteFiles() {
     files.set(`${locale}/index.html`, homePage(locale));
     for (const slug of pageSlugs) files.set(`${locale}/${slug}.html`, infoPage(locale, slug));
   }
-  files.set("_redirects", cleanUrlRedirects(files));
   return files;
 }
 

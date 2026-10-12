@@ -132,7 +132,7 @@ const launchPageCount = 4;
 // v1.0 layer: pricing, download, compare, sitemap are net-new (not in pageSlugs).
 // company, contact, terms, cookies, docs, privacy, status override pageSlugs entries.
 const v10NetNewTopLevel = 4;
-const expectedFileCount = 6 + launchPageCount + pageSlugs.length + v10NetNewTopLevel + staticAssetPaths.length + localeCodes.length * (1 + pageSlugs.length) + 2;
+const expectedFileCount = 6 + launchPageCount + pageSlugs.length + v10NetNewTopLevel + staticAssetPaths.length + localeCodes.length * (1 + pageSlugs.length) + 1;
 if (files.size !== expectedFileCount) {
   failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
 }
@@ -236,12 +236,8 @@ for (const [path, contents] of files) {
     failures.push(`${path} still links to a retired host`);
   }
 }
-const redirects = files.get("_redirects") ?? "";
-if (redirects.includes("/*") || redirects.includes("/index.html 200")) {
-  failures.push("_redirects must not fall unknown paths back to the homepage");
-}
-if (!redirects.includes("/docs /docs.html 200")) {
-  failures.push("_redirects missing clean URL for /docs");
+if (files.has("_redirects")) {
+  failures.push("_redirects must not be generated; Pages already maps /docs to docs.html, and a 200 rewrite back to the html file loops");
 }
 
 // v1.2 consumer surface — required content checks. The locale-prefixed v0.6
