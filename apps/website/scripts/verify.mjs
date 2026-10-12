@@ -132,7 +132,7 @@ const launchPageCount = 4;
 // v1.0 layer: pricing, download, compare, sitemap are net-new (not in pageSlugs).
 // company, contact, terms, cookies, docs, privacy, status override pageSlugs entries.
 const v10NetNewTopLevel = 4;
-const expectedFileCount = 6 + launchPageCount + pageSlugs.length + v10NetNewTopLevel + staticAssetPaths.length + localeCodes.length * (1 + pageSlugs.length);
+const expectedFileCount = 6 + launchPageCount + pageSlugs.length + v10NetNewTopLevel + staticAssetPaths.length + localeCodes.length * (1 + pageSlugs.length) + 1;
 if (files.size !== expectedFileCount) {
   failures.push(`Expected ${expectedFileCount} generated files, got ${files.size}.`);
 }
@@ -224,9 +224,20 @@ for (const path of [
   "download.html",
   "compare.html",
   "sitemap.html",
-  ...pageSlugs.map((slug) => `${slug}.html`)
+  ...pageSlugs.map((slug) => `${slug}.html`),
+  "404.html"
 ]) {
   if (!files.has(path)) failures.push(`Missing release file: ${path}`);
+}
+
+for (const [path, contents] of files) {
+  if (typeof contents !== "string") continue;
+  if (contents.includes("app.lorecontext.com") || contents.includes("api.lorecontext.com")) {
+    failures.push(`${path} still links to a retired host`);
+  }
+}
+if (files.has("_redirects")) {
+  failures.push("_redirects must not be generated; Pages already maps /docs to docs.html, and a 200 rewrite back to the html file loops");
 }
 
 // v1.2 consumer surface — required content checks. The locale-prefixed v0.6
@@ -234,7 +245,8 @@ for (const path of [
 // only validate the new English-canonical top-level pages.
 const v10HomeMarkers = [
   '<h1 aria-label="All your AI agents. One shared memory."><span>All your AI agents.</span><span>One shared memory.</span></h1>',
-  ">Continue with Google<",
+  "The hosted service is offline.",
+  ">View source<",
   "A memory company for AI agents.",
   "Developer quickstart",
   'href="/docs.html#api"',
@@ -250,12 +262,6 @@ const v10HomeMarkers = [
 ];
 requireTexts("index.html", files.get("index.html") ?? "", v10HomeMarkers);
 
-const appAuthStartHref = "https://app.lorecontext.com/api/lore/auth/google/start";
-const allowedAppHrefs = new Set([
-  "https://app.lorecontext.com/",
-  appAuthStartHref
-]);
-
 const v10PricingMarkers = ["v1.2 / PRICING", "$9.99/mo", "$19.99/mo", "$99.99/mo", "Enterprise", "Plan matrix", "FAQ", "invite-gated", "add memories", "retrieve memories", "Overage is opt-in"];
 requireTexts("pricing.html", files.get("pricing.html") ?? "", v10PricingMarkers);
 requireAbsentTexts("pricing.html", files.get("pricing.html") ?? "", ["$2.99/mo", "$7.99/mo", "Daily memory API use, temporal graph"]);
@@ -263,10 +269,10 @@ requireAbsentTexts("pricing.html", files.get("pricing.html") ?? "", ["$2.99/mo",
 const v10PrivacyMarkers = ["v1.2 / PRIVACY", "summarizes by default", "Pause and private mode", "Authorized sources only", "Summary-only default"];
 requireTexts("privacy.html", files.get("privacy.html") ?? "", v10PrivacyMarkers);
 
-const v10DownloadMarkers = ["v1.2 / GOOGLE ACCESS", "Sign in, then connect your first source.", "Continue with Google", "lore connect", "Chrome MV3"];
+const v10DownloadMarkers = ["v1.2 / ACCESS", "The hosted service is offline.", "View source", "lore connect", "Chrome MV3"];
 requireTexts("download.html", files.get("download.html") ?? "", v10DownloadMarkers);
 
-const v10DocsMarkers = ["v1.2 / DOCS", "Sign in with Google", "Memory Inbox", "Evidence Ledger", "lore connect", "REST API and OpenAPI", "SDK/package status", "MCP server", "Default tools", "Advanced support tools", "LORE_MCP_ADVANCED_TOOLS=1", "x-lore-mcp-advanced: 1", "memory.recall", "evidence.trace_get", "POST /v1/context/query", "@lore-context/server@1.0.0-rc.2", '/en/docs.html'];
+const v10DocsMarkers = ["v1.2 / DOCS", "Hosted sign-in is offline", "Memory Inbox", "Evidence Ledger", "lore connect", "REST API and OpenAPI", "SDK/package status", "MCP server", "Default tools", "Advanced support tools", "LORE_MCP_ADVANCED_TOOLS=1", "x-lore-mcp-advanced: 1", "memory.recall", "evidence.trace_get", "POST /v1/context/query", "@lore-context/server@1.0.0-rc.2", '/en/docs.html'];
 requireTexts("docs.html", files.get("docs.html") ?? "", v10DocsMarkers);
 
 const v10StatusMarkers = [
@@ -341,7 +347,7 @@ for (const path of v10MarketingPages) {
     'href="/pricing.html"',
     'href="/status.html"',
     'href="/compare.html"',
-    `href="${appAuthStartHref}"`
+    'href="https://github.com/Lore-Context/lore-context"'
   ]);
   requireAbsentTexts(path, html, [">Try in 10 minutes"]);
   if (path !== "sitemap.html") {
@@ -462,21 +468,25 @@ for (const [path, html] of files) {
 for (const [path, html] of files) {
   if (!path.endsWith(".html")) continue;
 
-  requireTexts(path, html, [
-    '<meta name="description"',
-    'rel="canonical"',
-    'property="og:type" content="website"',
-    'property="og:site_name" content="Lore Context"',
-    'property="og:title"',
-    'property="og:description"',
-    'property="og:url"',
-    'name="twitter:card" content="summary"',
-    'name="twitter:title"',
-    'name="twitter:description"'
-  ]);
+  if (path !== "404.html") {
+    requireTexts(path, html, [
+      '<meta name="description"',
+      'rel="canonical"',
+      'property="og:type" content="website"',
+      'property="og:site_name" content="Lore Context"',
+      'property="og:title"',
+      'property="og:description"',
+      'property="og:url"',
+      'name="twitter:card" content="summary"',
+      'name="twitter:title"',
+      'name="twitter:description"'
+    ]);
 
-  if (!html.includes("redland2024@gmail.com")) {
-    failures.push(`${path} must keep the canonical REDLAND contact email.`);
+    if (!html.includes("redland2024@gmail.com")) {
+      failures.push(`${path} must keep the canonical REDLAND contact email.`);
+    }
+  } else if (!html.includes("Not found.")) {
+    failures.push("404.html must be a short not-found page");
   }
 
   if (/support@lorecontext\.com|security@lorecontext\.com|privacy@lorecontext\.com/.test(html)) {
@@ -567,7 +577,6 @@ function validateHref(currentPath, tag, href, idIndex) {
   const target = resolveHref(currentPath, href);
   if (!target) {
     if (href.startsWith("https://github.com/") && /rel=["'][^"']*noreferrer/i.test(tag)) return;
-    if (href.startsWith("https://app.lorecontext.com/") && /rel=["'][^"']*noreferrer/i.test(tag) && allowedAppHrefs.has(href)) return;
     if (href.startsWith("https://www.npmjs.com/package/@lore-context/") && /rel=["'][^"']*noreferrer/i.test(tag)) return;
     if (href.startsWith("https://pypi.org/project/lore-context-middleware") && /rel=["'][^"']*noreferrer/i.test(tag)) return;
     failures.push(`${currentPath} has unapproved external href: ${href}`);
