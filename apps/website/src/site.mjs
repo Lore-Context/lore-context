@@ -1285,8 +1285,7 @@ function standalonePage({ path, title, description, body, v10Chrome = false }) {
         ["/en/docs.html", "Docs"]
       ];
   const navActions = v10Chrome
-    ? `<a class="button secondary" href="https://app.lorecontext.com/" rel="noreferrer">Sign in</a>
-          <a class="button primary" href="https://app.lorecontext.com/api/lore/auth/google/start" rel="noreferrer">Continue with Google →</a>`
+    ? `<a class="button secondary" href="${githubUrl}" rel="noreferrer">View source</a>`
     : `<a class="button secondary" href="${githubUrl}" rel="noreferrer">GitHub ↗</a>
           <a class="button primary" href="/quickstart/">Try in 10 minutes →</a>`;
   return `<!doctype html>
@@ -1642,6 +1641,32 @@ ${urls.map((url) => `  <url><loc>${rootUrl}${url || "/"}</loc></url>`).join("\n"
 	`;
 }
 
+function notFoundPage() {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Not found</title>
+  <meta name="robots" content="noindex" />
+</head>
+<body>
+  <p>Not found.</p>
+  <p><a href="/">Lore Context</a></p>
+</body>
+</html>
+`;
+}
+
+function cleanUrlRedirects(files) {
+  const lines = [];
+  for (const path of [...files.keys()].sort()) {
+    if (!path.endsWith(".html") || path === "index.html" || path === "404.html" || path.endsWith("/index.html")) continue;
+    lines.push(`/${path.slice(0, -".html".length)} /${path} 200`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
 function cloudflareHeaders() {
   return `/*
   X-Content-Type-Options: nosniff
@@ -1800,11 +1825,11 @@ function v10HomePage() {
         <div>
           <span class="section-num">04 / GET STARTED</span>
           <h2>Bring your agents. Lore brings the memory.</h2>
-          <p>Request beta access to claim a personal vault. Invited users then sign in with Google and connect a browser extension or agent bridge.</p>
-          <div class="hero-actions"><a class="button primary large" href="/download.html" data-v10-cta="beta-secondary">Request beta access</a><a class="button secondary" href="/privacy.html">Read the privacy policy</a></div>
+          <p>The hosted service is offline. The open-source build still runs locally.</p>
+          <div class="hero-actions"><a class="button primary large" href="/download.html" data-v10-cta="beta-secondary">Hosted beta is offline</a><a class="button secondary" href="/privacy.html">Read the privacy policy</a></div>
         </div>
         <pre class="terminal" aria-label="lore status preview">$ lore status
-cloud URL: configured (https://api.lorecontext.com)
+cloud URL: offline
 device id: dev_local · vault: personal
 captured today: 12 · pending review: 3
 last upload: 14s ago · last error: none
@@ -1866,7 +1891,7 @@ function v10PricingPage() {
           <strong>${escapeHtml(plan.name)}</strong>
           <p>${escapeHtml(plan.addMemories)} add memories / month · ${escapeHtml(plan.retrieveMemories)} retrieve memories / month · ${escapeHtml(plan.agents)} connected agents.</p>
           <p>${escapeHtml(plan.history)} · ${escapeHtml(plan.scope)} · ${escapeHtml(plan.note)}</p>
-          <p><a class="inline-link" href="/download.html">Join beta →</a></p>
+          <p><a class="inline-link" href="/download.html">Hosted beta is offline →</a></p>
         </article>`).join("");
   const matrix = [
     ["Users and vaults", "1 user / 1 vault", "1 user / 1 vault", "1 user / 1 vault", "1 user / 1 vault", "Team vaults by design review"],
@@ -1953,18 +1978,18 @@ function v10PrivacyPage() {
 function v10DownloadPage() {
   return v10Page({
     slug: "download",
-    title: "Continue with Google",
-    description: "Sign in to Lore with Google, then connect the browser extension or agent bridge from your dashboard.",
+    title: "Hosted access is offline",
+    description: "The Lore hosted beta is offline. The open-source repository remains available.",
     body: `<section class="section page"><div class="shell article">
       ${v10NavBar("/download.html")}
-      <span class="section-num">v1.2 / GOOGLE ACCESS</span>
-      <h1>Sign in, then connect your first source.</h1>
-      <p class="lead">Start from the Lore dashboard. Google sign-in creates your vault; the dashboard then guides browser capture and desktop-agent pairing.</p>
+      <span class="section-num">v1.2 / ACCESS</span>
+      <h1>The hosted service is offline.</h1>
+      <p class="lead">Google sign-in and the dashboard are no longer running. This marketing site stays up, and the open-source code remains on GitHub.</p>
       <div class="doc-grid" data-v10-downloads>
         <article class="doc-card" data-source="browser">
           <span>BROWSER EXTENSION</span>
           <strong>Chrome MV3 beta</strong>
-          <p>Browser capture is beta and distribution-gated. Invited users can follow dashboard instructions for authorized conversations; pause and private mode remain visible controls.</p>
+          <p>Browser capture in the open-source tree is beta. The hosted dashboard that distributed it is offline.</p>
           <p><a class="inline-link" href="/docs.html#browser">Install instructions →</a></p>
         </article>
         <article class="doc-card" data-source="bridge">
@@ -1974,13 +1999,13 @@ function v10DownloadPage() {
           <p><a class="inline-link" href="/docs.html#bridge">CLI quickstart →</a></p>
         </article>
         <article class="doc-card" data-source="signin">
-          <span>SIGN IN</span>
-          <strong>Continue with Google</strong>
-          <p>Google sign-in uses email and profile only. Drive scopes are requested separately when you connect Drive — never during sign-in.</p>
-          <p><a class="button primary" href="https://app.lorecontext.com/api/lore/auth/google/start" rel="noreferrer">Continue with Google</a></p>
+          <span>SOURCE</span>
+          <strong>Public repository</strong>
+          <p>Clone the repository for the local open-source build. There is no hosted sign-in.</p>
+          <p><a class="button primary" href="${githubUrl}" rel="noreferrer">View source</a></p>
         </article>
       </div>
-      <p class="notice">Capacity may be guided during beta, but the product entry is Google sign-in and the user dashboard.</p>
+      <p class="notice">The hosted beta is offline. The retired API and app hostnames no longer serve this product.</p>
     </div></section>`
   });
 }
@@ -1996,7 +2021,7 @@ function v10DocsPage() {
       <h1>Connect, capture, recall — in plain language.</h1>
       <p class="lead">Public-facing docs cover the hosted beta flow, the REST API, the MCP server, and the current SDK/package boundary. Every example below points at repo-backed routes or package commands.</p>
       <div class="doc-grid" data-v10-docs>
-        <article class="doc-card" id="signin"><span>SIGN IN</span><strong>Sign in with Google</strong><p>Google Identity Services for invited users. Server-side OIDC validation. Personal vault is created on first login.</p></article>
+        <article class="doc-card" id="signin"><span>SIGN IN</span><strong>Hosted sign-in is offline</strong><p>The hosted beta and Google sign-in are offline. Use the public repository for the local open-source build.</p><p><a class="inline-link" href="${githubUrl}" rel="noreferrer">View source →</a></p></article>
         <article class="doc-card" id="bridge"><span>BRIDGE</span><strong>lore connect</strong><p>Generates a one-time install token; supports Claude Code, Codex, Cursor, OpenCode. macOS Keychain stores the device token.</p></article>
         <article class="doc-card" id="browser"><span>EXTENSION</span><strong>Chrome MV3 beta</strong><p>Distribution-gated browser capture with per-domain authorization, pause/private mode, summary preview, and no raw transcript by default.</p></article>
         <article class="doc-card" id="inbox"><span>INBOX</span><strong>Memory Inbox</strong><p>States: pending, approved, rejected, edited, duplicate, stale, sensitive, conflict, source-paused, deleted. Every action is audited.</p></article>
@@ -2006,7 +2031,7 @@ function v10DocsPage() {
       </div>
       <div class="info-panel" id="quickstart">
         <h2>Quickstart</h2>
-        <p>For hosted beta users, start in the app, then generate a connection token from the dashboard. For local operators, the public source path remains clone plus quickstart.</p>
+        <p>The hosted service is offline. Local operators still use the public source path: clone, then quickstart.</p>
         <pre class="code-block"><code>git clone https://github.com/Lore-Context/lore-context
 cd lore-context
 pnpm install
@@ -2017,7 +2042,7 @@ pnpm smoke:mcp</code></pre>
       <div class="info-panel" id="api">
         <h2>REST API and OpenAPI</h2>
         <p>The canonical read path is <code>POST /v1/context/query</code>. Memory write, search, list, forget, export/import, governance, traces, Evidence Ledger, eval, cloud device pairing, connectors, source pause/resume, usage, and Memory Inbox routes are listed in <a class="inline-link" href="/en/docs.html">the full API reference</a> and <code>/openapi.json</code>.</p>
-        <pre class="code-block"><code>export API=https://api.lorecontext.com
+        <pre class="code-block"><code>export API=http://127.0.0.1:3000
 export AUTH="Authorization: Bearer $LORE_API_KEY"
 curl -s "$API/v1/context/query" \
   -H "$AUTH" -H "content-type: application/json" \
@@ -2033,7 +2058,7 @@ npx -y @lore-context/server@1.0.0-rc.2</code></pre>
       <div class="info-panel" id="mcp">
         <h2>MCP server</h2>
         <p>The MCP server proxies tools to a Lore API through <code>LORE_API_URL</code> and forwards <code>LORE_API_KEY</code> as a bearer token. Default tools include <code>context_query</code>, <code>memory.recall</code>, <code>memory.add_candidate</code>, <code>memory.inbox_list</code>, <code>memory_write</code>, <code>memory_search</code>, <code>memory.suggest</code>, <code>source.pause</code>, <code>source.resume</code>, and code-context tools. Advanced support tools such as <code>memory_list</code>, <code>memory_export</code>, <code>eval_run</code>, <code>trace_get</code>, and <code>evidence.trace_get</code> are opt-in through <code>LORE_MCP_ADVANCED_TOOLS=1</code> for stdio or <code>x-lore-mcp-advanced: 1</code> for hosted MCP.</p>
-        <pre class="code-block"><code>LORE_HOSTED_MCP_URL=https://api.lorecontext.com/mcp \
+        <pre class="code-block"><code>LORE_API_URL=http://127.0.0.1:3000 \
 LORE_API_KEY=lct_service_xxx \
 LORE_MCP_TRANSPORT=sdk \
 npx -y @lore-context/server@1.0.0-rc.2
@@ -2293,6 +2318,7 @@ function v10SitemapPage() {
 export function generateSiteFiles() {
   const files = new Map();
   files.set("index.html", v10HomePage());
+  files.set("404.html", notFoundPage());
   files.set("_headers", cloudflareHeaders());
   files.set("robots.txt", robots());
   files.set("sitemap.xml", sitemap());
@@ -2327,6 +2353,7 @@ export function generateSiteFiles() {
     files.set(`${locale}/index.html`, homePage(locale));
     for (const slug of pageSlugs) files.set(`${locale}/${slug}.html`, infoPage(locale, slug));
   }
+  files.set("_redirects", cleanUrlRedirects(files));
   return files;
 }
 

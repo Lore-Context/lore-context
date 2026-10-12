@@ -51,18 +51,32 @@ const server = createServer((request, response) => {
     return;
   }
 
-  const filePath =
+  let filePath =
     existsSync(requested) && statSync(requested).isDirectory()
       ? join(requested, "index.html")
       : requested;
-  const fallback = join(dist, "index.html");
-  const target = existsSync(filePath) && statSync(filePath).isFile() ? filePath : fallback;
+  if (!(existsSync(filePath) && statSync(filePath).isFile()) && !filePath.endsWith(".html")) {
+    const htmlFile = `${filePath}.html`;
+    if (existsSync(htmlFile) && statSync(htmlFile).isFile()) filePath = htmlFile;
+  }
+  if (!(existsSync(filePath) && statSync(filePath).isFile())) {
+    const notFound = join(dist, "404.html");
+    response.statusCode = 404;
+    response.setHeader("content-type", existsSync(notFound) ? "text/html; charset=utf-8" : "text/plain; charset=utf-8");
+    response.setHeader("cache-control", "no-store");
+    if (existsSync(notFound)) {
+      createReadStream(notFound).pipe(response);
+    } else {
+      response.end("not found\n");
+    }
+    return;
+  }
 
-  response.setHeader("content-type", mime.get(extname(target)) ?? "application/octet-stream");
-  createReadStream(target)
+  response.setHeader("content-type", mime.get(extname(filePath)) ?? "application/octet-stream");
+  createReadStream(filePath)
     .on("error", () => {
       response.statusCode = 404;
-      response.end("Not found");
+      response.end("not found\n");
     })
     .pipe(response);
 });

@@ -165,7 +165,7 @@ async function verifyV10Mobile(browser) {
       await assertNoHorizontalOverflow(page, `mobile ${path}`);
     }
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    await page.getByRole("link", { name: "Continue with Google" }).first().waitFor();
+    await page.getByRole("link", { name: "View source" }).first().waitFor();
     await page.getByText("Simple, transparent pricing.", { exact: false }).first().waitFor();
   } finally {
     await context.close();

@@ -1,0 +1,12 @@
+name = "lorecontext-retired-hosts"
+main = "src/index.js"
+compatibility_date = "2026-10-12"
+workers_dev = false
+
+[[routes]]
+pattern = "api.lorecontext.com/*"
+zone_name = "lorecontext.com"
+
+[[routes]]
+pattern = "app.lorecontext.com/*"
+zone_name = "lorecontext.com"
